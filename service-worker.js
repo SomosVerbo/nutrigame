@@ -1,4 +1,4 @@
-const CACHE_NAME = "nutrigame-cache-v39";
+const CACHE_NAME = "nutrigame-cache-v40";
 const CLINIC = ["floor","floor_rose","floor_blue","wall","wall_base","wall_window","wall_v","wall_h","plant","desk","bed",
   "chair","cabinet","cooler","rug","screen","poster","clock",
   "ivstand","cart","sidetable","curtain","locker","bench","trash",
