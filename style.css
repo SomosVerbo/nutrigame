@@ -1,0 +1,2574 @@
+@font-face {
+  font-family: 'Merienda';
+  src: url('fonts/Merienda-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* CSS Principal do NutriGame */
+/* Alinhado com a Identidade Visual de Ana Luísa Rocha (Nutricionista) */
+/* Cores: Pantone 235 C (Vinho/Ameixa #7A0043), Pantone Magenta 0521 C (Rosa Suave #F0A7D4), Cool Gray 10 C (#5B6770) */
+
+:root {
+  /* Cores da Identidade Visual */
+  --primary-color: #7A0043; /* Vinho/Ameixa Intenso */
+  --primary-light: #9B125B;
+  --secondary-color: #F0A7D4; /* Rosa Suave */
+  --secondary-light: #F8D3E8;
+  --neutral-gray: #5B6770; /* Cool Gray */
+  --neutral-light: #F4F6F7; /* Fundo de Cards / Telas */
+  --bg-color: #FAF8F9; /* Fundo Suave */
+  --white: #FFFFFF;
+  --dark-text: #2C3338;
+  
+  /* Cores de Feedback Clínico */
+  --success-color: #27AE60; /* Verde Clínico/Botanico */
+  --success-light: #E8F8F5;
+  --danger-color: #C0392B; /* Vermelho/Alerta */
+  --danger-light: #FDEDEC;
+  --warning-color: #D35400;
+  --warning-light: #FDF2E9;
+  
+  /* Fontes */
+  --font-headings: 'Merienda', cursive, sans-serif;
+  --font-body: 'Montserrat', sans-serif;
+  
+  /* Safe Areas para iPhone */
+  --safe-top: env(safe-area-inset-top, 20px);
+  --safe-bottom: env(safe-area-inset-bottom, 20px);
+  
+  /* Sombras e Efeitos */
+  --ios-shadow: 0 8px 24px rgba(122, 0, 67, 0.05); /* Sombra sutil com tom da marca */
+  --ios-shadow-active: 0 12px 30px rgba(122, 0, 67, 0.1);
+  --border-radius-large: 18px;
+  --border-radius-medium: 12px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Reset Geral */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent; /* Remove contorno de toque no iOS */
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--primary-color); /* Fundo externo da área segura */
+  color: var(--dark-text);
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Espaçador de Safe-Area do iOS na parte superior */
+.ios-status-bar-spacer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--safe-top);
+  background-color: var(--white);
+  z-index: 100;
+  border-bottom: 1px solid rgba(0,0,0,0.03);
+}
+
+/* Container do Aplicativo (Simula a tela de um iPhone moderno) */
+#app-container {
+  width: 100%;
+  max-width: 480px; /* Largura máxima típica de telas mobile */
+  height: 100%;
+  background-color: var(--bg-color);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+}
+
+/* Transições e Estilos das Telas */
+.app-screen {
+  position: absolute;
+  top: var(--safe-top);
+  bottom: var(--safe-bottom);
+  left: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-color);
+  opacity: 0;
+  transform: translateX(30px);
+  pointer-events: none;
+  transition: var(--transition);
+  z-index: 10;
+}
+
+.app-screen.active {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+  z-index: 20;
+}
+
+/* ================= 1. CABEÇALHOS DO APP ================= */
+.app-header {
+  background-color: var(--white);
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom-left-radius: 24px;
+  border-bottom-right-radius: 24px;
+  box-shadow: var(--ios-shadow);
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Logo da marca no cabeçalho — tamanho fixo para não inflar o header */
+.brand-logo-header {
+  height: 36px;
+  width: auto;
+  max-width: 100px;
+  object-fit: contain;
+  display: block;
+}
+
+.user-avatar {
+  font-size: 32px;
+  background-color: var(--secondary-light);
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid var(--secondary-color);
+}
+
+.user-info h2 {
+  font-family: var(--font-headings);
+  font-weight: 800; /* Merienda ExtraBold */
+  font-size: 16px;
+  color: var(--primary-color);
+  font-weight: 800;
+}
+
+.career-title {
+  font-size: 11px;
+  color: var(--neutral-gray);
+  font-weight: 500;
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.header-stats {
+  display: flex;
+  gap: 8px;
+}
+
+.stat-item {
+  background-color: var(--neutral-light);
+  padding: 6px 12px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 60px;
+  border: 1px solid rgba(0,0,0,0.03);
+}
+
+.stat-item .label {
+  font-size: 9px;
+  color: var(--neutral-gray);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.stat-item .value {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.lives-badge .value {
+  letter-spacing: -2px;
+  font-size: 11px;
+}
+
+/* Barra de Nível / XP */
+.progress-bar-container {
+  background-color: var(--white);
+  padding: 8px 20px 14px 20px;
+  border-bottom-left-radius: 24px;
+  border-bottom-right-radius: 24px;
+  margin-top: -8px;
+  box-shadow: var(--ios-shadow);
+  z-index: 5;
+  position: relative;
+}
+
+.progress-bar-fill {
+  height: 8px;
+  background-image: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+  border-radius: 4px;
+  transition: width 0.5s ease-out;
+}
+
+.progress-bar-text {
+  font-size: 10px;
+  color: var(--neutral-gray);
+  text-align: right;
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+/* ================= 2. CONTEÚDO SCROLLÁVEL DA HOME ================= */
+.home-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  padding-bottom: 40px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.home-content::-webkit-scrollbar {
+  display: none; /* Oculta a barra de rolagem para parecer nativo */
+}
+
+.section-title-custom {
+  font-family: var(--font-headings);
+  font-weight: 800; /* Merienda ExtraBold */
+  font-size: 20px;
+  color: var(--primary-color);
+  margin-bottom: 6px;
+}
+
+.section-desc {
+  font-size: 12px;
+  color: var(--neutral-gray);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+/* Mapa de Módulos (Jornada) */
+.journey-map {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.module-card {
+  background-color: var(--white);
+  border-radius: var(--border-radius-large);
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1.5px solid transparent;
+  box-shadow: var(--ios-shadow);
+  transition: var(--transition);
+  cursor: pointer;
+  position: relative;
+}
+
+.module-card:active {
+  transform: scale(0.98);
+}
+
+.module-card.available {
+  border-left: 6px solid var(--primary-color);
+}
+
+.module-card.completed {
+  border-left: 6px solid var(--success-color);
+}
+
+.module-card.locked {
+  opacity: 0.6;
+  cursor: not-allowed;
+  border-left: 6px solid var(--neutral-gray);
+}
+
+.module-info {
+  flex: 1;
+}
+
+.module-meta {
+  font-size: 10px;
+  color: var(--primary-color);
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  font-family: var(--font-headings);
+  font-weight: 800; /* Merienda ExtraBold */
+}
+
+.module-card.completed .module-meta {
+  color: var(--success-color);
+}
+
+.module-card.locked .module-meta {
+  color: var(--neutral-gray);
+}
+
+.module-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--dark-text);
+  line-height: 1.3;
+}
+
+.module-status-icon {
+  font-size: 22px;
+  margin-left: 15px;
+}
+
+/* Gabinete de Fichas de Resumo */
+.summary-shelf-section {
+  background-color: var(--white);
+  border-radius: var(--border-radius-large);
+  padding: 20px;
+  box-shadow: var(--ios-shadow);
+  margin-top: 10px;
+}
+
+.summary-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.summary-shelf-card {
+  background-color: var(--neutral-light);
+  border-radius: var(--border-radius-medium);
+  padding: 12px;
+  text-align: center;
+  border: 1px solid rgba(0,0,0,0.03);
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.summary-shelf-card.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.summary-card-icon {
+  font-size: 28px;
+  margin-bottom: 6px;
+}
+
+.summary-card-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.summary-shelf-card.locked .summary-card-title {
+  color: var(--neutral-gray);
+}
+
+/* ================= 3. TELA DE CASO CLÍNICO (PRONTUÁRIO) ================= */
+.case-header {
+  background-color: var(--white);
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+}
+
+.btn-back-home {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.case-patient-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.patient-avatar-mini {
+  font-size: 26px;
+  background-color: var(--secondary-light);
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.case-patient-title h3 {
+  font-family: var(--font-headings);
+  font-weight: 800; /* Merienda ExtraBold */
+  font-size: 14px;
+  color: var(--primary-color);
+  font-weight: 800;
+}
+
+.case-patient-title .subtitle {
+  font-size: 9px;
+  color: var(--neutral-gray);
+  text-transform: uppercase;
+  font-weight: 600;
+  display: block;
+}
+
+.case-lives {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -2px;
+}
+
+/* Abas estilo iOS */
+.case-tabs {
+  background-color: var(--white);
+  display: flex;
+  padding: 6px 12px;
+  border-bottom: 1.5px solid var(--neutral-light);
+  gap: 4px;
+}
+
+.tab-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 10px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--neutral-gray);
+  cursor: pointer;
+  border-radius: 10px;
+  transition: var(--transition);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.tab-btn.active {
+  background-color: var(--secondary-light);
+  color: var(--primary-color);
+}
+
+/* Container de abas */
+.case-content-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.case-content-container::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-panel {
+  display: none;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tab-panel.active {
+  display: flex;
+}
+
+/* Caixa de Prontuário */
+.clinical-box {
+  background-color: var(--white);
+  border-radius: var(--border-radius-large);
+  padding: 18px;
+  box-shadow: var(--ios-shadow);
+}
+
+.clinical-box h4 {
+  font-family: var(--font-headings);
+  font-weight: 800; /* Merienda ExtraBold */
+  font-size: 14px;
+  color: var(--primary-color);
+  margin-bottom: 10px;
+  border-bottom: 1.5px solid var(--secondary-light);
+  padding-bottom: 6px;
+}
+
+.clinical-box p {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--dark-text);
+}
+
+.patient-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.patient-profile-main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background-color: var(--white);
+  padding: 16px;
+  border-radius: var(--border-radius-large);
+  box-shadow: var(--ios-shadow);
+}
+
+.patient-avatar-large {
+  font-size: 50px;
+  background-color: var(--secondary-light);
+  width: 76px;
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 3px solid var(--secondary-color);
+}
+
+.patient-details p {
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.complaint-text {
+  font-style: italic;
+  border-left: 3px solid var(--primary-color);
+  padding-left: 10px;
+  color: #4A5568;
+}
+
+.instruction-text {
+  font-size: 11px !important;
+  color: var(--neutral-gray);
+  margin-bottom: 14px;
+  line-height: 1.4;
+}
+
+/* Achados da Semiologia */
+.semiology-findings {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.semiology-item {
+  display: flex;
+  background-color: var(--neutral-light);
+  padding: 12px 14px;
+  border-radius: var(--border-radius-medium);
+  gap: 12px;
+  border: 1px solid rgba(0,0,0,0.02);
+}
+
+.semiology-icon {
+  font-size: 20px;
+}
+
+.semiology-label strong {
+  font-size: 12px;
+  color: var(--primary-color);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.semiology-label span {
+  font-size: 12px;
+  color: var(--dark-text);
+  line-height: 1.4;
+}
+
+/* ================= 4. TABELA DE SOLICITAÇÃO DE EXAMES ================= */
+.exams-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.exam-item-row {
+  background-color: var(--neutral-light);
+  border-radius: var(--border-radius-medium);
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid rgba(0,0,0,0.02);
+  transition: var(--transition);
+}
+
+.exam-item-row.requested {
+  background-color: var(--success-light);
+  border-color: var(--success-color);
+}
+
+.exam-item-row.requested .exam-name {
+  color: var(--success-color);
+  font-weight: 700;
+}
+
+.exam-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dark-text);
+  flex: 1;
+}
+
+.btn-request-exam {
+  background-color: var(--primary-color);
+  color: var(--white);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-request-exam:active {
+  transform: scale(0.95);
+}
+
+.btn-request-exam.requested {
+  background-color: var(--success-color);
+  cursor: default;
+}
+
+/* ================= 5. FORMULÁRIO DE PRESCRIÇÃO (CONDUTAS) ================= */
+.prescription-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.prescription-card-checkbox {
+  background-color: var(--neutral-light);
+  border-radius: var(--border-radius-medium);
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.prescription-card-checkbox.selected {
+  background-color: var(--secondary-light);
+  border-color: var(--primary-color);
+}
+
+.prescription-card-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--primary-color);
+}
+
+.prescription-card-checkbox span {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--dark-text);
+}
+
+.prescription-card-checkbox.selected span {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+/* ================= 6. BOTÕES PRINCIPAIS ================= */
+.btn-primary {
+  width: 100%;
+  background-color: var(--primary-color);
+  color: var(--white);
+  border: none;
+  padding: 15px 20px;
+  border-radius: var(--border-radius-large);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(122, 0, 67, 0.15);
+  transition: var(--transition);
+  text-align: center;
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
+  background-color: var(--primary-light);
+}
+
+.btn-secondary {
+  width: 100%;
+  background-color: transparent;
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+  padding: 13px 20px;
+  border-radius: var(--border-radius-large);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: center;
+}
+
+.btn-secondary:active {
+  background-color: var(--neutral-light);
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ================= 7. MODAIS E OVERLAYS ================= */
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(44, 51, 56, 0.65); /* Glassmorphism no fundo */
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: none; /* Inicialmente oculto */
+  justify-content: center;
+  align-items: flex-end; /* Abre subindo como sheet do iOS */
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 480px;
+  background-color: var(--white);
+  border-top-left-radius: 28px;
+  border-top-right-radius: 28px;
+  padding: 24px 20px;
+  box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modal-overlay.active .modal-card {
+  transform: translateY(0);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  font-family: var(--font-headings);
+  font-weight: 800; /* Merienda ExtraBold */
+  font-size: 16px;
+  color: var(--primary-color);
+}
+
+.btn-close-modal {
+  background: none;
+  border: none;
+  color: var(--neutral-gray);
+  cursor: pointer;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.exam-result-badge {
+  background-color: var(--primary-color);
+  color: var(--white);
+  padding: 12px 16px;
+  border-radius: var(--border-radius-medium);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.exam-result-badge .label {
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.exam-result-badge .value {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.functional-ranges, .clinical-note-box {
+  background-color: var(--neutral-light);
+  padding: 14px;
+  border-radius: var(--border-radius-medium);
+  border: 1px solid rgba(0,0,0,0.02);
+}
+
+.functional-ranges h4, .clinical-note-box h4 {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--primary-color);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.functional-ranges p, .clinical-note-box p {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--dark-text);
+}
+
+/* Modais Específicos */
+.game-over-card {
+  text-align: center;
+  align-items: center;
+  border-radius: 28px;
+  margin: 20px;
+  align-self: center;
+  border: 2px solid var(--danger-color);
+}
+
+.game-over-icon {
+  font-size: 60px;
+  margin-bottom: 6px;
+  animation: bounce 2s infinite;
+}
+
+.game-over-card h2 {
+  font-family: var(--font-headings);
+  font-weight: 800; /* Merienda ExtraBold */
+  color: var(--danger-color);
+  font-size: 22px;
+}
+
+.game-over-card p {
+  font-size: 13px;
+  color: var(--neutral-gray);
+  line-height: 1.5;
+}
+
+.game-over-advice {
+  background-color: var(--danger-light);
+  padding: 14px;
+  border-radius: var(--border-radius-medium);
+  border: 1px dashed var(--danger-color);
+  width: 100%;
+}
+
+.game-over-advice p {
+  color: var(--danger-color);
+  font-size: 12px;
+}
+
+.btn-game-over {
+  background-color: var(--danger-color);
+  box-shadow: 0 6px 20px rgba(192, 57, 43, 0.2);
+}
+
+.btn-game-over:active {
+  background-color: #A02B1E;
+}
+
+/* Level Up Modal */
+.level-up-card {
+  text-align: center;
+  align-items: center;
+  border-radius: 28px;
+  margin: 20px;
+  align-self: center;
+  background-image: linear-gradient(135deg, var(--white) 60%, var(--secondary-light));
+  border: 2px solid var(--primary-color);
+}
+
+.confetti-emoji {
+  font-size: 60px;
+  margin-bottom: 6px;
+}
+
+.level-up-card h2 {
+  font-family: var(--font-headings);
+  font-weight: 800; /* Merienda ExtraBold */
+  color: var(--primary-color);
+  font-size: 24px;
+}
+
+.new-title-badge {
+  background-color: var(--primary-color);
+  color: var(--white);
+  padding: 10px 24px;
+  font-family: var(--font-headings);
+  font-weight: 800; /* Merienda ExtraBold */
+  font-size: 16px;
+  font-weight: 800;
+  border-radius: 30px;
+  margin: 10px 0;
+  box-shadow: 0 6px 15px rgba(122, 0, 67, 0.2);
+}
+
+.congrats-text {
+  font-size: 12px;
+  color: var(--neutral-gray);
+  font-style: italic;
+}
+
+/* ================= 8. TELA DE DISCUSSÃO CIENTÍFICA ================= */
+.discussion-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.discussion-content::-webkit-scrollbar {
+  display: none;
+}
+
+.score-card {
+  background-color: var(--white);
+  border-radius: var(--border-radius-large);
+  padding: 20px;
+  text-align: center;
+  box-shadow: var(--ios-shadow);
+  border-top: 6px solid var(--primary-color);
+}
+
+.score-stars {
+  font-size: 36px;
+  margin-bottom: 8px;
+  letter-spacing: 4px;
+}
+
+.score-card h3 {
+  font-family: var(--font-headings);
+  font-weight: 800; /* Merienda ExtraBold */
+  font-size: 18px;
+  color: var(--primary-color);
+  margin-bottom: 4px;
+}
+
+.score-card p {
+  font-size: 12px;
+  color: var(--neutral-gray);
+}
+
+.discussion-text-box {
+  background-color: var(--white);
+  border-radius: var(--border-radius-large);
+  padding: 20px;
+  box-shadow: var(--ios-shadow);
+}
+
+.discussion-text-box h3 {
+  font-family: var(--font-headings);
+  font-weight: 800; /* Merienda ExtraBold */
+  font-size: 15px;
+  color: var(--primary-color);
+  margin-bottom: 12px;
+  border-bottom: 1.5px solid var(--secondary-light);
+  padding-bottom: 6px;
+}
+
+.discussion-body-text {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--dark-text);
+}
+
+.referencia-pos-box {
+  background-color: var(--secondary-light);
+  border-radius: var(--border-radius-large);
+  padding: 16px;
+  border: 1px solid var(--secondary-color);
+}
+
+.referencia-pos-box h4 {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 4px;
+}
+
+.referencia-pos-box p {
+  font-size: 11px;
+  color: var(--dark-text);
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.moodle-tag {
+  background-color: var(--primary-color);
+  color: var(--white);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  display: inline-block;
+}
+
+/* ================= 9. TELA DE QUIZ DE FIXAÇÃO ================= */
+.quiz-header {
+  background-color: var(--white);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: var(--ios-shadow);
+}
+
+.quiz-progress-bar {
+  height: 6px;
+  background-color: var(--neutral-light);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.quiz-progress-fill {
+  height: 100%;
+  background-color: var(--primary-color);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.quiz-counter {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--neutral-gray);
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.quiz-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.quiz-question-box {
+  background-color: var(--white);
+  border-radius: var(--border-radius-large);
+  padding: 20px;
+  box-shadow: var(--ios-shadow);
+  border-left: 6px solid var(--primary-color);
+}
+
+.quiz-question-box p {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--dark-text);
+}
+
+.quiz-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.quiz-option-btn {
+  background-color: var(--white);
+  border: 1.5px solid transparent;
+  border-radius: var(--border-radius-medium);
+  padding: 14px 16px;
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  line-height: 1.4;
+  text-align: left;
+  color: var(--dark-text);
+  cursor: pointer;
+  box-shadow: var(--ios-shadow);
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.quiz-option-btn:active {
+  transform: scale(0.98);
+}
+
+.quiz-option-btn.selected {
+  border-color: var(--primary-color);
+  background-color: var(--secondary-light);
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.quiz-option-btn.correct {
+  border-color: var(--success-color);
+  background-color: var(--success-light);
+  color: var(--success-color);
+  font-weight: 700;
+}
+
+.quiz-option-btn.wrong {
+  border-color: var(--danger-color);
+  background-color: var(--danger-light);
+  color: var(--danger-color);
+}
+
+.quiz-explanation-box {
+  background-color: var(--white);
+  border-radius: var(--border-radius-large);
+  padding: 16px;
+  box-shadow: var(--ios-shadow);
+  border: 1px solid var(--secondary-color);
+}
+
+.quiz-explanation-box.correct-style {
+  border-color: var(--success-color);
+}
+
+.quiz-explanation-box.wrong-style {
+  border-color: var(--danger-color);
+}
+
+.quiz-explanation-box h4 {
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.quiz-explanation-box.correct-style h4 {
+  color: var(--success-color);
+}
+
+.quiz-explanation-box.wrong-style h4 {
+  color: var(--danger-color);
+}
+
+.quiz-explanation-box p {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--dark-text);
+}
+
+/* ================= 10. ANIMAÇÕES ================= */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade {
+  animation: fadeIn 0.3s ease;
+}
+
+/* ================= RPG ISOMÉTRICO 3D MMORPG ================= */
+.rpg-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: linear-gradient(160deg, #0d1117 0%, #1a0a2e 100%);
+  border-radius: var(--border-radius-large);
+  padding: 14px 12px;
+  box-shadow: 0 12px 40px rgba(122, 0, 67, 0.25), inset 0 1px 0 rgba(255,255,255,0.05);
+  margin-bottom: 20px;
+  position: relative;
+  border: 1px solid rgba(240, 167, 212, 0.15);
+}
+
+.rpg-legend {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  font-weight: 800;
+  color: rgba(240, 167, 212, 0.7);
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+/* VIEWPORT ISOMÉTRICO 3D */
+.rpg-iso-viewport {
+  width: 100%;
+  /* overflow: hidden impede quebra de layout pelo grid rotacionado */
+  overflow: hidden;
+  position: relative;
+  border-radius: 12px;
+  background: radial-gradient(ellipse at 50% 70%, #1a1040 0%, #0d0820 100%);
+  box-shadow: inset 0 0 30px rgba(0,0,0,0.6);
+  /* Altura suficiente para a grade 11×28px isométrica projetada (~230px) */
+  height: 290px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(155, 18, 91, 0.2);
+  /* preserve-3d para que translateZ dos sprites funcione */
+  transform-style: preserve-3d;
+}
+
+/* A grade plana recebe a perspectiva isométrica via transform */
+/* Isométrico é ortogonal (sem perspectiva) — NÃO usar perspective: CSS */
+.rpg-grid {
+  position: relative;
+  z-index: 3;
+  /* rotateX(54°) + rotateZ(-45°) = projeção isométrica ortogonal clássica */
+  transform: rotateX(54deg) rotateZ(-45deg) scale(0.82);
+  transform-style: preserve-3d;
+  transform-origin: center center;
+  display: grid;
+  grid-template-columns: repeat(11, 28px);
+  grid-template-rows: repeat(11, 28px);
+  gap: 0;
+  margin: 0;
+  transition: none;
+}
+
+/* Cada tile isométrico */
+.rpg-tile {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  position: relative;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+/* PISO ISOMÉTRICO - Tiles de chão com gradiente de profundidade */
+.tile-floor {
+  background: linear-gradient(135deg, #1f153a 0%, #120b24 100%);
+  border: 1px solid rgba(240, 167, 212, 0.05);
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.8);
+  transition: all 0.25s ease;
+}
+
+.tile-floor::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(240, 167, 212, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(240, 167, 212, 0.015) 1px, transparent 1px);
+  background-size: 7px 7px;
+  pointer-events: none;
+}
+
+.tile-floor:hover {
+  background: linear-gradient(135deg, #32215c 0%, #1e113b 100%);
+  border-color: rgba(240, 167, 212, 0.4);
+  box-shadow: 0 0 10px rgba(240, 167, 212, 0.2), inset 0 0 6px rgba(0, 0, 0, 0.5);
+}
+
+/* PAREDE 3D - bloco sólido com volumetria e frisos brilhantes */
+.tile-wall {
+  background: linear-gradient(135deg, #7A0043 0%, #5A0030 100%);
+  position: relative;
+  z-index: 5;
+  box-shadow:
+    0 -1px 0 #F0A7D4,
+    -1px -3px 0 #9B125B,
+    -2px -6px 0 #7A0043,
+    -3px -8px 0 #5A0030,
+    -4px -10px 0 #3E0020,
+    -6px -12px 10px rgba(0, 0, 0, 0.6);
+  border-top: 1.5px solid #F0A7D4;
+  border-left: 1.5px solid #9B125B;
+  transform: translate3d(0, 0, 0);
+}
+
+/* LEITO DO PACIENTE ELEVADO 3D */
+.tile-bed {
+  cursor: pointer;
+  background: linear-gradient(135deg, #2d2040 0%, #1f1530 100%);
+  position: relative;
+  overflow: visible;
+  border: 1px solid rgba(122, 0, 67, 0.3);
+  transform-style: preserve-3d;
+}
+
+.tile-bed::before {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 4px;
+  width: 20px;
+  height: 10px;
+  background: radial-gradient(ellipse, rgba(0,0,0,0.6) 0%, transparent 80%);
+  border-radius: 50%;
+  z-index: 1;
+  pointer-events: none;
+  transform: scaleY(0.5);
+}
+
+.tile-bed .bed-icon {
+  font-size: 16px;
+  position: absolute;
+  z-index: 10;
+  /* Levita a cama em translateZ(12px) */
+  transform: rotateZ(45deg) rotateX(-54deg) translateZ(12px) scale(1.25);
+  filter: drop-shadow(0 6px 6px rgba(0,0,0,0.8));
+  pointer-events: none;
+  transition: transform 0.2s ease;
+}
+
+.tile-bed:hover .bed-icon {
+  transform: rotateZ(45deg) rotateX(-54deg) translateZ(18px) scale(1.35);
+}
+
+.tile-bed.available {
+  background: linear-gradient(135deg, #143522 0%, #0d2015 100%);
+  border: 1.5px solid #27AE60;
+  animation: pulse-bed-iso 2s infinite;
+  box-shadow: 0 0 10px rgba(39, 174, 96, 0.25);
+}
+
+.tile-bed.completed {
+  background: linear-gradient(135deg, #10243a 0%, #0a1726 100%);
+  border: 1.5px solid #3182CE;
+}
+
+.tile-bed.locked {
+  opacity: 0.6;
+  background: linear-gradient(135deg, #1a1a2a 0%, #111122 100%);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* POSTO DE ENFERMAGEM */
+.tile-nurse-station {
+  background: linear-gradient(135deg, #2d2040 0%, #1f1535 100%);
+  border: 1px solid rgba(240, 167, 212, 0.3);
+  box-shadow: 0 0 8px rgba(240, 167, 212, 0.15);
+}
+
+/* PERSONAGEM PLAYER E NPCs - compensam a perspectiva isométrica para ficarem retos */
+.tile-player,
+.tile-npc {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  z-index: 20;
+  overflow: visible;
+}
+
+/* O sprite compensa a perspectiva isométrica com transforms inversos */
+.char-sprite {
+  position: absolute;
+  bottom: 0;
+  z-index: 30;
+  pointer-events: none;
+  /* Desfazer a perspectiva isométrica da grade para o personagem ficar "em pé" */
+  transform: rotateZ(45deg) rotateX(-54deg) translateZ(8px);
+  transform-origin: bottom center;
+  transform-style: preserve-3d;
+  font-size: 22px;
+  animation: character-bob 1.8s infinite ease-in-out;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.7));
+}
+
+/* Sombra oval no chão do personagem */
+.tile-shadow {
+  position: absolute;
+  bottom: 2px;
+  width: 20px;
+  height: 10px;
+  background: radial-gradient(ellipse, rgba(0,0,0,0.5) 0%, transparent 70%);
+  border-radius: 50%;
+  z-index: 2;
+  pointer-events: none;
+  transform: scaleY(0.5);
+}
+
+/* Nametag acima do personagem - também compensa perspectiva */
+.rpg-nametag {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  background: linear-gradient(135deg, rgba(122,0,67,0.95), rgba(90,0,43,0.95));
+  color: #FFFFFF;
+  font-size: 6px;
+  font-weight: 900;
+  padding: 2px 5px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 40;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.5), 0 0 8px rgba(240,167,212,0.15);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border: 0.5px solid rgba(240,167,212,0.3);
+  transform: rotateZ(45deg) rotateX(-54deg) translateX(-50%);
+  transform-origin: center bottom;
+}
+
+/* Barra de HP sobre o NPC */
+.rpg-health-bar {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  width: 26px;
+  height: 3px;
+  background: rgba(0,0,0,0.5);
+  border-radius: 2px;
+  overflow: hidden;
+  z-index: 40;
+  pointer-events: none;
+  transform: rotateZ(45deg) rotateX(-54deg) translateX(-50%);
+  transform-origin: center bottom;
+  border: 0.5px solid rgba(0,0,0,0.3);
+}
+
+.health-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #27AE60, #2ECC71);
+  transition: width 0.3s;
+}
+
+.health-bar-fill.npc-bar {
+  background: linear-gradient(90deg, #2980B9, #3498DB);
+}
+
+/* Controles do D-Pad MMORPG */
+.rpg-controls-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  justify-content: center;
+  padding-top: 4px;
+}
+
+.joystick-base {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(240, 167, 212, 0.35);
+  border-radius: 50%;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3), 0 4px 15px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+  user-select: none;
+}
+
+.joystick-knob {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+  border: 1.5px solid rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  box-shadow: 0 4px 10px rgba(122, 0, 67, 0.4);
+  cursor: grab;
+  position: absolute;
+  transform: translate(0, 0);
+  transition: transform 0.05s ease-out;
+}
+
+.joystick-knob:active {
+  cursor: grabbing;
+  background: linear-gradient(135deg, var(--secondary-light), var(--primary-light));
+}
+
+.action-btn {
+  background: linear-gradient(135deg, #7A0043, #5A0030);
+  color: #FFFFFF;
+  border: 1px solid rgba(240, 167, 212, 0.4);
+  border-radius: 50px;
+  padding: 10px 18px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(122, 0, 67, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.15s;
+}
+
+.action-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 2px 6px rgba(122, 0, 67, 0.3);
+}
+
+/* Animações RPG 3D */
+@keyframes character-bob {
+  0%, 100% { transform: rotateZ(45deg) rotateX(-54deg) translateZ(8px) translateY(0px); }
+  50% { transform: rotateZ(45deg) rotateX(-54deg) translateZ(8px) translateY(-3px); }
+}
+
+@keyframes pulse-bed-iso {
+  0%, 100% { box-shadow: 0 0 4px rgba(39, 174, 96, 0.2); border-color: rgba(39, 174, 96, 0.6); }
+  50% { box-shadow: 0 0 12px rgba(39, 174, 96, 0.6); border-color: rgba(39, 174, 96, 1); }
+}
+
+/* ================= MMORPG HUD & EFEITOS ATMOSFÉRICOS ================= */
+
+/* Indicador de Posição MMORPG (Coordenadas do Mapa) */
+.rpg-hud-overlay {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0,0,0,0.7);
+  border: 1px solid rgba(240,167,212,0.2);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 8px;
+  font-weight: 800;
+  color: rgba(240,167,212,0.8);
+  font-family: var(--font-body);
+  z-index: 10;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  pointer-events: none;
+  backdrop-filter: blur(4px);
+}
+
+/* Anel de interação pulsante no tile do jogador */
+.tile-player::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border: 1.5px solid rgba(240, 167, 212, 0.6);
+  border-radius: 4px;
+  animation: player-ring 2s infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes player-ring {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 0.2; transform: scale(1.08); }
+}
+
+/* Partículas mágicas flutuantes no viewport isomérico */
+.rpg-iso-viewport::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, rgba(240,167,212,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 20%, rgba(155,18,91,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 50% 70%, rgba(240,167,212,0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 85% 60%, rgba(155,18,91,0.35) 0%, transparent 100%);
+  animation: float-particles 6s infinite alternate ease-in-out;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes float-particles {
+  0% { transform: translateY(0); opacity: 0.6; }
+  100% { transform: translateY(-8px); opacity: 1; }
+}
+
+/* Grade de neblina no fundo do viewport (fog of war nas bordas) */
+.rpg-iso-viewport::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,0.6) 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Título MMORPG sobre o mapa */
+.rpg-map-title {
+  font-family: var(--font-headings);
+  font-weight: 800; /* Merienda ExtraBold */
+  font-size: 12px;
+  color: rgba(240, 167, 212, 0.9);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 800;
+  padding: 4px 0 2px;
+  text-shadow: 0 0 10px rgba(240,167,212,0.5);
+}
+
+/* Indicador de movimento do jogador (flash de tile ativo) */
+.tile-player-glow {
+  box-shadow: 0 0 0 2px rgba(240,167,212,0.5), 0 0 12px rgba(240,167,212,0.3) !important;
+  animation: glow-ring 1s ease-out forwards;
+}
+
+@keyframes glow-ring {
+  0% { box-shadow: 0 0 0 4px rgba(240,167,212,0.7), 0 0 20px rgba(240,167,212,0.5); }
+  100% { box-shadow: none; }
+}
+
+/* ================= MENU DE SUB-ABAS DA HOME ================= */
+.home-sub-tabs {
+  display: flex;
+  background-color: var(--white);
+  border-radius: var(--border-radius-medium);
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 16px;
+  box-shadow: var(--ios-shadow);
+  transition: var(--transition);
+}
+
+.sub-tab-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 8px 4px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--neutral-gray);
+  cursor: pointer;
+  border-radius: 8px;
+  transition: var(--transition);
+  text-transform: uppercase;
+}
+
+.sub-tab-btn.active {
+  background-color: var(--primary-color);
+  color: var(--white);
+}
+
+.home-sub-panel {
+  display: none;
+  flex-direction: column;
+  animation: fadeIn 0.35s ease;
+}
+
+.home-sub-panel.active {
+  display: flex;
+}
+
+/* ================= QUEST TRACKER ================= */
+.quest-tracker-widget {
+  background: linear-gradient(135deg, var(--white), var(--secondary-light));
+  border-left: 5px solid var(--primary-color);
+  border-radius: var(--border-radius-medium);
+  padding: 10px 14px;
+  box-shadow: var(--ios-shadow);
+  margin-bottom: 12px;
+  transition: var(--transition);
+}
+
+.quest-header-title {
+  font-family: var(--font-headings);
+  font-weight: 800; /* Merienda ExtraBold */
+  font-size: 10px;
+  color: var(--primary-color);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.quest-body ul {
+  list-style: none;
+}
+
+.active-quest {
+  font-size: 11.5px;
+  color: var(--dark-text);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.active-quest::before {
+  content: "●";
+  color: var(--primary-color);
+  animation: blink-quest 1s infinite alternate;
+}
+
+@keyframes blink-quest {
+  0% { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+/* ================= CHAT GLOBAL SIMULADO ================= */
+.rpg-chat-box {
+  background-color: var(--white);
+  border-radius: var(--border-radius-large);
+  padding: 12px;
+  box-shadow: var(--ios-shadow);
+  margin-bottom: 20px;
+  border-bottom: 3px solid var(--secondary-color);
+  transition: var(--transition);
+}
+
+.chat-header {
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--primary-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1.5px solid var(--neutral-light);
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+}
+
+.chat-log {
+  height: 90px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.chat-log::-webkit-scrollbar {
+  display: none;
+}
+
+.chat-message {
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--dark-text);
+  background-color: var(--neutral-light);
+  padding: 5px 8px;
+  border-radius: 8px;
+  border-bottom-left-radius: 2px;
+  align-self: flex-start;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  animation: slide-in-chat 0.2s ease-out;
+}
+
+.chat-message .user-name {
+  font-weight: 800;
+  color: var(--primary-color);
+  margin-right: 4px;
+}
+
+@keyframes slide-in-chat {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ================= INVENTÁRIO & LOOT ================= */
+.character-stats-panel {
+  background-color: var(--white);
+  border-radius: var(--border-radius-large);
+  padding: 16px;
+  box-shadow: var(--ios-shadow);
+  margin-bottom: 16px;
+  border-top: 5px solid var(--primary-color);
+  transition: var(--transition);
+}
+
+.character-stats-panel h4 {
+  font-family: var(--font-headings);
+  font-weight: 800; /* Merienda ExtraBold */
+  font-size: 13px;
+  color: var(--primary-color);
+  margin-bottom: 10px;
+}
+
+.attributes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.attr-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--neutral-light);
+  padding: 8px 4px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.02);
+  transition: var(--transition);
+}
+
+.attr-label {
+  font-size: 8px;
+  color: var(--neutral-gray);
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.attr-val {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--primary-color);
+}
+
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.inventory-slot {
+  aspect-ratio: 1;
+  background-color: var(--neutral-light);
+  border: 2px dashed #CBD5E1;
+  border-radius: var(--border-radius-medium);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  position: relative;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.inventory-slot:active {
+  transform: scale(0.94);
+}
+
+.inventory-slot.has-item {
+  border: 2.5px solid var(--primary-color);
+  background-color: var(--white);
+  box-shadow: var(--ios-shadow);
+}
+
+.inventory-slot.equipped {
+  border-color: var(--success-color);
+  background-color: var(--success-light);
+}
+
+.inventory-slot.equipped::after {
+  content: "E";
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background-color: var(--success-color);
+  color: var(--white);
+  font-size: 7.5px;
+  font-weight: 900;
+  width: 14px;
+  height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.item-rarity-badge {
+  position: absolute;
+  bottom: 2px;
+  font-size: 6px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 1px 4px;
+  border-radius: 3px;
+  color: var(--white);
+}
+
+.rarity-common { background-color: #718096; }
+.rarity-rare { background-color: #3182CE; }
+.rarity-epic { background-color: #805AD5; }
+.rarity-legendary { background-color: #D69E2E; }
+
+/* ================= LEADERBOARD / RANKING ================= */
+.leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.leaderboard-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--white);
+  padding: 10px 14px;
+  border-radius: var(--border-radius-medium);
+  box-shadow: var(--ios-shadow);
+  border-left: 4px solid transparent;
+  transition: var(--transition);
+}
+
+.leaderboard-row.player-row {
+  border-left-color: var(--primary-color);
+  background-color: var(--secondary-light);
+  font-weight: 700;
+}
+
+.leaderboard-rank-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px;
+  color: var(--dark-text);
+}
+
+.leaderboard-position {
+  font-weight: 900;
+  font-size: 13px;
+  color: var(--neutral-gray);
+  width: 18px;
+}
+
+.leaderboard-row:nth-child(1) .leaderboard-position { color: #D69E2E; font-size: 15px; }
+.leaderboard-row:nth-child(2) .leaderboard-position { color: #A0AEC0; font-size: 14px; }
+.leaderboard-row:nth-child(3) .leaderboard-position { color: #ED8936; font-size: 13px; }
+
+.leaderboard-xp-tag {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--primary-color);
+}
+
+/* ================= ALQUIMIA DE PRESCRIÇÃO (MINIJOGO) ================= */
+.apothecary-card {
+  max-width: 480px;
+  border-top-left-radius: 28px;
+  border-top-right-radius: 28px;
+}
+
+.apothecary-workspace {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin: 10px 0;
+}
+
+.mixing-beaker-container {
+  position: relative;
+  width: 90px;
+  height: 110px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.beaker-neck {
+  width: 22px;
+  height: 30px;
+  border: 3px solid var(--primary-color);
+  border-bottom: none;
+  background-color: transparent;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+
+.beaker-body {
+  width: 80px;
+  height: 80px;
+  border: 3px solid var(--primary-color);
+  border-radius: 50%;
+  margin-top: -6px;
+  background-color: rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+  position: relative;
+  transition: background-color 0.5s ease;
+}
+
+.bubbles-effect {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  bottom: 0;
+  left: 0;
+  background-color: transparent;
+  transform: translateY(100%);
+  transition: transform 0.8s ease, background-color 0.5s ease;
+}
+
+.beaker-body.filling .bubbles-effect {
+  background-image: radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px);
+  background-size: 8px 8px;
+  animation: boil-bubbles 1s infinite linear;
+}
+
+@keyframes boil-bubbles {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 -20px; }
+}
+
+.actives-shelf {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  background-color: var(--neutral-light);
+  padding: 12px;
+  border-radius: var(--border-radius-medium);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.vial-bottle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.vial-bottle:active {
+  transform: scale(0.9);
+}
+
+.vial-glass {
+  font-size: 24px;
+  position: relative;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.vial-bottle.poured .vial-glass {
+  transform: translateY(4px) rotate(45deg);
+  opacity: 0.5;
+}
+
+.vial-name {
+  font-size: 7.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  text-align: center;
+  width: 54px;
+  color: var(--neutral-gray);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mixing-status {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary-color);
+  text-align: center;
+  margin-top: 8px;
+  font-style: italic;
+}
+
+/* ================= BOSS FIGHT DE QUIZ ================= */
+.boss-fight-bar {
+  display: flex;
+  align-items: center;
+  background-color: var(--white);
+  border: 2px solid var(--primary-color);
+  border-radius: var(--border-radius-medium);
+  padding: 8px 12px;
+  box-shadow: var(--ios-shadow);
+  margin-top: 6px;
+  gap: 10px;
+  animation: bounce-boss 3s infinite alternate ease-in-out;
+  transition: var(--transition);
+}
+
+.boss-avatar {
+  font-size: 28px;
+  animation: wobble-boss 1s infinite alternate ease-in-out;
+}
+
+.boss-info-health {
+  flex: 1;
+}
+
+.boss-name {
+  font-size: 9.5px;
+  font-weight: 800;
+  color: var(--primary-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.boss-hp-bar {
+  height: 6px;
+  background-color: var(--neutral-light);
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.03);
+}
+
+.boss-hp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #E53E3E, #ED8936);
+  border-radius: 3px;
+  width: 100%;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.boss-hp-text {
+  font-size: 8px;
+  font-weight: 700;
+  color: var(--neutral-gray);
+  text-align: right;
+  margin-top: 2px;
+}
+
+@keyframes bounce-boss {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-4px); }
+}
+
+@keyframes wobble-boss {
+  0% { transform: rotate(-3deg); }
+  100% { transform: rotate(3deg); }
+}
+
+/* Efeitos de Dano / Batalha */
+.hit-flash {
+  animation: flash-red-effect 0.15s 2;
+}
+
+.heal-flash {
+  animation: flash-green-effect 0.15s 2;
+}
+
+.shake-effect {
+  animation: shake-screen-effect 0.2s;
+}
+
+@keyframes flash-red-effect {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: rgba(229, 62, 98, 0.25); }
+}
+
+@keyframes flash-green-effect {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: rgba(39, 174, 96, 0.25); }
+}
+
+@keyframes shake-screen-effect {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-3px, 2px); }
+  50% { transform: translate(3px, -1px); }
+  75% { transform: translate(-2px, -2px); }
+}
+
+/* ================= HEARTHSTONE-STYLE COLLECTIBLE CARDS ================= */
+.summary-shelf-card {
+  position: relative;
+  background: linear-gradient(135deg, #FAF8F9, var(--white));
+  border: 2.5px solid #CBD5E1;
+  border-radius: var(--border-radius-medium);
+  padding: 16px 8px;
+  transition: var(--transition);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.03);
+  overflow: hidden;
+}
+
+.summary-shelf-card.unlocked {
+  border: 2.5px solid var(--primary-color);
+  background: linear-gradient(135deg, var(--white) 65%, var(--secondary-light));
+  box-shadow: 0 6px 14px rgba(122, 0, 67, 0.08);
+}
+
+.summary-shelf-card.unlocked:active {
+  transform: translateY(2px) scale(0.98);
+}
+
+.summary-shelf-card.unlocked::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
+  transform: rotate(45deg);
+  transition: 0.5s;
+  pointer-events: none;
+}
+
+.summary-shelf-card.unlocked:hover::before {
+  left: 100%;
+  top: 100%;
+}
+
+/* ================= SUPORTE COMPLETO AO MODO ESCURO (DARK THEME) ================= */
+.dark-theme {
+  --bg-color: #0F172A; /* Slate 900 */
+  --white: #1E293B; /* Slate 800 */
+  --dark-text: #F1F5F9; /* Slate 100 */
+  --neutral-light: #0F172A;
+  --neutral-gray: #94A3B8; /* Slate 400 */
+  /* No modo noturno a cor fúcsia (principal) cede lugar ao rosa claro da
+     identidade visual da Ana (Pantone Magenta 0521 C ≈ #F0A7D4). */
+  --primary-color: #F0A7D4; /* Rosa Suave (era #7A0043) */
+  --primary-light: #F8D3E8;
+  --secondary-light: #4A154B;
+  --secondary-color: #9B125B;
+  --ios-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  --ios-shadow-active: 0 12px 36px rgba(0, 0, 0, 0.45);
+}
+
+/* Em fundos preenchidos com o rosa claro, o texto volta a ser vinho escuro
+   (legibilidade + coesão de marca). Os badges usam var(--white) = escuro no dark. */
+.dark-theme .btn-primary,
+.dark-theme .btn-request-exam,
+.dark-theme .new-title-badge,
+.dark-theme .moodle-tag,
+.dark-theme .exam-result-badge .value { color: #4A0028; }
+
+.dark-theme .app-header {
+  background-color: #1E293B;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.dark-theme .progress-bar-container {
+  background-color: #1E293B;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.dark-theme .tab-btn.active {
+  background-color: var(--primary-color); /* rosa claro no modo noturno */
+  color: #4A0028;
+}
+
+.dark-theme .clinical-box, 
+.dark-theme .patient-profile-main,
+.dark-theme .rpg-container,
+.dark-theme .rpg-chat-box,
+.dark-theme .summary-shelf-section,
+.dark-theme .modal-card,
+.dark-theme .score-card,
+.dark-theme .discussion-text-box,
+.dark-theme .quiz-question-box,
+.dark-theme .quiz-option-btn,
+.dark-theme .quiz-explanation-box,
+.dark-theme .character-stats-panel,
+.dark-theme .quest-tracker-widget {
+  background-color: #1E293B;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.dark-theme .semiology-item,
+.dark-theme .exam-item-row,
+.dark-theme .prescription-card-checkbox,
+.dark-theme .summary-shelf-card {
+  background-color: #334155; /* Slate 700 */
+  color: #F1F5F9;
+  border-color: rgba(255, 255, 255, 0.04);
+}
+
+.dark-theme .exam-item-row.requested {
+  background-color: rgba(39, 174, 96, 0.15);
+  border-color: var(--success-color);
+}
+
+.dark-theme .prescription-card-checkbox.selected {
+  background-color: rgba(122, 0, 67, 0.15);
+  border-color: var(--primary-color);
+}
+
+.dark-theme .quiz-option-btn.correct {
+  background-color: rgba(39, 174, 96, 0.15);
+  border-color: var(--success-color);
+}
+
+.dark-theme .quiz-option-btn.wrong {
+  background-color: rgba(192, 57, 43, 0.15);
+  border-color: var(--danger-color);
+}
+
+.dark-theme .summary-shelf-card.unlocked {
+  background: linear-gradient(135deg, #1E293B 60%, #4A154B);
+  border-color: var(--primary-color);
+}
+
+.dark-theme .btn-icon-theme {
+  color: #FCD34D; /* Lua amarela */
+}
+
+.btn-icon-theme {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.btn-icon-theme:active {
+  transform: scale(0.85);
+}
+
+/* ================= HORIZONTAL (LANDSCAPE) & FULLSCREEN LAYOUT ================= */
+@media (orientation: landscape) or (min-aspect-ratio: 4/3) {
+  body {
+    overflow: hidden;
+  }
+  
+  #app-container {
+    max-width: 100vw;
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    box-shadow: none;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  
+  .ios-status-bar-spacer {
+    display: none;
+  }
+
+  /* Tela Home em modo Landscape */
+  #screen-home.app-screen.active {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    top: 0;
+    bottom: 0;
+  }
+  
+  #screen-home .app-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 52px;
+    z-index: 50;
+    padding: 8px 16px;
+    border-radius: 0;
+  }
+  
+  #screen-home .progress-bar-container {
+    position: absolute;
+    top: 52px;
+    left: 0;
+    width: 100%;
+    height: 32px;
+    z-index: 45;
+    padding: 4px 16px;
+    border-radius: 0;
+  }
+  
+  #screen-home .home-content {
+    margin-top: 84px;
+    padding: 12px;
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    height: calc(100vh - 84px);
+    width: 100vw;
+    overflow: hidden;
+  }
+  
+  /* Lado Esquerdo: Área RPG e Chat */
+  #screen-home #sub-tab-map.home-sub-panel.active {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    grid-template-rows: auto 1fr;
+    gap: 12px;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* O contêiner do mapa isométrico ocupa o lado esquerdo */
+  #screen-home #hospital-rpg-container {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    height: 100%;
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 8px;
+  }
+  
+  #screen-home .rpg-iso-viewport {
+    height: 100%;
+    flex: 1;
+    min-height: 0;
+  }
+
+  #screen-home .rpg-grid {
+    transform: rotateX(54deg) rotateZ(-45deg) scale(0.92);
+  }
+
+  /* O lado direito contém as sub-abas e widgets */
+  #screen-home .home-sub-tabs {
+    position: absolute;
+    top: 10px;
+    right: 180px;
+    z-index: 60;
+    margin-bottom: 0;
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+  }
+  
+  #screen-home .sub-tab-btn {
+    padding: 6px 12px;
+  }
+
+  /* Os painéis de Inventário e Ranking no lado direito */
+  #sub-tab-inventory, #sub-tab-leaderboard {
+    flex: 1;
+    height: 100%;
+    overflow-y: auto;
+    background-color: var(--white);
+    padding: 16px;
+    border-radius: var(--border-radius-large);
+    box-shadow: var(--ios-shadow);
+  }
+  
+  #screen-home .home-sub-panel.active:not(#sub-tab-map) {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    margin-top: 0;
+  }
+  
+  /* Widgets de Quest e Chat na coluna da direita */
+  #screen-home #quest-tracker {
+    grid-column: 2;
+    grid-row: 1;
+    margin-bottom: 0;
+  }
+
+  #screen-home #rpg-chat-container {
+    grid-column: 2;
+    grid-row: 2;
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  
+  #screen-home #rpg-chat-container .chat-log {
+    flex: 1;
+    height: calc(100vh - 280px);
+  }
+
+  #screen-home .summary-shelf-section {
+    display: none;
+  }
+
+  /* Outras telas em modo paisagem (Caso Clínico) */
+  #screen-case.app-screen {
+    top: 0;
+    bottom: 0;
+    height: 100%;
+  }
+  
+  #screen-case.app-screen.active {
+    display: flex;
+    flex-direction: row;
+    opacity: 1;
+    transform: none;
+  }
+  
+  #screen-case .case-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 52px;
+    z-index: 50;
+    border-radius: 0;
+  }
+  
+  #screen-case .case-tabs {
+    position: absolute;
+    top: 0;
+    right: 120px;
+    z-index: 60;
+    border-bottom: none;
+    background: transparent;
+    padding: 6px;
+  }
+  
+  #screen-case .case-content-container {
+    margin-top: 52px;
+    padding: 16px;
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    width: 100vw;
+    height: calc(100vh - 52px);
+    overflow: hidden;
+  }
+  
+  /* Lado Esquerdo do Prontuário: Ficha do Paciente */
+  #screen-case .tab-panel.active {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    width: 100%;
+    height: 100%;
+  }
+  
+  #screen-case .patient-card {
+    flex: 4;
+    height: 100%;
+    overflow-y: auto;
+  }
+  
+  #screen-case .history-box {
+    flex: 6;
+    height: 100%;
+    overflow-y: auto;
+  }
+  
+  #screen-case .tab-panel:not(#tab-anamnese).active {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100%;
+  }
+  
+  #screen-case .tab-panel:not(#tab-anamnese) .clinical-box {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    margin-bottom: 0;
+  }
+  
+  /* Discussão e Quiz */
+  #screen-discussion .discussion-content {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 16px;
+    align-items: start;
+    height: calc(100vh - 60px);
+  }
+  
+  #screen-discussion .btn-primary {
+    grid-column: span 2;
+  }
+  
+  #screen-quiz .quiz-content {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 16px;
+    align-items: start;
+    height: calc(100vh - 120px);
+  }
+  
+  #screen-quiz #btn-next-quiz-question {
+    grid-column: span 2;
+  }
+}
+

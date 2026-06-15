@@ -1,0 +1,573 @@
+/* ============================================================
+   NutriGame · HUD do Mundo 3D (MMORPG imersivo em tela cheia)
+   ============================================================ */
+
+/* ---- Tela inicial vira o mundo em tela cheia ---- */
+#screen-home.app-screen {
+  display: block;
+  padding: 0;
+  overflow: hidden;
+}
+
+#world3d-root {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 35%, #16233c, #090f1a 80%);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#world3d-canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; }
+.inv-character { image-rendering: pixelated; }
+
+/* ---- Camada de nametags projetados ---- */
+.world3d-labels { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 5; }
+
+.w3d-label {
+  position: absolute; top: 0; left: 0; white-space: nowrap;
+  font-family: "Montserrat", system-ui, sans-serif;
+  font-size: 11px; line-height: 1.25; text-align: center; color: #fff;
+  padding: 3px 8px; border-radius: 8px;
+  background: rgba(8, 14, 26, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8); will-change: transform;
+}
+.w3d-label b { font-weight: 700; }
+.w3d-label-self { background: linear-gradient(180deg, rgba(122,0,67,.92), rgba(80,0,44,.92)); border-color: rgba(255,95,162,.6); }
+.w3d-label-npc { border-color: rgba(77,208,225,.5); }
+.w3d-label-player { border-color: rgba(126,87,194,.55); }
+.w3d-label-info { font-size: 10px; opacity: .85; background: rgba(8,14,26,.55); }
+.w3d-label-bed { padding: 4px 9px; }
+.w3d-bed-sub { font-size: 9.5px; opacity: .85; }
+.w3d-bed-icon.avail { filter: drop-shadow(0 0 4px #ffb300); }
+.w3d-bed-icon.done { filter: drop-shadow(0 0 4px #4caf50); }
+.w3d-bed-icon.locked { opacity: .7; }
+
+/* ---- Balão de interação ---- */
+.w3d-interact-prompt {
+  position: absolute; top: 0; left: 0; z-index: 7;
+  background: linear-gradient(180deg, #ffce4d, #ff9d2e); color: #5a2a00;
+  font-family: "Montserrat", sans-serif; font-weight: 700; font-size: 11px;
+  padding: 4px 10px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,.45);
+  pointer-events: none; animation: w3dBounce 1.2s ease-in-out infinite;
+}
+.w3d-interact-prompt.hidden { display: none; }
+@keyframes w3dBounce {
+  0%, 100% { transform: translate(-50%, -100%) translateY(0); }
+  50% { transform: translate(-50%, -100%) translateY(-4px); }
+}
+
+/* ---- Controles ---- */
+.w3d-joystick {
+  position: absolute; left: 20px; bottom: 24px;
+  width: 116px; height: 116px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,.12), rgba(255,255,255,.04));
+  border: 2px solid rgba(255,255,255,.22); z-index: 9; touch-action: none;
+}
+.w3d-joystick-knob {
+  position: absolute; left: 50%; top: 50%; width: 50px; height: 50px;
+  margin: -25px 0 0 -25px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ff8fc0, #7a0043);
+  border: 2px solid rgba(255,255,255,.5); box-shadow: 0 3px 8px rgba(0,0,0,.5);
+  transition: transform .05s linear;
+}
+.w3d-action {
+  position: absolute; right: 24px; bottom: 30px;
+  width: 92px; height: 92px; border-radius: 50%;
+  border: 3px solid rgba(255,255,255,.45); color: #fff;
+  background: radial-gradient(circle at 35% 30%, #6d7787, #3a4252);
+  font-family: "Montserrat", sans-serif; font-weight: 800; font-size: 12px;
+  cursor: pointer; z-index: 9; box-shadow: 0 5px 14px rgba(0,0,0,.5);
+  transition: transform .1s ease, background .2s ease;
+}
+.w3d-action:active { transform: scale(.92); }
+.w3d-action.ready {
+  background: radial-gradient(circle at 35% 30%, #5fe0a0, #1f9d6b);
+  border-color: rgba(255,255,255,.85);
+  box-shadow: 0 0 18px rgba(95,224,160,.6), 0 5px 14px rgba(0,0,0,.5);
+}
+
+/* ---- Loading / erro ---- */
+.w3d-loading {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  text-align: center; padding: 24px; color: #cdd6e6;
+  font-family: "Montserrat", sans-serif; font-size: 14px; line-height: 1.5;
+  background: rgba(9, 15, 26, 0.92); z-index: 12;
+}
+.w3d-loading.w3d-error { color: #ffd2dc; }
+.w3d-loading small { display: block; margin-top: 8px; opacity: .75; font-size: 11.5px; }
+
+/* ============================================================
+   HUD INTEGRADO (overlays sobre o 3D)
+   ============================================================ */
+/* Tokens de tema do HUD: claro (padrão) vs escuro. Trocam com .dark-theme,
+   assim os painéis acompanham o tema (antes ficavam sempre escuros). */
+body {
+  --hud-bg: linear-gradient(180deg, rgba(255,255,255,.93), rgba(248,240,245,.9));
+  --hud-border: rgba(122,0,67,.20);
+  --hud-shadow: 0 6px 18px rgba(122,0,67,.16);
+  --hud-text: #4a2c3a;
+  --hud-title: #7a0043;
+  --hud-sub: #a8557f;
+  --hud-btn-bg: rgba(122,0,67,.06);
+  --hud-btn-border: rgba(122,0,67,.16);
+  --hud-btn-hover: rgba(122,0,67,.9);
+  --hud-track-bg: rgba(122,0,67,.10);
+  --hud-quest-accent: #c98a00;
+  --hud-quest-text: #7a5a10;
+}
+body.dark-theme {
+  --hud-bg: linear-gradient(180deg, rgba(20,28,46,.82), rgba(12,18,32,.82));
+  --hud-border: rgba(255,255,255,.12);
+  --hud-shadow: 0 6px 18px rgba(0,0,0,.38);
+  --hud-text: #dfe6f2;
+  --hud-title: #ffffff;
+  --hud-sub: #ffb3d6;
+  --hud-btn-bg: rgba(255,255,255,.06);
+  --hud-btn-border: rgba(255,255,255,.10);
+  --hud-btn-hover: rgba(122,0,67,.9);
+  --hud-track-bg: rgba(0,0,0,.4);
+  --hud-quest-accent: #ffce4d;
+  --hud-quest-text: #eef2fb;
+}
+.hud-player, .hud-topright, .hud-quest, .hud-chat { position: absolute; z-index: 30; }
+
+/* Card do jogador (topo-esquerda) */
+.hud-player {
+  top: 12px; left: 12px; display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px 8px 8px; border-radius: 14px;
+  background: var(--hud-bg);
+  border: 1px solid var(--hud-border); backdrop-filter: blur(4px);
+  box-shadow: var(--hud-shadow); max-width: 60%;
+}
+.hud-avatar {
+  height: 40px; width: 40px; object-fit: contain; border-radius: 10px;
+  background: radial-gradient(circle at 50% 35%, rgba(255,179,214,.30), rgba(122,0,67,.12));
+  border: 1.5px solid rgba(122,0,67,.45); box-shadow: 0 0 0 2px rgba(255,255,255,.4) inset, 0 2px 6px rgba(0,0,0,.2);
+  padding: 2px;
+}
+body.dark-theme .hud-avatar {
+  background: radial-gradient(circle at 50% 35%, rgba(255,179,214,.30), rgba(0,0,0,.25));
+  border-color: rgba(255,179,214,.55); box-shadow: 0 0 0 2px rgba(0,0,0,.25) inset, 0 2px 6px rgba(0,0,0,.35);
+}
+.hud-player-info { display: flex; flex-direction: column; gap: 2px; min-width: 130px; }
+.hud-name { font-family: "Merienda", cursive; font-weight: 800; font-size: 14px; color: var(--hud-title); line-height: 1; }
+.hud-title { font-family: "Montserrat", sans-serif; font-size: 10px; color: var(--hud-sub); }
+.hud-bars { display: flex; align-items: center; gap: 8px; margin-top: 3px; }
+.hud-lives { font-size: 11px; letter-spacing: -1px; }
+.hud-xp-track {
+  position: relative; flex: 1; min-width: 90px; height: 14px; border-radius: 8px;
+  background: var(--hud-track-bg); overflow: hidden; border: 1px solid var(--hud-border);
+}
+.hud-xp-fill {
+  height: 100%; background: linear-gradient(90deg, #ff5fa2, #ffb86c, #ffce4d);
+  box-shadow: 0 0 8px rgba(255,95,162,.5) inset; transition: width .4s ease; position: relative;
+}
+.hud-xp-fill::after {
+  content: ""; position: absolute; inset: 0 0 50% 0;
+  background: linear-gradient(180deg, rgba(255,255,255,.35), rgba(255,255,255,0));
+}
+.hud-xp-text {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-family: "Montserrat", sans-serif; font-size: 8.5px; font-weight: 700; color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,.9);
+}
+
+/* Topo-direita: minimapa + grade de botões (alinhada sob o minimapa) */
+.hud-topright { top: 12px; right: 12px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.hud-minimap-wrap {
+  background: var(--hud-bg); border: 1px solid var(--hud-border);
+  border-radius: 12px; padding: 6px; box-shadow: var(--hud-shadow);
+}
+.w3d-minimap { display: block; width: 104px; height: 104px; border-radius: 8px; }
+.hud-minimap-legend {
+  display: flex; flex-direction: column; gap: 1px; margin-top: 4px;
+  font-family: "Montserrat", sans-serif; font-size: 8.5px; color: var(--hud-text);
+}
+.hud-minimap-legend .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+.dot.red { background: #e0566f; } .dot.blue { background: #4d9be0; }
+/* grade 3x3 alinhada à largura do minimapa */
+.hud-iconbar {
+  display: grid; grid-template-columns: repeat(3, 36px); gap: 6px; justify-content: center;
+  padding: 7px; border-radius: 14px;
+  background: var(--hud-bg); border: 1px solid var(--hud-border); backdrop-filter: blur(4px);
+  box-shadow: var(--hud-shadow);
+}
+.hud-icon-btn {
+  width: 36px; height: 36px; border-radius: 10px; font-size: 17px; cursor: pointer;
+  background: var(--hud-btn-bg); border: 1px solid var(--hud-btn-border); color: var(--hud-text);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform .1s ease, background .18s ease, box-shadow .18s ease;
+}
+.hud-icon-btn:hover { background: var(--hud-btn-hover); box-shadow: 0 0 0 2px rgba(255,179,214,.35); }
+.hud-icon-btn:active { transform: scale(.88); }
+
+/* Quest tracker (abaixo do card do jogador) */
+.hud-quest {
+  top: 84px; left: 12px; max-width: 240px;
+  background: var(--hud-bg); border: 1px solid var(--hud-border);
+  border-left: 3px solid var(--hud-quest-accent); border-radius: 10px; padding: 8px 12px;
+  box-shadow: var(--hud-shadow);
+}
+.hud-quest-title { font-family: "Montserrat", sans-serif; font-size: 10px; font-weight: 800; color: var(--hud-quest-accent); letter-spacing: .5px; }
+.hud-quest .quest-body ul { list-style: none; margin: 4px 0 0; padding: 0; }
+.hud-quest .quest-body li { font-family: "Montserrat", sans-serif; font-size: 11px; color: var(--hud-quest-text); line-height: 1.35; }
+
+/* Chat (rodapé central, recolhível) */
+.hud-chat {
+  bottom: 22px; left: 50%; transform: translateX(-50%);
+  width: min(340px, 46vw); max-height: 150px; display: flex; flex-direction: column;
+  background: var(--hud-bg); border: 1px solid var(--hud-border);
+  border-radius: 12px; overflow: hidden; box-shadow: var(--hud-shadow);
+}
+.hud-chat-header {
+  font-family: "Montserrat", sans-serif; font-size: 11px; font-weight: 700; color: var(--hud-title);
+  padding: 6px 8px 6px 12px; display: flex; justify-content: space-between; align-items: center; gap: 6px;
+  background: rgba(127,127,127,.06);
+  border-bottom: 1px solid var(--hud-border);
+}
+.hud-chat-title { cursor: pointer; flex: 1; user-select: none; }
+.hud-chat-caret { transition: transform .2s ease; display: inline-block; }
+.hud-chat-min {
+  width: 22px; height: 22px; flex: 0 0 auto; border-radius: 7px; cursor: pointer;
+  background: var(--hud-btn-bg); border: 1px solid var(--hud-btn-border); color: var(--hud-text);
+  font-size: 14px; font-weight: 800; line-height: 1; display: flex; align-items: center; justify-content: center;
+  transition: background .15s ease, transform .1s ease;
+}
+.hud-chat-min:hover { background: var(--hud-btn-hover); color: #fff; }
+.hud-chat-min:active { transform: scale(.88); }
+.hud-chat.collapsed .hud-chat-log { display: none; }
+.hud-chat.collapsed .hud-chat-caret { transform: rotate(-90deg); }
+.hud-chat.minimized { display: none !important; }
+.hud-chat-log { padding: 8px 12px; overflow-y: auto; font-family: "Montserrat", sans-serif; font-size: 10.5px; color: var(--hud-text); }
+.hud-chat-log p, .hud-chat-log div { margin: 0 0 5px; line-height: 1.35; }
+
+/* Aba flutuante para reabrir o chat minimizado */
+.hud-chat-reopen {
+  position: absolute; z-index: 30; bottom: 22px; left: 50%; transform: translateX(-50%);
+  font-family: "Montserrat", sans-serif; font-size: 11px; font-weight: 700; color: var(--hud-text);
+  padding: 8px 16px; border-radius: 999px; cursor: pointer;
+  background: var(--hud-bg); border: 1px solid var(--hud-border);
+  box-shadow: var(--hud-shadow); backdrop-filter: blur(4px);
+  transition: background .15s ease, transform .1s ease;
+}
+.hud-chat-reopen:hover { background: var(--hud-btn-hover); color: #fff; transform: translateX(-50%) translateY(-1px); }
+.hud-chat-reopen:active { transform: translateX(-50%) scale(.95); }
+.hud-chat-reopen[hidden] { display: none; }
+
+/* ============================================================
+   JANELAS FLUTUANTES (inventário / ranking / resumos)
+   ============================================================ */
+.hud-window {
+  position: absolute; z-index: 60; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: min(420px, 90%); max-height: min(78vh, 560px); display: none; flex-direction: column;
+  background: #fff7fb; border-radius: 16px; overflow: hidden;
+  border: 2px solid #7a0043; box-shadow: 0 24px 60px rgba(0,0,0,.55);
+}
+.hud-window.open { display: flex; animation: hudPop .18s ease; }
+@keyframes hudPop { from { opacity: 0; transform: translate(-50%, -48%) scale(.96); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+.hud-window-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; background: linear-gradient(180deg, #7a0043, #5a0032); color: #fff;
+}
+.hud-window-bar h3 { margin: 0; font-family: "Merienda", cursive; font-weight: 800; font-size: 16px; }
+.hud-window-close {
+  width: 30px; height: 30px; border-radius: 8px; border: none; cursor: pointer;
+  background: rgba(255,255,255,.18); color: #fff; font-size: 14px; font-weight: 700;
+}
+.hud-window-close:hover { background: rgba(255,255,255,.32); }
+.hud-window-body { padding: 14px 16px 18px; overflow-y: auto; }
+
+/* Pausa visual do mundo quando algo está aberto sobre ele */
+#world3d-root.w3d-paused .world3d-labels,
+#world3d-root.w3d-paused .w3d-interact-prompt { opacity: 0; }
+#world3d-root.w3d-paused #world3d-canvas { filter: brightness(0.55) saturate(0.7); }
+
+/* ---- Botões de zoom da câmera ---- */
+.w3d-zoom {
+  position: absolute; right: 30px; bottom: 132px; z-index: 9;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.w3d-zoom-btn {
+  width: 44px; height: 44px; border-radius: 12px; cursor: pointer;
+  font-size: 22px; font-weight: 700; line-height: 1; color: var(--hud-text);
+  background: var(--hud-bg); border: 1px solid var(--hud-border);
+  box-shadow: var(--hud-shadow); transition: transform .1s ease, background .2s ease;
+}
+.w3d-zoom-btn:hover { background: var(--hud-btn-hover); color: #fff; }
+.w3d-zoom-btn:active { transform: scale(0.9); }
+
+/* ---- Inventário com boneco 3D (estilo Minecraft) ---- */
+.inv-layout { display: flex; gap: 14px; align-items: flex-start; }
+.inv-doll {
+  flex: 0 0 auto; width: 150px; display: flex; flex-direction: column; align-items: center;
+  background: linear-gradient(180deg, #2a3450, #161d2e);
+  border: 1px solid rgba(122, 0, 67, 0.35); border-radius: 12px; padding: 8px;
+}
+.inv-character { width: 150px; height: 220px; display: block; }
+.inv-doll-name {
+  font-family: "Merienda", cursive; font-weight: 800; font-size: 13px; color: #ffd2e6;
+  margin-top: 4px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+.inv-main { flex: 1 1 auto; min-width: 0; }
+.inv-credit { font-family: "Montserrat", sans-serif; font-size: 8px; color: #9aa3b5; margin-top: 4px; text-align: center; line-height: 1.2; }
+
+/* ---- Responsivo (celular) ---- */
+@media (max-width: 480px) {
+  .hud-player { max-width: 66%; padding: 6px 10px 6px 6px; }
+  .hud-avatar { height: 34px; width: 34px; }
+  .hud-name { font-size: 12.5px; }
+  .hud-player-info { min-width: 110px; }
+  .w3d-minimap { width: 84px; height: 84px; }
+  .hud-icon-btn { width: 36px; height: 36px; font-size: 16px; }
+  .hud-quest { top: 76px; max-width: 200px; padding: 6px 10px; }
+  .hud-chat { width: 58vw; max-height: 120px; }
+  .w3d-joystick { width: 104px; height: 104px; left: 14px; bottom: 18px; }
+  .w3d-action { width: 80px; height: 80px; right: 16px; bottom: 22px; }
+  .w3d-zoom { right: 20px; bottom: 112px; }
+  .w3d-zoom-btn { width: 40px; height: 40px; font-size: 20px; }
+  .inv-layout { flex-direction: column; align-items: center; }
+  .inv-doll { width: 100%; flex-direction: row; justify-content: center; gap: 10px; }
+  .inv-character { width: 110px; height: 160px; }
+  .inv-doll-name { margin-top: 0; align-self: center; }
+}
+
+/* ============================================================
+   NOVAS JANELAS: Ambulatório, Estudo Livre, Códex, Conquistas
+   ============================================================ */
+.hud-window-lg { width: min(560px, 94%); max-height: min(84vh, 640px); }
+
+/* Botão compacto reutilizável */
+.btn-sm { padding: 7px 12px; font-size: 12.5px; border-radius: 9px; width: auto; min-width: 0; }
+.hud-window-body .btn-sm { display: inline-block; }
+.btn-sm:disabled { opacity: .45; cursor: not-allowed; }
+
+/* ---- Códex ---- */
+.codex-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.codex-tab-btn {
+  padding: 7px 12px; border-radius: 999px; border: 1.5px solid #d6a5bd; cursor: pointer;
+  background: #fff; color: #7a0043; font-family: "Montserrat", sans-serif; font-weight: 700; font-size: 12.5px;
+}
+.codex-tab-btn.active { background: #7a0043; color: #fff; border-color: #7a0043; }
+.codex-list { display: flex; flex-direction: column; gap: 10px; }
+.codex-card {
+  background: #fff; border: 1px solid #eccfdc; border-left: 4px solid #7a0043; border-radius: 10px;
+  padding: 10px 12px; color: #3a2530; font-family: "Montserrat", sans-serif; font-size: 12.5px; line-height: 1.45;
+}
+.codex-card p { margin: 4px 0; }
+.codex-card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+.codex-card-head strong { font-size: 13.5px; color: #5a0032; }
+.codex-tag { font-size: 10.5px; background: #f4dde7; color: #7a0043; padding: 2px 8px; border-radius: 999px; font-weight: 700; }
+.codex-alert { color: #a3344f; }
+.codex-func { color: #1f7a4d; }
+
+/* ---- Estudo Livre / Revisão ---- */
+.estudo-review-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  background: linear-gradient(180deg, #fff, #fdeef4); border: 1px solid #eccfdc; border-radius: 10px;
+  padding: 10px 12px; margin-bottom: 8px;
+}
+.estudo-review-bar strong { color: #5a0032; font-size: 13px; }
+.estudo-review-count { display: block; font-size: 11px; color: #6b5560; margin-top: 2px; }
+.estudo-list { display: flex; flex-direction: column; gap: 8px; }
+.estudo-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  background: #fff; border: 1px solid #eccfdc; border-radius: 10px; padding: 9px 12px;
+}
+.estudo-row.locked { opacity: .55; }
+.estudo-row-info { min-width: 0; }
+.estudo-row-title { display: block; font-weight: 700; color: #3a2530; font-size: 12.5px; font-family: "Montserrat", sans-serif; }
+.estudo-row-meta { display: block; font-size: 10.5px; color: #7a6470; margin-top: 2px; }
+.estudo-row-actions { display: flex; gap: 6px; flex: 0 0 auto; }
+
+/* ---- Ambulatório ---- */
+.ambul-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ambul-card {
+  background: #fff; border: 1.5px solid #eccfdc; border-radius: 12px; padding: 12px; position: relative;
+  display: flex; flex-direction: column; gap: 6px; text-align: center; align-items: center;
+}
+.ambul-card.available { border-color: #ffb300; box-shadow: 0 0 0 2px rgba(255,179,0,.18); }
+.ambul-card.done { border-color: #4caf50; }
+.ambul-card.locked { opacity: .6; }
+.ambul-card-badge { font-size: 26px; }
+.ambul-card-title { font-family: "Merienda", cursive; font-weight: 800; color: #5a0032; font-size: 13px; line-height: 1.2; }
+.ambul-card-sub { font-size: 10.5px; color: #6b5560; font-family: "Montserrat", sans-serif; }
+.ambul-locked-note { color: #a3344f; }
+.ambul-section-head {
+  font-family: "Merienda", cursive; font-weight: 800; font-size: 14px; color: #5a0032;
+  margin: 18px 0 6px; padding-top: 12px; border-top: 2px solid #eccfdc;
+}
+body.dark-theme .ambul-section-head { color: #ffd2e6; border-top-color: #6a4a5c; }
+
+/* ---- Estatísticas + Conquistas ---- */
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+.stat-box {
+  background: linear-gradient(180deg, #fff, #fdeef4); border: 1px solid #eccfdc; border-radius: 10px;
+  padding: 10px 6px; text-align: center;
+}
+.stat-num { display: block; font-family: "Merienda", cursive; font-weight: 900; font-size: 18px; color: #7a0043; }
+.stat-label { display: block; font-size: 10px; color: #6b5560; margin-top: 2px; font-family: "Montserrat", sans-serif; }
+.ach-grid { display: flex; flex-direction: column; gap: 8px; }
+.ach-card {
+  display: flex; align-items: center; gap: 10px; padding: 9px 11px; border-radius: 10px;
+  background: #fff; border: 1px solid #eccfdc;
+}
+.ach-card.locked { opacity: .5; filter: grayscale(.6); }
+.ach-card.unlocked { border-color: #ffb300; background: linear-gradient(180deg, #fff, #fff7e6); }
+.ach-icon { font-size: 24px; flex: 0 0 auto; width: 34px; text-align: center; }
+.ach-info { min-width: 0; font-family: "Montserrat", sans-serif; }
+.ach-info strong { display: block; font-size: 12.5px; color: #3a2530; }
+.ach-info span { display: block; font-size: 11px; color: #7a6470; line-height: 1.3; }
+.hud-window-body h4 { margin: 4px 0 8px; color: #5a0032; font-family: "Merienda", cursive; font-size: 14px; }
+
+/* ---- Flashcard (reaproveita modal de alerta) ---- */
+.flashcard-body { text-align: left; font-family: "Montserrat", sans-serif; font-size: 13px; color: #3a2530; line-height: 1.5; }
+.flashcard-body h4 { margin: 12px 0 4px; color: #7a0043; font-family: "Merienda", cursive; font-size: 14.5px; }
+.flashcard-body ul { margin: 0 0 6px; padding-left: 20px; }
+.flashcard-body li { margin-bottom: 4px; }
+.flashcard-body .fc-errors li { color: #c0392b; }
+.flashcard-body .fc-patient { color: #5a0032; }
+
+/* ---- Toast de Conquista ---- */
+#achievement-toast-stack {
+  position: fixed; top: max(16px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%);
+  z-index: 200; display: flex; flex-direction: column; gap: 8px; pointer-events: none; width: max-content; max-width: 92vw;
+}
+.achievement-toast {
+  display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 12px;
+  background: linear-gradient(180deg, #7a0043, #5a0032); color: #fff; border: 1.5px solid #ffb300;
+  box-shadow: 0 10px 30px rgba(0,0,0,.5); opacity: 0; transform: translateY(-14px);
+  transition: opacity .35s ease, transform .35s ease; font-family: "Montserrat", sans-serif;
+}
+.achievement-toast.show { opacity: 1; transform: translateY(0); }
+.ach-toast-icon { font-size: 26px; }
+.ach-toast-text strong { display: block; font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase; color: #ffd2e6; }
+.ach-toast-text span { display: block; font-size: 13.5px; font-weight: 700; }
+
+/* Dark theme: mantém as janelas legíveis */
+body.dark-theme .codex-card,
+body.dark-theme .estudo-row,
+body.dark-theme .ambul-card,
+body.dark-theme .ach-card,
+body.dark-theme .stat-box,
+body.dark-theme .estudo-review-bar { background: #20283c; border-color: #3a2540; color: #e7ecf6; }
+body.dark-theme .codex-card,
+body.dark-theme .estudo-row-title,
+body.dark-theme .ach-info strong,
+body.dark-theme .codex-card-head strong,
+body.dark-theme .stat-num,
+body.dark-theme .ambul-card-title { color: #ffd2e6; }
+
+/* ============================================================
+   MODO NOTURNO: a fúcsia (#7a0043) do HUD/janelas vira o rosa
+   claro (#F0A7D4) da identidade visual da Ana.
+   ============================================================ */
+body.dark-theme .hud-window { background: #161d2e; border-color: #F0A7D4; color: #e7ecf6; }
+body.dark-theme .hud-window-bar {
+  background: linear-gradient(180deg, #F0A7D4, #d98cc0); color: #4A0028;
+}
+body.dark-theme .hud-window-close { background: rgba(74,0,40,.25); color: #4A0028; }
+body.dark-theme .hud-window-close:hover { background: rgba(74,0,40,.4); }
+body.dark-theme .hud-window-body h4,
+body.dark-theme .estudo-review-bar strong,
+body.dark-theme .ambul-card-sub,
+body.dark-theme .section-desc { color: #f3c3df; }
+body.dark-theme .codex-tab-btn { background: #20283c; color: #F0A7D4; border-color: #6a4a5c; }
+body.dark-theme .codex-tab-btn.active { background: #F0A7D4; color: #4A0028; border-color: #F0A7D4; }
+body.dark-theme .codex-card { border-left-color: #F0A7D4; }
+body.dark-theme .codex-tag { background: rgba(240,167,212,.18); color: #f3c3df; }
+body.dark-theme .codex-func { color: #7fe0b0; }
+body.dark-theme .codex-alert { color: #ff9db4; }
+body.dark-theme .ambul-card.available { border-color: #ffce4d; }
+body.dark-theme .hud-icon-btn:hover { background: rgba(240,167,212,.85); }
+body.dark-theme .achievement-toast {
+  background: linear-gradient(180deg, #F0A7D4, #d98cc0); color: #4A0028; border-color: #ffce4d;
+}
+body.dark-theme .ach-toast-text strong { color: #7a0043; }
+
+@media (max-width: 480px) {
+  .ambul-grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .estudo-row { flex-direction: column; align-items: flex-start; }
+  .estudo-row-actions { width: 100%; }
+}
+
+/* ============================================================
+   NOVOS COMPONENTES (v1.2): sair do quiz, simulado, flashcards,
+   acompanhante, resumo de erros, partículas, referências.
+   ============================================================ */
+.quiz-header { position: relative; }
+.quiz-exit-btn {
+  position: absolute; top: 8px; right: 10px; z-index: 6;
+  background: rgba(0,0,0,.28); color: #fff; border: 1px solid rgba(255,255,255,.28);
+  border-radius: 8px; padding: 5px 10px; font-size: 12px; font-weight: 700; cursor: pointer;
+}
+.quiz-exit-btn:hover { background: rgba(192,57,43,.85); }
+
+.sim-timer {
+  position: absolute; top: 8px; left: 10px; z-index: 6; display: none;
+  background: rgba(122,0,67,.92); color: #fff; border-radius: 8px; padding: 5px 10px;
+  font-weight: 800; font-size: 13px; font-family: "Montserrat", sans-serif;
+}
+.sim-timer.urgent { background: #c0392b; animation: simPulse .6s infinite alternate; }
+@keyframes simPulse { from { transform: scale(1); } to { transform: scale(1.1); } }
+
+/* Acompanhante questionando a conduta (diálogo do leito) */
+.companion-remark {
+  margin-top: 10px; padding: 8px 10px; border-left: 3px solid #ffb300;
+  background: rgba(255,179,0,.12); border-radius: 6px; font-size: 13px; font-style: italic;
+}
+.companion-who { display: block; font-style: normal; font-weight: 700; font-size: 11px; color: #b8860b; margin-bottom: 2px; }
+
+/* Resumo de erros ao final do quiz */
+.wrong-summary { text-align: left; margin-top: 10px; max-height: 42vh; overflow-y: auto; }
+.ws-head { font-weight: 800; color: #7a0043; margin: 6px 0; }
+.wrong-item { border-left: 3px solid #c0392b; background: rgba(192,57,43,.07); border-radius: 6px; padding: 6px 8px; margin-bottom: 6px; }
+.wrong-item .wq { font-weight: 700; font-size: 12.5px; margin: 0 0 3px; }
+.wrong-item .wa { color: #1f7a4d; font-size: 12.5px; margin: 0 0 3px; }
+.wrong-item .we { font-size: 11.5px; color: #5a5a5a; margin: 0; line-height: 1.4; }
+.quiz-summary-perfect { color: #1f7a4d; font-weight: 800; text-align: center; margin-top: 8px; }
+body.dark-theme .ws-head { color: #ffd2e6; }
+body.dark-theme .wrong-item .wq { color: #f1f5f9; }
+body.dark-theme .wrong-item .we { color: #cbd5e1; }
+
+/* Partículas (efeitos) */
+#fx-layer { position: fixed; inset: 0; pointer-events: none; z-index: 300; overflow: hidden; }
+.fx-particle { position: absolute; transform: translate(-50%,-50%); animation: fxFly 1s ease-out forwards; will-change: transform, opacity; }
+@keyframes fxFly {
+  from { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+  to { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(.6); }
+}
+
+/* Flashcards flipáveis */
+.flashcard-modal { max-width: 480px; width: min(480px, 94%); }
+.fc-counter { text-align: center; font-size: 12px; color: #7a0043; font-weight: 700; margin: 4px 0; }
+.fc-card { perspective: 1000px; height: 290px; margin: 6px 14px; cursor: pointer; }
+.fc-inner { position: relative; width: 100%; height: 100%; transition: transform .5s; transform-style: preserve-3d; }
+.fc-card.flipped .fc-inner { transform: rotateY(180deg); }
+.fc-face {
+  position: absolute; inset: 0; -webkit-backface-visibility: hidden; backface-visibility: hidden;
+  border-radius: 14px; padding: 16px; display: flex; align-items: center; justify-content: center; overflow-y: auto;
+}
+.fc-front { background: linear-gradient(160deg,#fff,#fdeef4); border: 2px solid #7a0043; }
+.fc-back { background: linear-gradient(160deg,#7a0043,#5a0032); color: #fff; transform: rotateY(180deg); }
+.fc-face-inner { text-align: center; font-size: 14px; line-height: 1.5; font-family: "Montserrat", sans-serif; width: 100%; }
+.fc-back .fc-face-inner { text-align: left; font-size: 13px; }
+.fc-back ul { text-align: left; padding-left: 18px; margin: 4px 0; }
+.fc-back .fc-errors li { color: #ffd2d2; }
+.fc-hint { text-align: center; font-size: 11px; color: #9aa3b5; margin: 6px 0; }
+.fc-actions { display: flex; gap: 6px; justify-content: center; padding: 4px 12px 14px; flex-wrap: wrap; }
+.fc-know-btn { border-color: #1f7a4d !important; color: #1f7a4d !important; }
+.fc-dunno-btn { border-color: #c0392b !important; color: #c0392b !important; }
+body.dark-theme .fc-counter { color: #ffd2e6; }
+
+/* Linha larga de atributo e barra do simulado */
+.attr-item-wide { grid-column: 1 / -1; }
+.estudo-simulado-bar { background: linear-gradient(180deg,#fff,#eef4fd) !important; border-color: #c9def5 !important; }
+body.dark-theme .estudo-simulado-bar { background: #1c2b3c !important; border-color: #36506e !important; }
+.discussion-ref-text { font-size: 13px; line-height: 1.5; }

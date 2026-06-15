@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <!-- Viewport otimizada para iOS, safe-areas e desativação de zoom indesejado -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>NutriGame - Casos Clínicos</title>
+  
+  <!-- Configurações PWA e Safari iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NutriGame">
+  
+  <!-- Fontes do Google: Merienda (Identidade Visual da Ana) e Montserrat (Leitura Clínica) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merienda:wght@400;700;800;900&family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Manifest do PWA -->
+  <link rel="manifest" href="manifest.json">
+  <!-- Ícone do atalho no iPhone (Add to Home Screen) -->
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="images/icon-192.png">
+  <meta name="theme-color" content="#7A0043">
+  
+  <!-- Link do arquivo CSS com cache busting -->
+  <link rel="stylesheet" href="style.css?v=1.0.8">
+  <link rel="stylesheet" href="world3d.css?v=1.3.2">
+</head>
+<body>
+
+  <!-- Barra de status translúcida superior do iOS -->
+  <div class="ios-status-bar-spacer"></div>
+
+  <!-- CONTAINER PRINCIPAL DO APP -->
+  <div id="app-container">
+
+    <!-- 1. TELA HOME / MUNDO 3D MMORPG (tela cheia, HUD integrado) -->
+    <section id="screen-home" class="app-screen active">
+
+      <!-- Mundo 3D em tela cheia (fundo) -->
+      <div id="world3d-root" class="world3d-root">
+        <canvas id="world3d-canvas"></canvas>
+        <div id="world3d-labels" class="world3d-labels"></div>
+
+        <!-- Balão de interação flutuante -->
+        <div id="w3d-interact-prompt" class="w3d-interact-prompt hidden">
+          <span id="w3d-interact-text">Interagir</span>
+        </div>
+
+        <!-- Controles: joystick virtual + botão de ação -->
+        <div id="w3d-joystick" class="w3d-joystick">
+          <div id="w3d-joystick-knob" class="w3d-joystick-knob"></div>
+        </div>
+        <button id="w3d-action" class="w3d-action">Interagir</button>
+
+        <!-- Zoom da câmera -->
+        <div class="w3d-zoom">
+          <button id="w3d-zoom-in" class="w3d-zoom-btn" title="Aproximar">+</button>
+          <button id="w3d-zoom-out" class="w3d-zoom-btn" title="Afastar">−</button>
+        </div>
+
+        <div id="w3d-loading" class="w3d-loading">Carregando hospital 3D…</div>
+      </div>
+
+      <!-- ===================== HUD INTEGRADO ===================== -->
+
+      <!-- Topo-esquerda: card do jogador (vida, XP, nível) -->
+      <div class="hud-player">
+        <img src="images/logo-white.png" alt="Ana Luísa Rocha" class="hud-avatar">
+        <div class="hud-player-info">
+          <div class="hud-name" id="home-user-name">Nutri Ana Luísa</div>
+          <div class="hud-title" id="home-career-title">Nutricionista Residente</div>
+          <div class="hud-bars">
+            <div class="hud-lives" id="home-lives-value">❤️❤️❤️</div>
+            <div class="hud-xp-track">
+              <div class="hud-xp-fill" id="home-level-progress" style="width:0%"></div>
+              <span class="hud-xp-text" id="home-progress-text">0 / 500 XP</span>
+            </div>
+          </div>
+        </div>
+        <span id="home-xp-value" hidden>0</span>
+      </div>
+
+      <!-- Topo-direita: minimapa + botões -->
+      <div class="hud-topright">
+        <div class="hud-minimap-wrap">
+          <canvas id="world3d-minimap" class="w3d-minimap" width="120" height="120"></canvas>
+          <div class="hud-minimap-legend">
+            <span><i class="dot red"></i>Gástrica/Fito 1–4</span>
+            <span><i class="dot blue"></i>Bioquímica 5–8</span>
+          </div>
+        </div>
+        <div class="hud-iconbar">
+          <button class="hud-icon-btn" data-window="win-ambulatorio" title="Ambulatório (casos avançados)">📋</button>
+          <button class="hud-icon-btn" data-window="win-estudo" title="Estudo Livre / Revisão">🧠</button>
+          <button class="hud-icon-btn" data-window="win-codex" title="Códex de Referência">📖</button>
+          <button class="hud-icon-btn" data-window="win-conquistas" title="Conquistas e Estatísticas">🏅</button>
+          <button class="hud-icon-btn" data-window="win-inventory" title="Inventário">🎒</button>
+          <button class="hud-icon-btn" data-window="win-ranking" title="Ranking">🏆</button>
+          <button class="hud-icon-btn" data-window="win-resumos" title="Fichas de Resumo">📑</button>
+          <button class="hud-icon-btn" id="btn-toggle-darkmode" title="Tema">🌙</button>
+          <button class="hud-icon-btn" id="btn-toggle-fullscreen" title="Tela cheia">⛶</button>
+        </div>
+      </div>
+
+      <!-- Quest tracker (overlay) -->
+      <div id="quest-tracker" class="hud-quest">
+        <div class="hud-quest-title">📜 Quest Ativa</div>
+        <div class="quest-body" id="quest-tracker-body">
+          <ul><li class="active-quest" id="quest-item-text">Fale com o Dr. Roberto na ala central.</li></ul>
+        </div>
+      </div>
+
+      <!-- Chat global (overlay recolhível / minimizável) -->
+      <div id="rpg-chat-container" class="hud-chat">
+        <div class="hud-chat-header">
+          <span class="hud-chat-title" id="hud-chat-toggle">💬 Chat Global <span class="hud-chat-caret">▾</span></span>
+          <button class="hud-chat-min" id="hud-chat-min" title="Minimizar chat" aria-label="Minimizar chat">—</button>
+        </div>
+        <div id="mmo-chat-log" class="hud-chat-log"></div>
+      </div>
+      <!-- Aba para reabrir o chat quando minimizado -->
+      <button id="hud-chat-reopen" class="hud-chat-reopen" title="Abrir chat global" aria-label="Abrir chat global" hidden>💬 Chat</button>
+
+      <!-- ===================== JANELAS FLUTUANTES ===================== -->
+
+      <!-- Inventário -->
+      <div class="hud-window" id="win-inventory">
+        <div class="hud-window-bar">
+          <h3>🎒 Inventário</h3>
+          <button class="hud-window-close" data-close="win-inventory">✕</button>
+        </div>
+        <div class="hud-window-body inv-layout">
+          <div class="inv-doll">
+            <canvas id="inv-character" class="inv-character" width="170" height="250"></canvas>
+            <div class="inv-doll-name">Dra. Ana</div>
+            <div class="inv-credit">Modelo: “Doctor” por jeremy · CC BY · Poly Pizza</div>
+          </div>
+          <div class="inv-main">
+            <div class="character-stats-panel">
+              <h4>Atributos do Especialista</h4>
+              <div class="attributes-grid">
+                <div class="attr-item"><span class="attr-label">Vidas Máximas:</span><span class="attr-val" id="attr-max-lives">3 ❤️</span></div>
+                <div class="attr-item"><span class="attr-label">Bônus de XP:</span><span class="attr-val" id="attr-xp-bonus">+0% ⚡</span></div>
+                <div class="attr-item"><span class="attr-label">Dicas de Exames:</span><span class="attr-val" id="attr-free-hints">Desativado 🔬</span></div>
+                <div class="attr-item attr-item-wide"><span class="attr-label">Item equipado:</span><span class="attr-val" id="attr-equip-bonus">Nenhum item equipado</span></div>
+              </div>
+            </div>
+            <h4>Equipamentos Coletados</h4>
+            <p class="section-desc">Itens caídos (Loot) após resolver casos clínicos. Equipe-os para ganhar bônus!</p>
+            <div id="inventory-grid" class="inventory-grid"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ranking -->
+      <div class="hud-window" id="win-ranking">
+        <div class="hud-window-bar">
+          <h3>🏆 Ranking da Turma</h3>
+          <button class="hud-window-close" data-close="win-ranking">✕</button>
+        </div>
+        <div class="hud-window-body">
+          <p class="section-desc">Classificação de XP com os nutricionistas da sua pós. Acumule XP para liderar!</p>
+          <div id="leaderboard-list" class="leaderboard-list"></div>
+        </div>
+      </div>
+
+      <!-- Fichas de Resumo -->
+      <div class="hud-window" id="win-resumos">
+        <div class="hud-window-bar">
+          <h3>📑 Minhas Fichas de Resumo</h3>
+          <button class="hud-window-close" data-close="win-resumos">✕</button>
+        </div>
+        <div class="hud-window-body">
+          <p class="section-desc">Fichas colecionáveis desbloqueadas — toque para abrir resumos rápidos da pós.</p>
+          <div id="summary-cards-grid" class="summary-cards-grid"></div>
+        </div>
+      </div>
+
+      <!-- Ambulatório (casos avançados 9-12) -->
+      <div class="hud-window hud-window-lg" id="win-ambulatorio">
+        <div class="hud-window-bar">
+          <h3>📋 Ambulatório de Casos Avançados</h3>
+          <button class="hud-window-close" data-close="win-ambulatorio">✕</button>
+        </div>
+        <div class="hud-window-body">
+          <div id="ambulatorio-content"></div>
+        </div>
+      </div>
+
+      <!-- Estudo Livre / Revisão -->
+      <div class="hud-window hud-window-lg" id="win-estudo">
+        <div class="hud-window-bar">
+          <h3>🧠 Estudo Livre &amp; Revisão</h3>
+          <button class="hud-window-close" data-close="win-estudo">✕</button>
+        </div>
+        <div class="hud-window-body">
+          <div id="estudo-content"></div>
+        </div>
+      </div>
+
+      <!-- Códex de Referência -->
+      <div class="hud-window hud-window-lg" id="win-codex">
+        <div class="hud-window-bar">
+          <h3>📖 Códex de Referência</h3>
+          <button class="hud-window-close" data-close="win-codex">✕</button>
+        </div>
+        <div class="hud-window-body">
+          <p class="section-desc">Consulta rápida: fitoterápicos, nutrientes, exames com limiares funcionais e limites da legislação do CFN.</p>
+          <div id="codex-content"></div>
+        </div>
+      </div>
+
+      <!-- Conquistas e Estatísticas -->
+      <div class="hud-window hud-window-lg" id="win-conquistas">
+        <div class="hud-window-bar">
+          <h3>🏅 Conquistas &amp; Estatísticas</h3>
+          <button class="hud-window-close" data-close="win-conquistas">✕</button>
+        </div>
+        <div class="hud-window-body">
+          <div id="conquistas-content"></div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- 2. TELA DE SIMULAÇÃO DE CASO CLÍNICO (PRONTUÁRIO) -->
+    <section id="screen-case" class="app-screen">
+      <header class="case-header">
+        <button class="btn-back-home" id="btn-abort-case" title="Sair do caso">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
+        <div class="case-patient-title">
+          <span class="patient-avatar-mini" id="case-patient-avatar">👩‍💼</span>
+          <div>
+            <h3 id="case-patient-name">Júlia Santos</h3>
+            <span class="subtitle" id="case-module-title">Módulo 1</span>
+          </div>
+        </div>
+        <div class="case-lives" id="case-lives-display">❤️❤️❤️</div>
+      </header>
+
+      <!-- Abas de Navegação do Prontuário Clínico -->
+      <nav class="case-tabs">
+        <button class="tab-btn active" data-tab="tab-anamnese">Anamnese</button>
+        <button class="tab-btn" data-tab="tab-semiologia">Exame Físico</button>
+        <button class="tab-btn" data-tab="tab-exames">Exames</button>
+        <button class="tab-btn" data-tab="tab-conduta">Prescrição</button>
+      </nav>
+
+      <!-- Conteúdo das Abas -->
+      <div class="case-content-container">
+        
+        <!-- Aba 1: Anamnese -->
+        <div class="tab-panel active" id="tab-anamnese">
+          <div class="patient-card">
+            <div class="patient-profile-main">
+              <span class="patient-avatar-large" id="patient-avatar-large">👩‍💼</span>
+              <div class="patient-details">
+                <p><strong>Nome:</strong> <span id="p-name">Júlia Santos</span></p>
+                <p><strong>Idade:</strong> <span id="p-age">29</span> anos</p>
+                <p><strong>Ocupação:</strong> <span id="p-occ">Arquiteta</span></p>
+              </div>
+            </div>
+            <div class="clinical-box">
+              <h4>Queixa Principal</h4>
+              <p id="p-complaint" class="complaint-text">Cansaço crônico incapacitante...</p>
+            </div>
+          </div>
+          
+          <div class="clinical-box history-box">
+            <h4>Histórico de Estilo de Vida & Alimentação</h4>
+            <p id="p-anamnese">Relato de estresse e alimentação desregulada...</p>
+          </div>
+        </div>
+
+        <!-- Aba 2: Semiologia (Exame Físico) -->
+        <div class="tab-panel" id="tab-semiologia">
+          <div class="clinical-box">
+            <h4>Achados Clínicos Físicos</h4>
+            <p class="instruction-text">A semiologia na Nutrição Funcional revela sinais clínicos importantes de carências nutricionais nas unhas, cabelos, pele e língua.</p>
+            <div class="semiology-findings" id="p-semiologia-text">
+              <!-- Preenchido via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Aba 3: Investigação (Solicitar Exames) -->
+        <div class="tab-panel" id="tab-exames">
+          <div class="clinical-box">
+            <h4>Solicitação de Exames Laboratoriais</h4>
+            <p class="instruction-text" id="exames-limit-text">Você pode solicitar exames para apoiar seu diagnóstico. Evite pedir exames excessivos ou desnecessários.</p>
+            
+            <div class="exams-list" id="exams-selection-grid">
+              <!-- Gerado via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Aba 4: Conduta (Prescrição Magistral) -->
+        <div class="tab-panel" id="tab-conduta">
+          <div class="clinical-box">
+            <h4>Condutas de Tratamento & Suplementação</h4>
+            <p class="instruction-text">Selecione todas as condutas corretas e seguras de acordo com a legislação do CFN e a individualidade bioquímica da paciente.</p>
+            
+            <div class="prescription-list" id="prescription-selection-grid">
+              <!-- Gerado via JS -->
+            </div>
+          </div>
+          <button class="btn-primary" id="btn-submit-prescription">Preparar Prescrição Magistral</button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 3. TELA DE DISCUSSÃO CIENTÍFICA / FEEDBACK DO CASO -->
+    <section id="screen-discussion" class="app-screen">
+      <header class="app-header-simple">
+        <h2>Resultado do Caso</h2>
+      </header>
+      
+      <div class="discussion-content">
+        <div class="score-card">
+          <div class="score-stars" id="discussion-stars">⭐⭐⭐</div>
+          <h3 id="discussion-status-title">Excelente Conduta!</h3>
+          <p id="discussion-score-detail">Você salvou a paciente e somou +200 XP.</p>
+        </div>
+
+        <div class="discussion-text-box">
+          <h3 id="discussion-title">Discussão e Raciocínio Clínico</h3>
+          <div id="discussion-text" class="discussion-body-text">
+            <!-- Inserido dinamicamente via JS -->
+          </div>
+        </div>
+
+        <div class="referencia-pos-box">
+          <h4>📖 Onde estudar este tema na pós</h4>
+          <p id="discussion-reference" class="discussion-ref-text">Este caso consolida os conteúdos das apostilas e slides da sua pós-graduação.</p>
+          <span class="moodle-tag">Curso: Pós Presencial em Nutrição Funcional</span>
+        </div>
+
+        <button class="btn-primary" id="btn-proceed-to-quiz">Ir para a Batalha de Quiz</button>
+      </div>
+    </section>
+
+    <!-- 4. TELA DE QUIZ DE FIXAÇÃO -->
+    <section id="screen-quiz" class="app-screen">
+      <header class="quiz-header">
+        <button class="quiz-exit-btn" id="btn-exit-quiz" title="Sair do desafio">✕ Sair</button>
+        <div class="quiz-progress-bar">
+          <div class="quiz-progress-fill" id="quiz-progress-fill" style="width: 33%;"></div>
+        </div>
+        <div class="quiz-counter" id="quiz-counter">Pergunta 1 de 3</div>
+        
+        <!-- Batalha de Chefe (Monstro da Síndrome Metabólica / Disbiose) -->
+        <div id="quiz-boss-container" class="boss-fight-bar">
+          <div class="boss-avatar">👾</div>
+          <div class="boss-info-health">
+            <div class="boss-name" id="quiz-boss-name">Monstro da Resistência Insulínica</div>
+            <div class="boss-hp-bar">
+              <div class="boss-hp-fill" id="quiz-boss-hp" style="width: 100%;"></div>
+            </div>
+            <div class="boss-hp-text" id="quiz-boss-hp-text">HP: 150 / 150</div>
+          </div>
+        </div>
+      </header>
+
+      <div class="quiz-content" id="quiz-content-wrapper">
+        <div class="quiz-question-box">
+          <p id="quiz-question-text">Qual das seguintes alternativas representa um dos princípios fundamentais da Nutrição Funcional?</p>
+        </div>
+
+        <div class="quiz-options-list" id="quiz-options-grid">
+          <!-- Gerado via JS -->
+        </div>
+
+        <!-- Bloco de explicação que aparece após responder -->
+        <div class="quiz-explanation-box hidden" id="quiz-explanation-box">
+          <h4 id="quiz-explanation-title">Correto!</h4>
+          <p id="quiz-explanation-text-content">Explicação fitoquímica...</p>
+        </div>
+
+        <button class="btn-primary hidden" id="btn-next-quiz-question">Próxima Pergunta</button>
+      </div>
+    </section>
+
+    <!-- ================= MODAIS E OVERLAYS ================= -->
+
+    <!-- Modal 1: Resultado de Exame Solicitado -->
+    <div class="modal-overlay" id="modal-exam-result">
+      <div class="modal-card">
+        <header class="modal-header">
+          <h3 id="modal-exam-title">Cortisol Salivar</h3>
+          <button class="btn-close-modal" id="btn-close-exam-modal">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </header>
+        <div class="modal-body">
+          <div class="exam-result-badge">
+            <span class="label">Resultado do Paciente:</span>
+            <span class="value" id="modal-exam-value">Baixo</span>
+          </div>
+          
+          <div class="functional-ranges">
+            <h4>Interpretação Funcional da Pós-Graduação</h4>
+            <p id="modal-exam-ranges">Faixas de referência normais vs ideais funcionais...</p>
+          </div>
+
+          <div class="clinical-note-box">
+            <h4>Nota Clínica</h4>
+            <p id="modal-exam-feedback">Explicação sobre a importância do teste no caso...</p>
+          </div>
+        </div>
+        <button class="btn-primary" id="btn-confirm-exam-modal">Ok, entendi</button>
+      </div>
+    </div>
+
+    <!-- Modal 2: Game Over (Perdeu todas as vidas) -->
+    <div class="modal-overlay" id="modal-game-over">
+      <div class="modal-card game-over-card">
+        <div class="game-over-icon">💔</div>
+        <h2>Caso Clínico Encerrado</h2>
+        <p>Você cometeu erros terapêuticos críticos que colocaram em risco a segurança da paciente ou solicitou exames excessivos inviabilizando a investigação.</p>
+        
+        <div class="game-over-advice">
+          <p><strong>Dica da Pós:</strong> Revise as contraindicações de dosagens nas apostilas e slides de fitoterapia funcional antes de refazer a conduta!</p>
+        </div>
+
+        <button class="btn-primary btn-game-over" id="btn-restart-case">Reiniciar Caso</button>
+        <button class="btn-secondary" id="btn-exit-game-over">Voltar para a Enfermaria</button>
+      </div>
+    </div>
+
+    <!-- Modal 3: Level Up (Subiu de nível na carreira) -->
+    <div class="modal-overlay" id="modal-level-up">
+      <div class="modal-card level-up-card">
+        <div class="confetti-emoji">🎉🏆✨</div>
+        <h2>Promoção de Carreira!</h2>
+        <p>Seus estudos e dedicação clínica na pós-graduação te elevaram de cargo:</p>
+        
+        <div class="new-title-badge" id="modal-new-title">Especialista em Fitoterapia</div>
+        
+        <p class="congrats-text">Você está dominando o raciocínio funcional ortomolecular!</p>
+        
+        <button class="btn-primary" id="btn-close-level-up">Continuar Estudando</button>
+      </div>
+    </div>
+
+    <!-- Modal 4: Diálogo com NPC ou Interação de Leito -->
+    <div class="modal-overlay" id="modal-npc-dialog">
+      <div class="modal-card npc-dialog-card">
+        <header class="modal-header">
+          <div class="npc-profile-mini">
+            <span class="npc-avatar" id="npc-dialog-avatar">👨‍⚕️</span>
+            <h3 id="npc-dialog-name">Dr. Roberto (Preceptor)</h3>
+          </div>
+          <button class="btn-close-modal" id="btn-close-npc-dialog">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </header>
+        <div class="modal-body npc-dialog-body">
+          <p id="npc-dialog-text">Olá, Ana! Pronto para mais um atendimento?</p>
+        </div>
+        <div class="modal-footer-buttons" id="npc-dialog-buttons">
+          <!-- Gerado dinamicamente via JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 5: Alerta / Notificação Customizada (Substituto de alert()) -->
+    <div class="modal-overlay" id="modal-custom-alert">
+      <div class="modal-card alert-card">
+        <div class="alert-icon" id="modal-alert-icon">⚠️</div>
+        <h2 id="modal-alert-title">Aviso Clínico</h2>
+        <div class="modal-body" id="modal-alert-body">
+          <!-- Preenchido via JS -->
+        </div>
+        <button class="btn-primary" id="modal-alert-btn">Entendido</button>
+      </div>
+    </div>
+
+    <!-- Modal 6: Laboratório de Alquimia de Prescrição (Minijogo) -->
+    <div class="modal-overlay" id="modal-apothecary-lab">
+      <div class="modal-card apothecary-card">
+        <header class="modal-header">
+          <h3>🧪 Alquimia de Prescrição</h3>
+          <button class="btn-close-modal" id="btn-close-apothecary">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </header>
+        <div class="modal-body apothecary-body-content">
+          <p class="instruction-text">Misture os ativos selecionados no balão de homogeneização gástrica antes de administrar ao paciente.</p>
+          
+          <div class="apothecary-workspace">
+            <!-- Balão de Homogeneização central -->
+            <div class="mixing-beaker-container">
+              <div class="beaker-neck"></div>
+              <div class="beaker-body" id="beaker-liquid">
+                <div class="bubbles-effect"></div>
+              </div>
+            </div>
+            
+            <!-- Prateleira de Frascos de Ativos a serem misturados -->
+            <div class="actives-shelf" id="apothecary-shelf-actives">
+              <!-- Gerado via JS baseado nas prescrições selecionadas -->
+            </div>
+          </div>
+          
+          <div class="mixing-status" id="apothecary-mix-status">Mistura pronta para homogeneizar...</div>
+        </div>
+        <button class="btn-primary" id="btn-apothecary-submit" disabled>Homogeneizar & Administrar</button>
+      </div>
+    </div>
+
+    <!-- Modal 7: Flashcards Flipáveis -->
+    <div class="modal-overlay" id="modal-flashcard">
+      <div class="modal-card flashcard-modal">
+        <header class="modal-header">
+          <h3 id="fc-title">Ficha de Estudo</h3>
+          <button class="btn-close-modal" id="btn-close-flashcard">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </header>
+        <div class="fc-counter" id="fc-counter">1 / 1</div>
+        <div class="fc-card" id="fc-card">
+          <div class="fc-inner">
+            <div class="fc-face fc-front" id="fc-front"></div>
+            <div class="fc-face fc-back" id="fc-back"></div>
+          </div>
+        </div>
+        <div class="fc-hint">Toque no cartão para virar 🔄</div>
+        <div class="fc-actions">
+          <button class="btn-secondary btn-sm" id="fc-prev">◀</button>
+          <button class="btn-secondary btn-sm fc-dunno-btn" id="fc-dunno">😕 Não sabia</button>
+          <button class="btn-secondary btn-sm fc-know-btn" id="fc-know">😎 Sabia</button>
+          <button class="btn-secondary btn-sm" id="fc-next">▶</button>
+        </div>
+      </div>
+    </div>
+
+  </div> <!-- FIM DO APP CONTAINER -->
+
+  <!-- Scripts do App -->
+  <script src="data.js?v=1.3.0"></script>
+  <script src="app.js?v=1.4.0"></script>
+  <!-- Motor 2.5D (canvas pixel-art) — carrega após os globais do app.js -->
+  <script src="game2d.js?v=1.8.2"></script>
+</body>
+</html>
