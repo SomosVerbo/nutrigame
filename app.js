@@ -1054,7 +1054,8 @@ function interactWithPatient(moduleId) {
   if (!mod) return;
   
   const isCompleted = state.completedModules.includes(moduleId);
-  const isAvailable = moduleId === 1 || state.completedModules.includes(moduleId - 1);
+  // casos de setor (enteral) ficam sempre disponíveis; os demais seguem o encadeamento
+  const isAvailable = moduleId === 1 || mod.enteral === true || state.completedModules.includes(moduleId - 1);
   
   const modal = document.getElementById("modal-npc-dialog");
   const avatar = document.getElementById("npc-dialog-avatar");
@@ -2217,6 +2218,24 @@ function setupHudWindows() {
   // restaura estado salvo do chat
   try { if (localStorage.getItem("nutri_chat_min") === "1") setChatMin(true); } catch (e) {}
 
+  // Ocultar/mostrar painéis do HUD (minimapa, ícones e chat) — útil no celular
+  const visToggle = document.getElementById("hud-visibility-toggle");
+  const setHudHidden = (hidden) => {
+    document.body.classList.toggle("hud-hidden", hidden);
+    if (visToggle) {
+      visToggle.textContent = hidden ? "👁️" : "🙈";
+      visToggle.title = hidden ? "Mostrar painéis" : "Ocultar painéis";
+    }
+    try { localStorage.setItem("nutri_hud_hidden", hidden ? "1" : "0"); } catch (e) {}
+  };
+  if (visToggle) {
+    visToggle.addEventListener("click", () => {
+      soundSynth.play("click");
+      setHudHidden(!document.body.classList.contains("hud-hidden"));
+    });
+  }
+  try { if (localStorage.getItem("nutri_hud_hidden") === "1") setHudHidden(true); } catch (e) {}
+
   // Esc fecha qualquer janela aberta
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeAllHudWindows();
@@ -2592,13 +2611,12 @@ function renderAmbulatorio() {
   const enterais = nutriGameData.modules.filter(m => m.enteral);
   if (enterais.length) {
     html += `<h4 class="ambul-section-head">🏥 Terapia Nutricional Enteral — Casos Críticos</h4>`;
-    html += `<p class="section-desc">Pacientes internados graves (DRC, oncologia, traqueostomia, GTT/SNE). Escolha a fórmula e a conduta corretas. <em>Conteúdo clínico para revisão da Dra. Ana.</em></p>`;
+    html += `<p class="section-desc">Pacientes internados graves (DRC, oncologia, traqueostomia, GTT/SNE). Também acessíveis pelos setores do hospital (saia pela porta do saguão). Escolha a fórmula e a conduta corretas.</p>`;
     html += `<div class="ambul-grid">`;
-    enterais.forEach((mod, idx) => {
+    enterais.forEach((mod) => {
       const done = state.completedModules.includes(mod.id);
-      // o primeiro caso enteral fica sempre disponível; os demais liberam ao concluir o anterior
-      const prevId = idx === 0 ? null : enterais[idx - 1].id;
-      const available = idx === 0 || state.completedModules.includes(prevId);
+      // casos críticos de setor: sempre disponíveis (acessíveis pelas alas)
+      const available = true;
       let cls = "locked", btn = "", badge = "🔒";
       if (done) { cls = "done"; badge = "✅"; btn = `<button class="btn-secondary btn-sm" data-ambul-case="${mod.id}">Refazer</button>`; }
       else if (available) { cls = "available"; badge = "🩺"; btn = `<button class="btn-primary btn-sm" data-ambul-case="${mod.id}">Atender</button>`; }

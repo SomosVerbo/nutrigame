@@ -175,14 +175,15 @@
       { x: 7, y: 11, hair: '#3a2a20', coat: '#b9c4d6' },
       { x: 13, y: 11, hair: '#5a3a22', coat: '#d6b9c4' }
     ];
+    const intoSector = { tx: 10, ty: 11, dir: 3 };   // chega o setor em frente à porta de volta
     const exits = [
       { tx: 10, ty: 13, to: 'hospital1', label: 'Hospital Universitário', accent: '#4caf50', spawn: { tx: 10, ty: 12, dir: 3 } },
       { tx: 4, ty: 0, to: null, label: 'Cardiologia', accent: '#e05a6a' },
-      { tx: 16, ty: 0, to: null, label: 'Neurologia', accent: '#c79ae6' },
-      { tx: 0, ty: 4, to: null, label: 'Oncologia', accent: '#e08bb4' },
-      { tx: 0, ty: 9, to: null, label: 'Nefrologia', accent: '#5a86bd' },
+      { tx: 16, ty: 0, to: 'neuro', label: 'Neurologia', accent: '#c79ae6', spawn: intoSector },
+      { tx: 0, ty: 4, to: 'onco', label: 'Oncologia', accent: '#e08bb4', spawn: intoSector },
+      { tx: 0, ty: 9, to: 'nefro', label: 'Nefrologia', accent: '#5a86bd', spawn: intoSector },
       { tx: 21, ty: 4, to: null, label: 'Pneumologia', accent: '#4dd0e1' },
-      { tx: 21, ty: 9, to: null, label: 'UTI', accent: '#ff9d3a' },
+      { tx: 21, ty: 9, to: 'uti', label: 'UTI', accent: '#ff9d3a', spawn: intoSector },
       { tx: 10, ty: 0, to: null, label: 'Centro de Concursos', accent: '#ffd54a' }
     ];
     return {
@@ -198,7 +199,75 @@
     };
   }
 
-  const WORLDS = { hospital1: buildHospital1, hub: buildHub };
+  // Ala de setor reutilizável: enfermaria simples com leitos ligados a casos
+  // (o leito usa o id do módulo). cfg: { id, tint, lights?, beds, bedDecor, hubSpawn }.
+  function buildSectorWard(cfg) {
+    const windows = new Set(['4,0', '9,0', '13,0', '17,0']);
+    const wallDecor = new Map([
+      ['10,0', 'clock'], ['6,0', 'wallmonitor'], ['15,0', 'wallmonitor'],
+      ['0,3', 'poster'], ['0,10', 'poster'], ['21,3', 'poster'], ['21,10', 'poster'],
+      ['3,0', 'extinguisher'], ['18,0', 'extinguisher']
+    ]);
+    const props = [
+      { img: 'desk', x: 10, y: 6, h: 24 },
+      { img: 'chair', x: 9, y: 6, h: 32, solid: false }, { img: 'chair', x: 11, y: 6, h: 32, solid: false },
+      { img: 'rug', x: 10, y: 8, h: 32 },
+      { img: 'cart', x: 8, y: 8, h: 40, solid: false }, { img: 'cart', x: 13, y: 8, h: 40, solid: false },
+      { img: 'cabinet', x: 1, y: 5, h: 32, solid: false }, { img: 'cabinet', x: 20, y: 5, h: 32, solid: false },
+      { img: 'locker', x: 1, y: 8, h: 44, solid: false }, { img: 'locker', x: 20, y: 8, h: 44, solid: false },
+      { img: 'examtable', x: 14, y: 3, h: 40, solid: false }, { img: 'wheelchair', x: 7, y: 3, h: 40, solid: false },
+      { img: 'plant', x: 1, y: 11, h: 32, solid: false }, { img: 'plant', x: 20, y: 11, h: 32, solid: false },
+      { img: 'trash', x: 12, y: 11, h: 24, solid: false }
+    ];
+    cfg.beds.forEach((b) => {
+      const ay = b.top ? 1 : 11;
+      props.push({ img: 'sidetable', x: b.x + 1, y: ay, h: 28, solid: false });
+      props.push({ img: 'ivstand', x: b.x - 1, y: ay, h: 48, solid: false });
+    });
+    return {
+      id: cfg.id, w: 22, h: 14,
+      tintFn: cfg.tint ? () => cfg.tint : () => '.',
+      windows, wallDecor, innerWalls: new Map(), doors: new Set(),
+      beds: cfg.beds, bedDecor: cfg.bedDecor || {},
+      npcs: [], wander: [{ img: 'thiago', name: 'Equipe', x: 12, y: 7 }, { img: 'camila', name: 'Enfermagem', x: 8, y: 4 }],
+      props, seated: [],
+      rooms: [{ x0: 1, y0: 1, x1: 20, y1: 12 }],
+      lights: cfg.lights || [[5, 4], [10, 6], [16, 4], [10, 11]],
+      doorX: 10, doorY: 13,
+      playerStart: { tx: 10, ty: 9, dir: 3 },
+      exits: [{ tx: 10, ty: 13, to: 'hub', label: 'Voltar ao Saguão', accent: '#9fbede', spawn: cfg.hubSpawn }]
+    };
+  }
+
+  const WORLDS = {
+    hospital1: buildHospital1,
+    hub: buildHub,
+    // Setores abertos na Fase 2 (têm casos): Nefro(13), Onco(14), Neuro(16), UTI(15,17).
+    nefro: () => buildSectorWard({
+      id: 'nefro', tint: 'b', hubSpawn: { tx: 1, ty: 4, dir: 2 },
+      beds: [{ id: 13, x: 5, y: 1, top: true }],
+      bedDecor: { 13: { blanket: '#7fb2e6', equip: 'dialysis', companion: true } }
+    }),
+    onco: () => buildSectorWard({
+      id: 'onco', tint: 'r', hubSpawn: { tx: 1, ty: 9, dir: 2 },
+      beds: [{ id: 14, x: 5, y: 1, top: true }],
+      bedDecor: { 14: { blanket: '#e6b3d4', equip: 'sne', companion: true } }
+    }),
+    neuro: () => buildSectorWard({
+      id: 'neuro', tint: '.', hubSpawn: { tx: 16, ty: 2, dir: 0 },
+      beds: [{ id: 16, x: 5, y: 1, top: true }],
+      bedDecor: { 16: { blanket: '#c79ae6', equip: 'gtt', companion: true } }
+    }),
+    uti: () => buildSectorWard({
+      id: 'uti', tint: 'b', hubSpawn: { tx: 20, ty: 9, dir: 1 },
+      lights: [[4, 4], [8, 4], [13, 4], [10, 11]],
+      beds: [{ id: 15, x: 4, y: 1, top: true }, { id: 17, x: 8, y: 1, top: true }],
+      bedDecor: {
+        15: { blanket: '#86c9c4', equip: 'critical', companion: true },
+        17: { blanket: '#a9b3dd', equip: 'sne' }
+      }
+    })
+  };
 
   // Carrega um setor: troca todos os dados de mapa, reposiciona a Ana e reconstrói colisão.
   function loadWorld(id, spawn) {
@@ -417,6 +486,10 @@
     const st = window.getGameState ? window.getGameState() : { completedModules: [] };
     const cm = st.completedModules || [];
     if (cm.includes(id)) return 'done';
+    // casos de setor (enteral) ficam sempre disponíveis ao visitar a ala
+    const data = window.nutriGameData;
+    const mod = data && data.modules ? data.modules.find((m) => m.id === id) : null;
+    if (mod && mod.enteral) return 'avail';
     if (id === 1 || cm.includes(id - 1)) return 'avail';
     return 'locked';
   }
