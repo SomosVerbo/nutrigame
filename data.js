@@ -1929,7 +1929,8 @@ const nutriGameData = {
               name: "Usar fórmula com alta densidade calórica (1,5–2,0 kcal/ml) para atingir as calorias com MENOR volume (restrição hídrica do dialítico).",
               correct: true,
               critical: false,
-              feedback: "Ótimo! A restrição de volume exige fórmulas calóricas densas, oferecendo energia sem excesso de líquido."
+              enteralRx: { totalMl: 1000, hours: 24 },
+              feedback: "Ótimo! A restrição de volume exige fórmulas calóricas densas, oferecendo energia sem excesso de líquido — sempre com volume total e vazão (ml/h) definidos."
             },
             {
               id: "monitorar_kp_drc",
@@ -1951,6 +1952,22 @@ const nutriGameData = {
               correct: false,
               critical: true,
               feedback: "ERRO CRÍTICO! Hipercalemia pode causar arritmias fatais. Potássio e fósforo devem ser controlados na DRC dialítica."
+            },
+            {
+              id: "forbid_parenteral_drc",
+              name: "Prescrever nutrição parenteral total (NPT) por conta própria.",
+              correct: false,
+              critical: false,
+              forbidden: "parenteral",
+              feedback: "Fora da alçada: NP é prescrição MÉDICA. Com TGI funcionante, a via enteral é a indicada."
+            },
+            {
+              id: "forbid_soro_drc",
+              name: "Solicitar soro glicosado endovenoso para 'completar as calorias'.",
+              correct: false,
+              critical: false,
+              forbidden: "soro",
+              feedback: "Fora da alçada: soro glicosado é prescrição MÉDICA — e pioraria o controle volêmico e glicêmico aqui."
             }
           ]
         },
@@ -2066,7 +2083,8 @@ const nutriGameData = {
               name: "Iniciar TNE com fórmula HIPERCALÓRICA e HIPERPROTEICA (densa), por sonda, devido à mucosite e disfagia.",
               correct: true,
               critical: false,
-              feedback: "Perfeito! O hipermetabolismo da caquexia exige alta densidade calórica e proteica para frear a perda de massa magra."
+              enteralRx: { totalMl: 1500, hours: 24 },
+              feedback: "Perfeito! O hipermetabolismo da caquexia exige alta densidade calórica e proteica para frear a perda de massa magra — prescrita com volume total e vazão (ml/h)."
             },
             {
               id: "imunonutricao_onco",
@@ -2095,6 +2113,14 @@ const nutriGameData = {
               correct: false,
               critical: true,
               feedback: "ERRO CRÍTICO! Subnutrir o paciente oncológico acelera a perda de massa magra e piora o prognóstico."
+            },
+            {
+              id: "forbid_parenteral_onco",
+              name: "Prescrever nutrição parenteral total (NPT) por conta própria.",
+              correct: false,
+              critical: false,
+              forbidden: "parenteral",
+              feedback: "Fora da alçada: NP é prescrição MÉDICA. Com TGI funcionante, a via enteral é preferível."
             }
           ]
         },
@@ -2210,7 +2236,8 @@ const nutriGameData = {
               name: "Iniciar TNE PRECOCE por sonda nasoenteral com fórmula HIPERCALÓRICA/HIPERPROTEICA (paciente grave/trauma), com progressão conforme tolerância.",
               correct: true,
               critical: false,
-              feedback: "Perfeito! A nutrição enteral precoce no crítico estável, com fórmula adequada ao trauma, é o padrão-ouro."
+              enteralRx: { totalMl: 1000, hours: 24 },
+              feedback: "Perfeito! A nutrição enteral precoce no crítico estável, com fórmula adequada ao trauma, é o padrão-ouro — iniciada em vazão baixa e progredida conforme tolerância."
             },
             {
               id: "cabeceira_critico",
@@ -2239,6 +2266,22 @@ const nutriGameData = {
               correct: false,
               critical: true,
               feedback: "ERRO CRÍTICO! Subnutrir o paciente de trauma agrava o catabolismo e atrasa a recuperação."
+            },
+            {
+              id: "forbid_parenteral_critico",
+              name: "Prescrever nutrição parenteral total (NPT) por conta própria, em vez da enteral.",
+              correct: false,
+              critical: false,
+              forbidden: "parenteral",
+              feedback: "Fora da alçada: NP é prescrição MÉDICA. Você pode sugerir/indicar, mas com TGI funcionante a via enteral é preferível."
+            },
+            {
+              id: "forbid_soro_critico",
+              name: "Solicitar soro glicosado endovenoso como aporte calórico principal.",
+              correct: false,
+              critical: false,
+              forbidden: "soro",
+              feedback: "Fora da alçada: soro glicosado é prescrição MÉDICA e não nutre o paciente crítico catabólico."
             }
           ]
         },
@@ -2354,7 +2397,8 @@ const nutriGameData = {
               name: "Fórmula POLIMÉRICA PADRÃO com FIBRAS (regula o intestino) e oferta de ÁGUA LIVRE (flushes) pela GTT.",
               correct: true,
               critical: false,
-              feedback: "Perfeito! Com TGI íntegro, a polimérica padrão é adequada; fibras + água livre resolvem a constipação."
+              enteralRx: { totalMl: 1500, hours: 24 },
+              feedback: "Perfeito! Com TGI íntegro, a polimérica padrão é adequada; fibras + água livre resolvem a constipação — sempre com volume total e vazão (ml/h)."
             },
             {
               id: "lavagem_gtt",
@@ -2383,6 +2427,22 @@ const nutriGameData = {
               correct: false,
               critical: true,
               feedback: "ERRO CRÍTICO! Medicações administradas de forma inadequada obstruem a sonda e podem inativar fármacos. Diluir e lavar sempre."
+            },
+            {
+              id: "forbid_parenteral_gtt",
+              name: "Prescrever nutrição parenteral total (NPT) por conta própria, ignorando a GTT funcionante.",
+              correct: false,
+              critical: false,
+              forbidden: "parenteral",
+              feedback: "Fora da alçada: NP é prescrição MÉDICA — e desnecessária aqui, pois a GTT e o TGI estão funcionantes."
+            },
+            {
+              id: "forbid_soro_gtt",
+              name: "Solicitar soro glicosado endovenoso no lugar da dieta enteral.",
+              correct: false,
+              critical: false,
+              forbidden: "soro",
+              feedback: "Fora da alçada: soro glicosado é prescrição MÉDICA e não substitui a nutrição enteral."
             }
           ]
         },
@@ -2512,7 +2572,8 @@ const nutriGameData = {
               name: "Trocar para fórmula com FIBRAS (solúvel) e/ou PEPTÍDICA/OLIGOMÉRICA (ex.: Peptamen) se houver má absorção/intolerância.",
               correct: true,
               critical: false,
-              feedback: "Correto! Fórmulas oligoméricas (peptídeos, TCM) e com fibras melhoram a tolerância na má absorção."
+              enteralRx: { totalMl: 1000, hours: 24 },
+              feedback: "Correto! Fórmulas oligoméricas (peptídeos, TCM) e com fibras melhoram a tolerância na má absorção — reintroduzidas em vazão reduzida (ml/h)."
             },
             {
               id: "jejum_diarreia",
@@ -2527,6 +2588,22 @@ const nutriGameData = {
               correct: false,
               critical: true,
               feedback: "ERRO CRÍTICO! Aumentar velocidade/osmolaridade PIORA a diarreia osmótica e a desidratação."
+            },
+            {
+              id: "forbid_parenteral_diarreia",
+              name: "Prescrever nutrição parenteral total (NPT) por conta própria 'para o intestino descansar'.",
+              correct: false,
+              critical: false,
+              forbidden: "parenteral",
+              feedback: "Fora da alçada: NP é prescrição MÉDICA. Aqui a conduta é ajustar a enteral (velocidade/fórmula), não retirá-la."
+            },
+            {
+              id: "forbid_soro_diarreia",
+              name: "Solicitar soro glicosado endovenoso como única medida de reidratação/calorias.",
+              correct: false,
+              critical: false,
+              forbidden: "soro",
+              feedback: "Fora da alçada: soro glicosado é prescrição MÉDICA. A reidratação/eletrólitos é conduzida com a equipe."
             }
           ]
         },

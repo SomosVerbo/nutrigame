@@ -1656,20 +1656,37 @@ function closeExamModal() {
   document.getElementById("modal-exam-result").classList.remove("active");
 }
 
+// Formata a prescrição de dieta enteral: volume total + vazão em ml/h (regra clínica).
+// Ex.: formatEnteralRx(500, 24) -> "500 ml total · infundir em 24 h = 21 ml/h"
+function formatEnteralRx(totalMl, hours) {
+  const rate = Math.round(totalMl / hours);
+  return `${totalMl} ml total · infundir em ${hours} h = ${rate} ml/h`;
+}
+
 // Desenhar lista de condutas
 function renderPrescriptionsGrid(options) {
   const container = document.getElementById("prescription-selection-grid");
   if (!container) return;
   container.innerHTML = "";
 
+  // Lembrete de alçada profissional (regras clínicas globais)
+  const note = document.createElement("p");
+  note.className = "alcada-note";
+  note.style.cssText = "grid-column:1/-1; font-size:.78rem; line-height:1.35; color:#7A0043; background:rgba(122,0,67,.06); border:1px solid rgba(122,0,67,.18); padding:8px 10px; border-radius:8px; margin:0 0 8px;";
+  note.innerHTML = "⚠️ <strong>Sua alçada:</strong> o nutricionista <u>não</u> prescreve dieta <strong>parenteral</strong> nem <strong>soro glicosado</strong> (conduta médica). Ao indicar fórmula <strong>enteral</strong>, informe o volume total e a vazão (ml/h).";
+  container.appendChild(note);
+
   options.forEach(opt => {
     const isSelected = activeCase.selectedPrescriptions.includes(opt.id);
     const card = document.createElement("label");
     card.className = `prescription-card-checkbox ${isSelected ? "selected" : ""}`;
-    
+
+    const rxTag = opt.enteralRx
+      ? ` <em style="color:#1f7a4d; font-style:normal;">— 💧 ${formatEnteralRx(opt.enteralRx.totalMl, opt.enteralRx.hours)}</em>`
+      : "";
     card.innerHTML = `
       <input type="checkbox" value="${opt.id}" ${isSelected ? "checked" : ""}>
-      <span>${opt.name}</span>
+      <span>${opt.name}${rxTag}</span>
     `;
 
     const checkbox = card.querySelector("input");
@@ -1727,7 +1744,14 @@ function processPrescriptionValidation() {
 
   activeCase.selectedPrescriptions.forEach(id => {
     const option = prescOptions.find(o => o.id === id);
-    if (option && !option.correct && option.critical) {
+    if (!option) return;
+    // Regra de alçada: nutricionista não prescreve parenteral nem soro glicosado.
+    if (option.forbidden) {
+      committedCriticalError = true;
+      criticalErrorText = option.forbidden === "parenteral"
+        ? "Dieta PARENTERAL é prescrição MÉDICA. O nutricionista avalia, sugere e acompanha a NP — mas não a prescreve. Conduta fora da sua alçada profissional."
+        : "SORO GLICOSADO (glicose/hidratação endovenosa) é prescrição MÉDICA, fora da alçada do nutricionista.";
+    } else if (!option.correct && option.critical) {
       committedCriticalError = true;
       criticalErrorText = option.feedback;
     }

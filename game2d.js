@@ -30,125 +30,208 @@
   };
   const IMG = {};
 
-  // ---- Mapa (22x14). '#'=parede  '.'=corredor  'r'=rosa  'b'=azul ----
-  const MAP_W = 22, MAP_H = 14;
-  function tintAt(x) { return x <= 7 ? 'r' : (x >= 14 ? 'b' : '.'); }
+  // ---- Mundos / Setores ----
+  // O mapa NÃO é mais único: cada setor do hospital é um "mundo" carregado sob
+  // demanda por loadWorld(). Estes bindings são preenchidos a partir de WORLDS[id].
+  // (Mundo 1 = Hospital Universitário, a enfermaria atual — mecânica idêntica.)
+  let activeWorldId = 'hospital1';
+  let MAP_W = 22, MAP_H = 14;
+  let tintAt = () => '.';
+  let WINDOWS = new Set();
+  let WALL_DECOR = new Map();
+  let INNER_WALLS = new Map();
+  let DOORS = new Set();
+  let BEDS = [];
+  let BED_DECOR = {};
+  let NPCS = [];
+  let WANDER = [];
+  let PROPS = [];
+  let SEATED = [];
+  let ROOMS = [{ x0: 1, y0: 1, x1: 20, y1: 12 }];
+  let LIGHTS = [];
+  let EXITS = [];          // {tx,ty,to,label,accent?,spawn?} — portas de saída p/ outros setores
+  let DOOR_X = -1, DOOR_Y = -1;   // porta de vidro animada (saída principal do setor)
+
   function isBorder(x, y) { return x === 0 || y === 0 || x === MAP_W - 1 || y === MAP_H - 1; }
-  const WINDOWS = new Set(['4,0', '9,0', '13,0', '17,0']);  // janelas na parede de cima
-  const WALL_DECOR = new Map([['0,4', 'poster'], ['0,9', 'poster'], ['21,4', 'poster'], ['21,9', 'poster'],
-    ['10,0', 'clock'], ['6,0', 'wallmonitor'], ['15,0', 'wallmonitor'],
-    ['11,0', 'elevator'], ['19,0', 'stairs'], ['3,0', 'extinguisher'],
-    // decoração extra de parede (não interfere na navegação)
-    ['0,2', 'poster'], ['0,11', 'poster'], ['21,2', 'poster'], ['21,11', 'poster'],
-    ['7,0', 'poster'], ['16,0', 'poster'], ['20,0', 'extinguisher']]);
-
-  // ---- Divisórias internas (FINAS): 4 salas de leito + estação central.
-  // Verticais x=7 e x=14 separam as alas do corredor; cada uma tem 2 portas
-  // (sala de cima em y=3, sala de baixo em y=9). Horizontais em y=6 separam
-  // a sala de cima da de baixo dentro de cada ala. INNER_WALLS: 'x,y' -> 'v'|'h'.
-  const INNER_WALLS = new Map();
-  const DOORS = new Set(['7,3', '7,9', '14,3', '14,9']);
-  (function buildInnerWalls() {
-    for (const wx of [7, 14]) {
-      for (let y = 1; y <= 12; y++) {
-        if (DOORS.has(wx + ',' + y)) continue;     // vãos (portas)
-        INNER_WALLS.set(wx + ',' + y, 'v');
-      }
-    }
-    for (const [x0, x1] of [[1, 6], [15, 20]]) {
-      for (let x = x0; x <= x1; x++) INNER_WALLS.set(x + ',6', 'h');
-    }
-  })();
-
-  // Objetos do cenário (posições em tiles)
-  // Leitos: top = cabeceira no topo (interage por baixo); bottom = interage por cima
-  const BEDS = [
-    { id: 1, x: 2, y: 1, top: true }, { id: 2, x: 5, y: 1, top: true },
-    { id: 5, x: 16, y: 1, top: true }, { id: 6, x: 19, y: 1, top: true },
-    { id: 3, x: 2, y: 11, top: false }, { id: 4, x: 5, y: 11, top: false },
-    { id: 7, x: 16, y: 11, top: false }, { id: 8, x: 19, y: 11, top: false }
-  ];
-  // Ambiência por leito (visual): coberta colorida, equipamento, planta e acompanhante.
-  // Apenas atmosfera de enfermaria — não altera o conteúdo clínico do caso.
-  const BED_DECOR = {
-    1: { blanket: '#7fb2e6', companion: true, equip: 'iv' },
-    2: { blanket: '#e69ab8', equip: 'o2' },
-    3: { blanket: '#8fd6a0', companion: true, equip: 'sne' },
-    4: { blanket: '#e6cf86', plant: true, equip: 'dialysis' },
-    5: { blanket: '#c79ae6', companion: true, equip: 'trach' },
-    6: { blanket: '#e6b38a', equip: 'gtt' },
-    7: { blanket: '#86c9c4', plant: true, equip: 'critical' },
-    8: { blanket: '#a9b3dd', companion: true, equip: 'endoflife' }
-  };
-
-  const NPCS = [
-    { type: 'R', img: 'roberto', name: 'Dr. Roberto', x: 10, y: 7 },
-    { type: 'C', img: 'clara', name: 'Enf. Clara', x: 8, y: 7 },
-    { type: 'L', img: 'lucas', name: 'Farm. Lucas', x: 13, y: 7 }
-  ];
-  const WANDER = [
-    { img: 'camila', name: 'Nutri Camila', x: 9, y: 4 },
-    { img: 'thiago', name: 'Nutri Thiago', x: 12, y: 10 }
-  ];
-  // Layout LIMPO e SIMÉTRICO. Acessórios de leito são gerados por código (alinhados);
-  // o resto é mobiliário fixo em posições espelhadas entre as alas.
-  const PROPS = [
-    // ----- Corredor central / recepção (simétrico) -----
-    { img: 'desk', x: 10, y: 2, h: 24 },
-    { img: 'chair', x: 9, y: 2, h: 32, solid: false }, { img: 'chair', x: 11, y: 2, h: 32, solid: false },
-    { img: 'rug', x: 10, y: 4, h: 32 },
-    { img: 'vending', x: 8, y: 1, h: 44, solid: false }, { img: 'vending', x: 13, y: 1, h: 44, solid: false },
-    { img: 'cooler', x: 8, y: 4, h: 32, solid: false }, { img: 'cooler', x: 13, y: 4, h: 32, solid: false },
-    { img: 'cart', x: 9, y: 8, h: 40, solid: false }, { img: 'cart', x: 12, y: 8, h: 40, solid: false },
-    { img: 'trash', x: 8, y: 9, h: 24, solid: false }, { img: 'trash', x: 13, y: 9, h: 24, solid: false },
-    { img: 'bench', x: 8, y: 11, h: 24, solid: false }, { img: 'bench', x: 10, y: 11, h: 24, solid: false }, { img: 'bench', x: 12, y: 11, h: 24, solid: false },
-    { img: 'plant', x: 8, y: 12, h: 32, solid: false }, { img: 'plant', x: 13, y: 12, h: 32, solid: false },
-    // ----- Mobiliário das alas (mesma posição relativa em cada quarto = organizado) -----
-    // armários encostados nas paredes laterais externas
-    { img: 'cabinet', x: 1, y: 4, h: 32, solid: false }, { img: 'cabinet', x: 1, y: 8, h: 32, solid: false },
-    { img: 'cabinet', x: 20, y: 4, h: 32, solid: false }, { img: 'cabinet', x: 20, y: 8, h: 32, solid: false },
-    // armários altos junto à divisória interna
-    { img: 'locker', x: 6, y: 4, h: 44, solid: false }, { img: 'locker', x: 6, y: 8, h: 44, solid: false },
-    { img: 'locker', x: 15, y: 4, h: 44, solid: false }, { img: 'locker', x: 15, y: 8, h: 44, solid: false },
-    // maca de exame no centro de cada ala
-    { img: 'examtable', x: 3, y: 3, h: 40, solid: false }, { img: 'examtable', x: 3, y: 9, h: 40, solid: false },
-    { img: 'examtable', x: 18, y: 3, h: 40, solid: false }, { img: 'examtable', x: 18, y: 9, h: 40, solid: false },
-    // cadeira de rodas nas alas de baixo
-    { img: 'wheelchair', x: 4, y: 9, h: 40, solid: false }, { img: 'wheelchair', x: 17, y: 9, h: 40, solid: false }
-  ];
-  // Acessórios alinhados de cada leito: criado-mudo à direita, suporte de soro à esquerda.
-  BEDS.forEach((b) => {
-    const ay = b.top ? 1 : 11;
-    PROPS.push({ img: 'sidetable', x: b.x + 1, y: ay, h: 28, solid: false });
-    PROPS.push({ img: 'ivstand', x: b.x - 1, y: ay, h: 48, solid: false });
-  });
-
-  // Pacientes sentados nos bancos de espera (alinhados aos bancos do corredor)
-  const SEATED = [
-    { x: 8, y: 11, hair: '#6b4a2a', coat: '#d6a6c2' },
-    { x: 10, y: 11, hair: '#2a2a30', coat: '#a6c8d6' },
-    { x: 12, y: 11, hair: '#7a5230', coat: '#cdbf9a' }
-  ];
 
   // Paciente: cor por leito (variação)
   const PSKIN = ['#f4cda4', '#e8b58f', '#d79a6b', '#f0c8a0', '#c68642'];
 
+  // ===================== Definições dos mundos =====================
+  // MUNDO 1 — Hospital Universitário (enfermaria atual). A saída de baixo (porta
+  // de vidro em 10,13) agora teletransporta para o Saguão (hub).
+  function buildHospital1() {
+    const windows = new Set(['4,0', '9,0', '13,0', '17,0']);
+    const wallDecor = new Map([['0,4', 'poster'], ['0,9', 'poster'], ['21,4', 'poster'], ['21,9', 'poster'],
+      ['10,0', 'clock'], ['6,0', 'wallmonitor'], ['15,0', 'wallmonitor'],
+      ['11,0', 'elevator'], ['19,0', 'stairs'], ['3,0', 'extinguisher'],
+      ['0,2', 'poster'], ['0,11', 'poster'], ['21,2', 'poster'], ['21,11', 'poster'],
+      ['7,0', 'poster'], ['16,0', 'poster'], ['20,0', 'extinguisher']]);
+    // Divisórias internas FINAS: x=7 e x=14 separam as alas (2 portas cada); y=6 divide as alas.
+    const innerWalls = new Map();
+    const doors = new Set(['7,3', '7,9', '14,3', '14,9']);
+    for (const wx of [7, 14]) {
+      for (let y = 1; y <= 12; y++) {
+        if (doors.has(wx + ',' + y)) continue;
+        innerWalls.set(wx + ',' + y, 'v');
+      }
+    }
+    for (const [x0, x1] of [[1, 6], [15, 20]]) {
+      for (let x = x0; x <= x1; x++) innerWalls.set(x + ',6', 'h');
+    }
+    const beds = [
+      { id: 1, x: 2, y: 1, top: true }, { id: 2, x: 5, y: 1, top: true },
+      { id: 5, x: 16, y: 1, top: true }, { id: 6, x: 19, y: 1, top: true },
+      { id: 3, x: 2, y: 11, top: false }, { id: 4, x: 5, y: 11, top: false },
+      { id: 7, x: 16, y: 11, top: false }, { id: 8, x: 19, y: 11, top: false }
+    ];
+    const bedDecor = {
+      1: { blanket: '#7fb2e6', companion: true, equip: 'iv' },
+      2: { blanket: '#e69ab8', equip: 'o2' },
+      3: { blanket: '#8fd6a0', companion: true, equip: 'sne' },
+      4: { blanket: '#e6cf86', plant: true, equip: 'dialysis' },
+      5: { blanket: '#c79ae6', companion: true, equip: 'trach' },
+      6: { blanket: '#e6b38a', equip: 'gtt' },
+      7: { blanket: '#86c9c4', plant: true, equip: 'critical' },
+      8: { blanket: '#a9b3dd', companion: true, equip: 'endoflife' }
+    };
+    const npcs = [
+      { type: 'R', img: 'roberto', name: 'Dr. Roberto', x: 10, y: 7 },
+      { type: 'C', img: 'clara', name: 'Enf. Clara', x: 8, y: 7 },
+      { type: 'L', img: 'lucas', name: 'Farm. Lucas', x: 13, y: 7 }
+    ];
+    const wander = [
+      { img: 'camila', name: 'Nutri Camila', x: 9, y: 4 },
+      { img: 'thiago', name: 'Nutri Thiago', x: 12, y: 10 }
+    ];
+    const props = [
+      { img: 'desk', x: 10, y: 2, h: 24 },
+      { img: 'chair', x: 9, y: 2, h: 32, solid: false }, { img: 'chair', x: 11, y: 2, h: 32, solid: false },
+      { img: 'rug', x: 10, y: 4, h: 32 },
+      { img: 'vending', x: 8, y: 1, h: 44, solid: false }, { img: 'vending', x: 13, y: 1, h: 44, solid: false },
+      { img: 'cooler', x: 8, y: 4, h: 32, solid: false }, { img: 'cooler', x: 13, y: 4, h: 32, solid: false },
+      { img: 'cart', x: 9, y: 8, h: 40, solid: false }, { img: 'cart', x: 12, y: 8, h: 40, solid: false },
+      { img: 'trash', x: 8, y: 9, h: 24, solid: false }, { img: 'trash', x: 13, y: 9, h: 24, solid: false },
+      { img: 'bench', x: 8, y: 11, h: 24, solid: false }, { img: 'bench', x: 10, y: 11, h: 24, solid: false }, { img: 'bench', x: 12, y: 11, h: 24, solid: false },
+      { img: 'plant', x: 8, y: 12, h: 32, solid: false }, { img: 'plant', x: 13, y: 12, h: 32, solid: false },
+      { img: 'cabinet', x: 1, y: 4, h: 32, solid: false }, { img: 'cabinet', x: 1, y: 8, h: 32, solid: false },
+      { img: 'cabinet', x: 20, y: 4, h: 32, solid: false }, { img: 'cabinet', x: 20, y: 8, h: 32, solid: false },
+      { img: 'locker', x: 6, y: 4, h: 44, solid: false }, { img: 'locker', x: 6, y: 8, h: 44, solid: false },
+      { img: 'locker', x: 15, y: 4, h: 44, solid: false }, { img: 'locker', x: 15, y: 8, h: 44, solid: false },
+      { img: 'examtable', x: 3, y: 3, h: 40, solid: false }, { img: 'examtable', x: 3, y: 9, h: 40, solid: false },
+      { img: 'examtable', x: 18, y: 3, h: 40, solid: false }, { img: 'examtable', x: 18, y: 9, h: 40, solid: false },
+      { img: 'wheelchair', x: 4, y: 9, h: 40, solid: false }, { img: 'wheelchair', x: 17, y: 9, h: 40, solid: false }
+    ];
+    beds.forEach((b) => {
+      const ay = b.top ? 1 : 11;
+      props.push({ img: 'sidetable', x: b.x + 1, y: ay, h: 28, solid: false });
+      props.push({ img: 'ivstand', x: b.x - 1, y: ay, h: 48, solid: false });
+    });
+    const seated = [
+      { x: 8, y: 11, hair: '#6b4a2a', coat: '#d6a6c2' },
+      { x: 10, y: 11, hair: '#2a2a30', coat: '#a6c8d6' },
+      { x: 12, y: 11, hair: '#7a5230', coat: '#cdbf9a' }
+    ];
+    return {
+      id: 'hospital1', w: 22, h: 14,
+      tintFn: (x) => x <= 7 ? 'r' : (x >= 14 ? 'b' : '.'),
+      windows, wallDecor, innerWalls, doors,
+      beds, bedDecor, npcs, wander, props, seated,
+      rooms: [
+        { x0: 1, y0: 1, x1: 6, y1: 5 }, { x0: 1, y0: 7, x1: 6, y1: 12 },
+        { x0: 15, y0: 1, x1: 20, y1: 5 }, { x0: 15, y0: 7, x1: 20, y1: 12 },
+        { x0: 7, y0: 1, x1: 14, y1: 12 }
+      ],
+      lights: [[5, 4], [10, 4], [16, 4], [5, 9], [10, 7], [16, 9], [10, 11]],
+      doorX: 10, doorY: 13,
+      playerStart: { tx: 10, ty: 10, dir: 3 },
+      exits: [{ tx: 10, ty: 13, to: 'hub', label: 'Saguão do Hospital', spawn: { tx: 10, ty: 11, dir: 3 } }]
+    };
+  }
+
+  // HUB — Saguão central do hospital. Cada porta leva a um setor; nesta fase só o
+  // Hospital Universitário é navegável (os demais ficam "Em breve").
+  function buildHub() {
+    const wallDecor = new Map([
+      ['10,0', 'clock'], ['5,0', 'poster'], ['16,0', 'poster'],
+      ['0,2', 'poster'], ['0,11', 'poster'], ['21,2', 'poster'], ['21,11', 'poster'],
+      ['3,0', 'extinguisher'], ['18,0', 'extinguisher']
+    ]);
+    const wander = [
+      { img: 'camila', name: 'Visitante', x: 7, y: 8 },
+      { img: 'thiago', name: 'Visitante', x: 14, y: 6 }
+    ];
+    const props = [
+      { img: 'desk', x: 10, y: 6, h: 24 },
+      { img: 'chair', x: 9, y: 6, h: 32, solid: false }, { img: 'chair', x: 11, y: 6, h: 32, solid: false },
+      { img: 'rug', x: 10, y: 8, h: 32 },
+      { img: 'plant', x: 2, y: 6, h: 32, solid: false }, { img: 'plant', x: 19, y: 6, h: 32, solid: false },
+      { img: 'plant', x: 2, y: 11, h: 32, solid: false }, { img: 'plant', x: 19, y: 11, h: 32, solid: false },
+      { img: 'bench', x: 7, y: 11, h: 24, solid: false }, { img: 'bench', x: 9, y: 11, h: 24, solid: false },
+      { img: 'bench', x: 11, y: 11, h: 24, solid: false }, { img: 'bench', x: 13, y: 11, h: 24, solid: false },
+      { img: 'cooler', x: 5, y: 11, h: 32, solid: false }, { img: 'vending', x: 15, y: 11, h: 44, solid: false }
+    ];
+    const seated = [
+      { x: 7, y: 11, hair: '#3a2a20', coat: '#b9c4d6' },
+      { x: 13, y: 11, hair: '#5a3a22', coat: '#d6b9c4' }
+    ];
+    const exits = [
+      { tx: 10, ty: 13, to: 'hospital1', label: 'Hospital Universitário', accent: '#4caf50', spawn: { tx: 10, ty: 12, dir: 3 } },
+      { tx: 4, ty: 0, to: null, label: 'Cardiologia', accent: '#e05a6a' },
+      { tx: 16, ty: 0, to: null, label: 'Neurologia', accent: '#c79ae6' },
+      { tx: 0, ty: 4, to: null, label: 'Oncologia', accent: '#e08bb4' },
+      { tx: 0, ty: 9, to: null, label: 'Nefrologia', accent: '#5a86bd' },
+      { tx: 21, ty: 4, to: null, label: 'Pneumologia', accent: '#4dd0e1' },
+      { tx: 21, ty: 9, to: null, label: 'UTI', accent: '#ff9d3a' },
+      { tx: 10, ty: 0, to: null, label: 'Centro de Concursos', accent: '#ffd54a' }
+    ];
+    return {
+      id: 'hub', w: 22, h: 14,
+      tintFn: () => '.',
+      windows: new Set(), wallDecor, innerWalls: new Map(), doors: new Set(),
+      beds: [], bedDecor: {}, npcs: [], wander, props, seated,
+      rooms: [{ x0: 1, y0: 1, x1: 20, y1: 12 }],
+      lights: [[10, 6], [5, 4], [16, 4], [5, 10], [16, 10]],
+      doorX: 10, doorY: 13,
+      playerStart: { tx: 10, ty: 9, dir: 3 },
+      exits
+    };
+  }
+
+  const WORLDS = { hospital1: buildHospital1, hub: buildHub };
+
+  // Carrega um setor: troca todos os dados de mapa, reposiciona a Ana e reconstrói colisão.
+  function loadWorld(id, spawn) {
+    const def = (WORLDS[id] || WORLDS.hospital1)();
+    activeWorldId = def.id;
+    MAP_W = def.w; MAP_H = def.h;
+    tintAt = def.tintFn;
+    WINDOWS = def.windows; WALL_DECOR = def.wallDecor;
+    INNER_WALLS = def.innerWalls; DOORS = def.doors;
+    BEDS = def.beds; BED_DECOR = def.bedDecor;
+    NPCS = def.npcs; WANDER = def.wander; PROPS = def.props; SEATED = def.seated;
+    ROOMS = def.rooms; lastRoom = ROOMS[ROOMS.length - 1];
+    LIGHTS = def.lights; EXITS = def.exits || [];
+    DOOR_X = def.doorX; DOOR_Y = def.doorY;
+    innerDoorOpen.clear(); dust.length = 0; focusRect = null;
+    lightGrads = null; beamGrads = null;          // caches de luz dependem do mundo
+    const sp = spawn || def.playerStart;
+    player.x = (sp.tx + 0.5) * TILE; player.y = (sp.ty + 0.5) * TILE;
+    player.dir = (sp.dir != null) ? sp.dir : 3; player.frame = 0; player.anim = 0; player.moving = false;
+    camX = 0; camY = 0;
+    buildCollision();
+  }
+
   // ---- Estado ----
   let canvas, ctx, root, miniCv, miniCtx, dollCv, dollCtx;
-  let player = { x: 10 * TILE + 16, y: 10 * TILE + 16, dir: 0, frame: 0, anim: 0, moving: false };
+  let player = { x: 10 * TILE + 16, y: 10 * TILE + 16, dir: 3, frame: 0, anim: 0, moving: false };
   let camX = 0, camY = 0, ZOOM = 3, doorOpen = 0;
   const innerDoorOpen = new Map();   // 'x,y' -> 0..1 (abertura animada das portas dos quartos)
   const dust = [];                   // partículas de poeira sob os pés (vida visual)
   let dustTimer = 0;
-  // Cômodos (para o foco de câmera): 4 enfermarias + corredor central.
-  const ROOMS = [
-    { x0: 1, y0: 1, x1: 6, y1: 5 }, { x0: 1, y0: 7, x1: 6, y1: 12 },
-    { x0: 15, y0: 1, x1: 20, y1: 5 }, { x0: 15, y0: 7, x1: 20, y1: 12 },
-    { x0: 7, y0: 1, x1: 14, y1: 12 }
-  ];
-  let lastRoom = ROOMS[4];
+  let lastRoom = null;               // cômodo atual p/ foco de câmera (definido em loadWorld)
   let focusRect = null;              // retângulo do foco (px, interpolado suavemente)
-  const DOOR_X = 10, DOOR_Y = 13;
+  let transition = null;             // {t,dur,swapped,exit} — fade ao trocar de setor
   let blocked = new Set();
   let interactables = [];   // {kind:'bed'|'npc', x,y(px center), tx,ty, id?, type?, name}
   let wanderers = [];       // NPCs que andam (Camila, Thiago)
@@ -229,9 +312,27 @@
     return walkable(px - 7, py) && walkable(px + 7, py) && walkable(px, py - 3) && walkable(px, py + 3);
   }
 
+  // ---- Troca de setor (teleporte por contato + fade) ----
+  function startTransition(exit) {
+    if (transition) return;
+    transition = { t: 0, dur: 0.34, swapped: false, exit };
+    input.x = input.y = 0; keys.clear();
+    const prompt = document.getElementById('w3d-interact-prompt'); if (prompt) prompt.classList.add('hidden');
+    if (window.soundSynth) { try { window.soundSynth.play('click'); } catch (e) { } }
+  }
+  function updateTransition(dt) {
+    transition.t += dt;
+    if (!transition.swapped && transition.t >= transition.dur) {
+      transition.swapped = true;
+      loadWorld(transition.exit.to, transition.exit.spawn);
+    }
+    if (transition.t >= transition.dur * 2) transition = null;
+  }
+
   // ---- Movimento ----
   const SPEED = TILE * 3.4;
   function update(dt) {
+    if (transition) { updateTransition(dt); return; }   // congela o jogo durante o fade
     let ix = input.x, iy = input.y;
     if (keys.has('w') || keys.has('arrowup')) iy -= 1;
     if (keys.has('s') || keys.has('arrowdown')) iy += 1;
@@ -273,6 +374,12 @@
       const cur = innerDoorOpen.get(k) || 0;
       innerDoorOpen.set(k, cur + (tgt - cur) * Math.min(1, dt * 8));
     });
+    // teleporte ao encostar numa porta de saída do setor
+    for (const ex of EXITS) {
+      if (!ex.to) continue;                       // portas "Em breve" não levam a lugar nenhum
+      const d = Math.hypot((ex.tx + 0.5) * TILE - player.x, (ex.ty + 0.5) * TILE - player.y);
+      if (d < TILE * 0.8) { startTransition(ex); break; }
+    }
     updateInteraction();
   }
 
@@ -321,6 +428,8 @@
     for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) {
       if (isBorder(x, y)) {
         if (x === DOOR_X && y === DOOR_Y) { drawDoor(); continue; }
+        const ex = EXITS.find((e) => e.tx === x && e.ty === y);
+        if (ex) { drawExitDoor(ex, x, y); continue; }
         if (y === 0) {
           // parede de fundo ALTA: a face sobe WALL_FACE px acima do tile (2.5D)
           const wimg = WINDOWS.has(key(x, y)) ? IMG.wall_window : IMG.wall;
@@ -558,8 +667,8 @@
     ctx.lineWidth = 1;
   }
 
-  // Focos de luz quente no piso (atmosfera). Gradientes cacheados (perf mobile).
-  const LIGHTS = [[5, 4], [10, 4], [16, 4], [5, 9], [10, 7], [16, 9], [10, 11]];
+  // Focos de luz quente no piso (atmosfera). Posições vêm do mundo ativo (LIGHTS);
+  // gradientes cacheados (perf mobile), invalidados ao trocar de setor.
   let lightGrads = null;
   function drawLights() {
     if (!lightGrads) {
@@ -606,7 +715,9 @@
   }
 
   // Decalques de piso: cruz da recepção, faixas das alas e setas do corredor.
+  // Específicos da enfermaria (Mundo 1); outros setores não os usam.
   function drawDecals(t) {
+    if (activeWorldId !== 'hospital1') return;
     ctx.save();
     // cruz médica suave no centro da recepção
     ctx.globalAlpha = 0.09; ctx.fillStyle = '#3aa6a0';
@@ -705,6 +816,26 @@
     ctx.fillRect(dx + 18 + s, dy + 4, 3, TILE - 9);
   }
 
+  // Porta de setor (no muro): leva a outro mundo. Acento colorido por setor;
+  // cadeado quando o destino ainda está "Em breve" (ex.to == null).
+  function drawExitDoor(ex, x, y) {
+    const top = (y === 0);
+    const px = x * TILE, py = top ? y * TILE - WALL_FACE : y * TILE;
+    const h = top ? TILE + WALL_FACE : TILE;
+    ctx.fillStyle = '#cfd9e2'; ctx.fillRect(px + 1, py, TILE - 2, h);              // moldura clara
+    ctx.fillStyle = ex.to ? '#2c3b58' : '#3a3540'; roundRect(px + 4, py + 3, TILE - 8, h - 5, 3); ctx.fill(); // folha
+    ctx.fillStyle = ex.accent || '#4dd0e1'; ctx.fillRect(px + 4, py + 3, TILE - 8, 4);  // acento (cor do setor)
+    if (ex.to) {
+      ctx.fillStyle = '#3a5078'; ctx.fillRect(px + 6, py + 10, TILE - 12, h - 16);  // painel
+      ctx.fillStyle = '#ffd54a'; ctx.fillRect(px + TILE - 9, py + h / 2 - 2, 2.5, 5); // maçaneta
+    } else {
+      ctx.fillStyle = '#9aa3b0'; roundRect(px + TILE / 2 - 4, py + h / 2 - 4, 8, 8, 2); ctx.fill();  // cadeado
+      ctx.fillStyle = '#3a3540'; ctx.fillRect(px + TILE / 2 - 1, py + h / 2, 2, 4);
+      ctx.strokeStyle = '#9aa3b0'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(px + TILE / 2, py + h / 2 - 4, 2.5, Math.PI, 0); ctx.stroke();
+    }
+  }
+
   function drawSprites(t) {
     const list = [];
     // leitos + paciente (com sombra, respiração e ambiência por leito)
@@ -769,6 +900,14 @@
     list.sort((a, b) => a.sortY - b.sortY);
     labels.length = 0;
     for (const o of list) { o.draw(); if (o.label) labels.push(o.label); }
+    // placas das portas de setor (acima/abaixo do vão, no espaço do mundo)
+    for (const ex of EXITS) {
+      labels.push({
+        x: ex.tx * TILE + 16,
+        y: ex.ty === 0 ? TILE - 6 : (ex.ty >= MAP_H - 1 ? ex.ty * TILE - 2 : ex.ty * TILE + 18),
+        text: (ex.to ? '🚪 ' : '🔒 ') + ex.label, st: 'door'
+      });
+    }
   }
   const labels = [];
 
@@ -805,6 +944,7 @@
       if (l.st === 'self') bg = 'rgba(122,0,67,.9)';
       else if (l.st === 'avail') { bd = '#ffb300'; }
       else if (l.st === 'done') { bd = '#4caf50'; }
+      else if (l.st === 'door') { bg = 'rgba(18,34,58,.88)'; bd = '#4dd0e1'; }
       ctx.fillStyle = bg; roundRect(sx - w / 2, sy - 16, w, 16, 5); ctx.fill();
       ctx.strokeStyle = bd; ctx.lineWidth = 1; ctx.stroke();
       ctx.fillStyle = '#fff';
@@ -842,6 +982,29 @@
     drawRoomFocus();
     drawLabels();
     drawMinimap();
+    drawTransition();
+  }
+
+  // Fade preto ao trocar de setor (com o nome do destino no auge do escuro).
+  function drawTransition() {
+    if (!transition) return;
+    const half = transition.dur;
+    let a = transition.t < half ? (transition.t / half) : (1 - (transition.t - half) / half);
+    a = Math.max(0, Math.min(1, a));
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = 'rgba(6,8,16,' + a.toFixed(3) + ')';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    if (a > 0.45) {
+      ctx.globalAlpha = (a - 0.45) / 0.55;
+      ctx.fillStyle = '#eaf2ff'; ctx.textAlign = 'center';
+      ctx.font = 'bold ' + Math.round(canvas.height / 24) + 'px Montserrat, sans-serif';
+      const dest = (transition.exit.to === 'hub') ? 'Saguão do Hospital'
+        : (transition.exit.to === 'hospital1') ? 'Hospital Universitário'
+        : (transition.exit.label || '');
+      ctx.fillText(dest, canvas.width / 2, canvas.height / 2);
+      ctx.globalAlpha = 1;
+    }
+    ctx.restore();
   }
 
   // ---- Minimapa ----
@@ -962,7 +1125,7 @@
     dollCv = document.getElementById('inv-character'); if (dollCv) dollCtx = dollCv.getContext('2d');
     try {
       await loadAll();
-      buildCollision();
+      loadWorld('hospital1');
       setupInput();
       resize();
       window.addEventListener('resize', resize);
