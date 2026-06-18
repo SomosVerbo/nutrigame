@@ -22,7 +22,8 @@
     chair: 'chair.png', cabinet: 'cabinet.png', cooler: 'cooler.png', rug: 'rug.png', screen: 'screen.png',
     poster: 'poster.png', clock: 'clock.png',
     ivstand: 'ivstand.png', cart: 'cart.png', sidetable: 'sidetable.png', curtain: 'curtain.png',
-    locker: 'locker.png', bench: 'bench.png', trash: 'trash.png',
+    locker: 'locker.png', cabinet_side: 'cabinet_side.png', locker_side: 'locker_side.png',
+    bench: 'bench.png', trash: 'trash.png',
     vending: 'vending.png', wheelchair: 'wheelchair.png', examtable: 'examtable.png', skeleton: 'skeleton.png', sign: 'sign.png', wallmonitor: 'wallmonitor.png',
     elevator: 'elevator.png', stairs: 'stairs.png', extinguisher: 'extinguisher.png',
     ana: 'ana.png', roberto: 'npc_roberto.png', clara: 'npc_clara.png',
@@ -88,9 +89,9 @@
     const bedDecor = {
       1: { blanket: '#7fb2e6', companion: true, equip: 'iv' },
       2: { blanket: '#e69ab8', equip: 'o2' },
-      3: { blanket: '#8fd6a0', companion: true, equip: 'sne' },
+      3: { blanket: '#8fd6a0', equip: 'sne' },
       4: { blanket: '#e6cf86', plant: true, equip: 'dialysis' },
-      5: { blanket: '#c79ae6', companion: true, equip: 'trach' },
+      5: { blanket: '#c79ae6', equip: 'trach' },
       6: { blanket: '#e6b38a', equip: 'gtt' },
       7: { blanket: '#86c9c4', plant: true, equip: 'critical' },
       8: { blanket: '#a9b3dd', companion: true, equip: 'endoflife' }
@@ -114,13 +115,16 @@
       { img: 'trash', x: 8, y: 9, h: 24, solid: false }, { img: 'trash', x: 13, y: 9, h: 24, solid: false },
       { img: 'bench', x: 8, y: 11, h: 24, solid: false }, { img: 'bench', x: 10, y: 11, h: 24, solid: false }, { img: 'bench', x: 12, y: 11, h: 24, solid: false },
       { img: 'plant', x: 8, y: 12, h: 32, solid: false }, { img: 'plant', x: 13, y: 12, h: 32, solid: false },
-      { img: 'cabinet', x: 1, y: 4, h: 32, solid: false }, { img: 'cabinet', x: 1, y: 8, h: 32, solid: false },
-      { img: 'cabinet', x: 20, y: 4, h: 32, solid: false }, { img: 'cabinet', x: 20, y: 8, h: 32, solid: false },
-      { img: 'locker', x: 6, y: 4, h: 44, solid: false }, { img: 'locker', x: 6, y: 8, h: 44, solid: false },
-      { img: 'locker', x: 15, y: 4, h: 44, solid: false }, { img: 'locker', x: 15, y: 8, h: 44, solid: false },
-      { img: 'examtable', x: 3, y: 3, h: 40, solid: false }, { img: 'examtable', x: 3, y: 9, h: 40, solid: false },
-      { img: 'examtable', x: 18, y: 3, h: 40, solid: false }, { img: 'examtable', x: 18, y: 9, h: 40, solid: false },
-      { img: 'wheelchair', x: 4, y: 9, h: 40, solid: false }, { img: 'wheelchair', x: 17, y: 9, h: 40, solid: false }
+      // Enfermarias laterais: armários e lockers DE LADO, encostados nas paredes externas
+      // (viram pra dentro) e nas divisórias internas (espelhados), + 1 item de apoio.
+      // Q1 (sup. esq.)
+      { img: 'cabinet_side', x: 1, y: 3, h: 32, solid: false }, { img: 'locker_side', x: 6, y: 3, h: 44, solid: false, flip: true }, { img: 'examtable', x: 3, y: 4, h: 40, solid: false },
+      // Q2 (inf. esq.)
+      { img: 'locker_side', x: 1, y: 9, h: 44, solid: false }, { img: 'cabinet_side', x: 6, y: 9, h: 32, solid: false, flip: true }, { img: 'wheelchair', x: 3, y: 9, h: 40, solid: false },
+      // Q3 (sup. dir.)
+      { img: 'cabinet_side', x: 20, y: 3, h: 32, solid: false, flip: true }, { img: 'locker_side', x: 15, y: 3, h: 44, solid: false }, { img: 'examtable', x: 18, y: 4, h: 40, solid: false },
+      // Q4 (inf. dir.)
+      { img: 'locker_side', x: 20, y: 9, h: 44, solid: false, flip: true }, { img: 'cabinet_side', x: 15, y: 9, h: 32, solid: false }, { img: 'wheelchair', x: 18, y: 9, h: 40, solid: false }
     ];
     beds.forEach((b) => {
       const ay = b.top ? 1 : 11;
@@ -145,127 +149,233 @@
       lights: [[5, 4], [10, 4], [16, 4], [5, 9], [10, 7], [16, 9], [10, 11]],
       doorX: 10, doorY: 13,
       playerStart: { tx: 10, ty: 10, dir: 3 },
-      exits: [{ tx: 10, ty: 13, to: 'hub', label: 'Saguão do Hospital', spawn: { tx: 10, ty: 11, dir: 3 } }]
+      exits: [{ tx: 10, ty: 13, to: 'hub', label: 'Saguão do Hospital', spawn: { tx: 11, ty: 5, dir: 3 } }]
     };
   }
 
-  // HUB — Saguão central do hospital. Cada porta leva a um setor; nesta fase só o
-  // Hospital Universitário é navegável (os demais ficam "Em breve").
+  // HUB — Saguão compacto, em formato de CORREDOR. As portas dos setores ficam
+  // espaçadas na parede de fundo; a entrada do hospital fica embaixo, no centro.
+  // Nesta fase só Neuro/Onco/Nefro/UTI são navegáveis (os demais ficam "Em breve").
   function buildHub() {
     const wallDecor = new Map([
-      ['10,0', 'clock'], ['5,0', 'poster'], ['16,0', 'poster'],
-      ['0,2', 'poster'], ['0,11', 'poster'], ['21,2', 'poster'], ['21,11', 'poster'],
-      ['3,0', 'extinguisher'], ['18,0', 'extinguisher']
+      ['0,2', 'poster'], ['0,5', 'poster'], ['21,2', 'poster'], ['21,5', 'poster'],
+      ['1,0', 'extinguisher'], ['19,0', 'extinguisher']
     ]);
     const wander = [
-      { img: 'camila', name: 'Visitante', x: 7, y: 8 },
-      { img: 'thiago', name: 'Visitante', x: 14, y: 6 }
+      { img: 'camila', name: 'Visitante', x: 6, y: 4 },
+      { img: 'thiago', name: 'Visitante', x: 15, y: 4 }
     ];
+    // corredor: mobília só encostada nas pontas, centro livre p/ circular
     const props = [
-      { img: 'desk', x: 10, y: 6, h: 24 },
-      { img: 'chair', x: 9, y: 6, h: 32, solid: false }, { img: 'chair', x: 11, y: 6, h: 32, solid: false },
-      { img: 'rug', x: 10, y: 8, h: 32 },
-      { img: 'plant', x: 2, y: 6, h: 32, solid: false }, { img: 'plant', x: 19, y: 6, h: 32, solid: false },
-      { img: 'plant', x: 2, y: 11, h: 32, solid: false }, { img: 'plant', x: 19, y: 11, h: 32, solid: false },
-      { img: 'bench', x: 7, y: 11, h: 24, solid: false }, { img: 'bench', x: 9, y: 11, h: 24, solid: false },
-      { img: 'bench', x: 11, y: 11, h: 24, solid: false }, { img: 'bench', x: 13, y: 11, h: 24, solid: false },
-      { img: 'cooler', x: 5, y: 11, h: 32, solid: false }, { img: 'vending', x: 15, y: 11, h: 44, solid: false }
+      { img: 'plant', x: 1, y: 1, h: 32, solid: false }, { img: 'plant', x: 20, y: 1, h: 32, solid: false },
+      { img: 'plant', x: 1, y: 6, h: 32, solid: false }, { img: 'plant', x: 20, y: 6, h: 32, solid: false },
+      { img: 'rug', x: 11, y: 4, h: 32 },
+      { img: 'bench', x: 3, y: 6, h: 24, solid: false }, { img: 'bench', x: 5, y: 6, h: 24, solid: false },
+      { img: 'bench', x: 16, y: 6, h: 24, solid: false }, { img: 'bench', x: 18, y: 6, h: 24, solid: false },
+      { img: 'cooler', x: 7, y: 6, h: 32, solid: false }, { img: 'vending', x: 14, y: 6, h: 44, solid: false }
     ];
     const seated = [
-      { x: 7, y: 11, hair: '#3a2a20', coat: '#b9c4d6' },
-      { x: 13, y: 11, hair: '#5a3a22', coat: '#d6b9c4' }
+      { x: 3, y: 6, hair: '#3a2a20', coat: '#b9c4d6' },
+      { x: 18, y: 6, hair: '#5a3a22', coat: '#d6b9c4' }
     ];
-    const intoSector = { tx: 10, ty: 11, dir: 3 };   // chega o setor em frente à porta de volta
+    // portas dos setores na parede de fundo (y=0), bem espaçadas; entrada do hospital embaixo.
     const exits = [
-      { tx: 10, ty: 13, to: 'hospital1', label: 'Hospital Universitário', accent: '#4caf50', spawn: { tx: 10, ty: 12, dir: 3 } },
-      { tx: 4, ty: 0, to: null, label: 'Cardiologia', accent: '#e05a6a' },
-      { tx: 16, ty: 0, to: 'neuro', label: 'Neurologia', accent: '#c79ae6', spawn: intoSector },
-      { tx: 0, ty: 4, to: 'onco', label: 'Oncologia', accent: '#e08bb4', spawn: intoSector },
-      { tx: 0, ty: 9, to: 'nefro', label: 'Nefrologia', accent: '#5a86bd', spawn: intoSector },
-      { tx: 21, ty: 4, to: null, label: 'Pneumologia', accent: '#4dd0e1' },
-      { tx: 21, ty: 9, to: 'uti', label: 'UTI', accent: '#ff9d3a', spawn: intoSector },
-      { tx: 10, ty: 0, to: null, label: 'Centro de Concursos', accent: '#ffd54a' }
+      { tx: 11, ty: 7, to: 'hospital1', label: 'Hospital Universitário', accent: '#4caf50', spawn: { tx: 10, ty: 12, dir: 3 } },
+      { tx: 2, ty: 0, to: null, label: 'Cardiologia', accent: '#e05a6a' },
+      { tx: 5, ty: 0, to: null, label: 'Pneumologia', accent: '#4dd0e1' },
+      { tx: 8, ty: 0, to: 'neuro', label: 'Neurologia', accent: '#c79ae6' },
+      { tx: 11, ty: 0, to: 'onco', label: 'Oncologia', accent: '#e08bb4' },
+      { tx: 14, ty: 0, to: 'nefro', label: 'Nefrologia', accent: '#5a86bd' },
+      { tx: 17, ty: 0, to: 'uti', label: 'UTI', accent: '#ff9d3a' },
+      { tx: 20, ty: 0, to: null, label: 'Centro de Concursos', accent: '#ffd54a' }
     ];
     return {
-      id: 'hub', w: 22, h: 14,
+      id: 'hub', w: 22, h: 8,
       tintFn: () => '.',
       windows: new Set(), wallDecor, innerWalls: new Map(), doors: new Set(),
       beds: [], bedDecor: {}, npcs: [], wander, props, seated,
-      rooms: [{ x0: 1, y0: 1, x1: 20, y1: 12 }],
-      lights: [[10, 6], [5, 4], [16, 4], [5, 10], [16, 10]],
-      doorX: 10, doorY: 13,
-      playerStart: { tx: 10, ty: 9, dir: 3 },
+      rooms: [{ x0: 1, y0: 1, x1: 20, y1: 6 }],
+      lights: [[4, 3], [11, 3], [18, 3], [11, 5]],
+      doorX: 11, doorY: 7,
+      playerStart: { tx: 11, ty: 5, dir: 3 },
       exits
     };
   }
 
-  // Ala de setor reutilizável: enfermaria simples com leitos ligados a casos
-  // (o leito usa o id do módulo). cfg: { id, tint, lights?, beds, bedDecor, hubSpawn }.
+  // Janelas distribuídas ao longo da parede de fundo, conforme a largura do setor.
+  function sectorWindows(w, skip) {
+    const s = new Set(); skip = skip || new Set();
+    for (let x = 3; x <= w - 3; x += 4) if (!skip.has(x)) s.add(x + ',0');
+    return s;
+  }
+
+  // Ala de setor CONFIGURÁVEL: cada setor define seu tamanho, mobília e objetos.
+  // cfg: { id, tint, w?, h?, beds, bedDecor, hubSpawn, lights?, windows?, wallDecor?,
+  //        props?, wander?, seated? }. Altura padrão 14 (a porta fica em h-1; o hub
+  //        entrega a Ana em (10,11), por isso h não deve encolher abaixo de 14).
   function buildSectorWard(cfg) {
-    const windows = new Set(['4,0', '9,0', '13,0', '17,0']);
-    const wallDecor = new Map([
-      ['10,0', 'clock'], ['6,0', 'wallmonitor'], ['15,0', 'wallmonitor'],
-      ['0,3', 'poster'], ['0,10', 'poster'], ['21,3', 'poster'], ['21,10', 'poster'],
-      ['3,0', 'extinguisher'], ['18,0', 'extinguisher']
-    ]);
-    const props = [
-      { img: 'desk', x: 10, y: 6, h: 24 },
-      { img: 'chair', x: 9, y: 6, h: 32, solid: false }, { img: 'chair', x: 11, y: 6, h: 32, solid: false },
-      { img: 'rug', x: 10, y: 8, h: 32 },
-      { img: 'cart', x: 8, y: 8, h: 40, solid: false }, { img: 'cart', x: 13, y: 8, h: 40, solid: false },
-      { img: 'cabinet', x: 1, y: 5, h: 32, solid: false }, { img: 'cabinet', x: 20, y: 5, h: 32, solid: false },
-      { img: 'locker', x: 1, y: 8, h: 44, solid: false }, { img: 'locker', x: 20, y: 8, h: 44, solid: false },
-      { img: 'examtable', x: 14, y: 3, h: 40, solid: false }, { img: 'wheelchair', x: 7, y: 3, h: 40, solid: false },
-      { img: 'plant', x: 1, y: 11, h: 32, solid: false }, { img: 'plant', x: 20, y: 11, h: 32, solid: false },
-      { img: 'trash', x: 12, y: 11, h: 24, solid: false }
-    ];
+    const w = cfg.w || 22, h = cfg.h || 14, cx = Math.floor(w / 2);
+    const windows = cfg.windows ? new Set(cfg.windows) : sectorWindows(w);
+    const wallDecor = new Map(cfg.wallDecor || [[cx + ',0', 'clock']]);
+    const props = (cfg.props || []).slice();
+    // mobília automática ao lado de cada leito (mesinha + suporte de soro)
     cfg.beds.forEach((b) => {
-      const ay = b.top ? 1 : 11;
-      props.push({ img: 'sidetable', x: b.x + 1, y: ay, h: 28, solid: false });
-      props.push({ img: 'ivstand', x: b.x - 1, y: ay, h: 48, solid: false });
+      props.push({ img: 'sidetable', x: b.x + 1, y: b.y, h: 28, solid: false });
+      props.push({ img: 'ivstand', x: b.x - 1, y: b.y, h: 48, solid: false });
     });
     return {
-      id: cfg.id, w: 22, h: 14,
+      id: cfg.id, w, h,
       tintFn: cfg.tint ? () => cfg.tint : () => '.',
       windows, wallDecor, innerWalls: new Map(), doors: new Set(),
       beds: cfg.beds, bedDecor: cfg.bedDecor || {},
-      npcs: [], wander: [{ img: 'thiago', name: 'Equipe', x: 12, y: 7 }, { img: 'camila', name: 'Enfermagem', x: 8, y: 4 }],
-      props, seated: [],
-      rooms: [{ x0: 1, y0: 1, x1: 20, y1: 12 }],
-      lights: cfg.lights || [[5, 4], [10, 6], [16, 4], [10, 11]],
-      doorX: 10, doorY: 13,
-      playerStart: { tx: 10, ty: 9, dir: 3 },
-      exits: [{ tx: 10, ty: 13, to: 'hub', label: 'Voltar ao Saguão', accent: '#9fbede', spawn: cfg.hubSpawn }]
+      npcs: cfg.npcs || [],
+      wander: cfg.wander || [{ img: 'thiago', name: 'Equipe', x: cx + 2, y: Math.floor(h / 2) }, { img: 'camila', name: 'Enfermagem', x: Math.max(2, cx - 3), y: 4 }],
+      props, seated: cfg.seated || [],
+      rooms: [{ x0: 1, y0: 1, x1: w - 2, y1: h - 2 }],
+      lights: cfg.lights || [[Math.max(3, Math.floor(w * 0.25)), 4], [cx, Math.floor(h / 2)], [Math.floor(w * 0.75), 4], [cx, h - 3]],
+      doorX: cx, doorY: h - 1,
+      playerStart: { tx: cx, ty: h - 3, dir: 3 },
+      exits: [{ tx: cx, ty: h - 1, to: 'hub', label: 'Voltar ao Saguão', accent: '#9fbede', spawn: cfg.hubSpawn }]
     };
   }
 
   const WORLDS = {
     hospital1: buildHospital1,
     hub: buildHub,
-    // Setores abertos na Fase 2 (têm casos): Nefro(13), Onco(14), Neuro(16), UTI(15,17).
+    // Setores abertos na Fase 2 (têm casos): Nefro(13), Onco(14), Neuro(16), UTI/CTI(15,17,20–24).
+    // Cada um tem tamanho, mobília e clima próprios (preenchidos e organizados por zonas).
+
+    // NEFRO — sala compacta (18) de hemodiálise. Estoque na parede de fundo (virado
+    // pra dentro); poltronas de diálise reclinadas à esquerda; centro livre.
     nefro: () => buildSectorWard({
-      id: 'nefro', tint: 'b', hubSpawn: { tx: 1, ty: 4, dir: 2 },
-      beds: [{ id: 13, x: 5, y: 1, top: true }],
-      bedDecor: { 13: { blanket: '#7fb2e6', equip: 'dialysis', companion: true } }
+      id: 'nefro', tint: 'b', w: 18, hubSpawn: { tx: 14, ty: 2, dir: 0 },
+      beds: [{ id: 13, x: 4, y: 1, top: true }],
+      bedDecor: { 13: { blanket: '#7fb2e6', equip: 'dialysis' } },
+      windows: ['6,0', '11,0'],
+      wallDecor: [['9,0', 'clock'], ['12,0', 'wallmonitor'],
+        ['2,0', 'extinguisher'], ['16,0', 'extinguisher'],
+        ['0,5', 'poster'], ['17,5', 'poster'], ['0,10', 'poster'], ['17,10', 'poster']],
+      lights: [[4, 2], [9, 5], [3, 8], [13, 9]],
+      props: [
+        // ESTOQUE na parede de fundo (de frente p/ a sala) + recepção encostada
+        { img: 'cabinet', x: 1, y: 1, h: 32, solid: false }, { img: 'locker', x: 2, y: 1, h: 44, solid: false },
+        { img: 'desk', x: 8, y: 1, h: 24 }, { img: 'chair', x: 8, y: 2, h: 32, solid: false },
+        { img: 'vending', x: 14, y: 1, h: 44, solid: false }, { img: 'cooler', x: 15, y: 1, h: 32, solid: false }, { img: 'cabinet', x: 16, y: 1, h: 32, solid: false },
+        { img: 'rug', x: 8, y: 4, h: 32 },
+        // poltronas de diálise reclinadas encostadas na lateral esquerda
+        { img: 'ivstand', x: 1, y: 6, h: 48, solid: false }, { img: 'chair', x: 2, y: 6, h: 32, solid: false },
+        { img: 'ivstand', x: 1, y: 9, h: 48, solid: false }, { img: 'chair', x: 2, y: 9, h: 32, solid: false },
+        // equipamentos livres à direita (orientação neutra)
+        { img: 'cart', x: 16, y: 5, h: 40, solid: false }, { img: 'examtable', x: 15, y: 9, h: 40, solid: false }, { img: 'wheelchair', x: 16, y: 9, h: 40, solid: false },
+        // espera no canto inferior esquerdo + verde nos cantos
+        { img: 'bench', x: 4, y: 12, h: 24, solid: false }, { img: 'bench', x: 6, y: 12, h: 24, solid: false },
+        { img: 'trash', x: 16, y: 12, h: 24, solid: false },
+        { img: 'plant', x: 11, y: 12, h: 32, solid: false }, { img: 'plant', x: 13, y: 4, h: 32, solid: false }
+      ],
+      seated: [{ x: 4, y: 12, hair: '#3a2a20', coat: '#9fb6d6' }, { x: 6, y: 12, hair: '#5a3a22', coat: '#a6c8d6' }],
+      wander: [{ img: 'camila', name: 'Téc. Diálise', x: 11, y: 6 }, { img: 'thiago', name: 'Enfermagem', x: 7, y: 7 }]
     }),
+
+    // ONCO — sala ampla (20) e acolhedora: estoque ao fundo, plantas, espera p/ família.
     onco: () => buildSectorWard({
-      id: 'onco', tint: 'r', hubSpawn: { tx: 1, ty: 9, dir: 2 },
+      id: 'onco', tint: 'r', w: 20, hubSpawn: { tx: 11, ty: 2, dir: 0 },
       beds: [{ id: 14, x: 5, y: 1, top: true }],
-      bedDecor: { 14: { blanket: '#e6b3d4', equip: 'sne', companion: true } }
+      bedDecor: { 14: { blanket: '#e6b3d4', equip: 'sne', companion: true } },
+      windows: ['3,0', '12,0', '16,0'],
+      wallDecor: [['10,0', 'clock'], ['8,0', 'wallmonitor'],
+        ['2,0', 'extinguisher'], ['18,0', 'extinguisher'],
+        ['0,5', 'poster'], ['19,5', 'poster'], ['0,10', 'poster'], ['19,10', 'poster']],
+      lights: [[5, 3], [10, 6], [15, 4], [4, 11], [15, 11]],
+      props: [
+        // ESTOQUE ao fundo (de frente p/ a sala) + recepção + cortina de privacidade do leito
+        { img: 'cabinet', x: 1, y: 1, h: 32, solid: false }, { img: 'locker', x: 2, y: 1, h: 44, solid: false },
+        { img: 'curtain', x: 7, y: 1, h: 44, solid: false },
+        { img: 'desk', x: 10, y: 1, h: 24 }, { img: 'chair', x: 10, y: 2, h: 32, solid: false },
+        { img: 'cooler', x: 16, y: 1, h: 32, solid: false }, { img: 'vending', x: 17, y: 1, h: 44, solid: false }, { img: 'cabinet', x: 18, y: 1, h: 32, solid: false },
+        { img: 'rug', x: 10, y: 4, h: 32 },
+        // muitas plantas (clima acolhedor) nas laterais/cantos
+        { img: 'plant', x: 1, y: 5, h: 32, solid: false }, { img: 'plant', x: 18, y: 5, h: 32, solid: false },
+        { img: 'plant', x: 1, y: 9, h: 32, solid: false }, { img: 'plant', x: 18, y: 9, h: 32, solid: false },
+        { img: 'plant', x: 1, y: 12, h: 32, solid: false }, { img: 'plant', x: 18, y: 12, h: 32, solid: false }, { img: 'plant', x: 13, y: 4, h: 32, solid: false },
+        // equipamentos livres
+        { img: 'cart', x: 14, y: 7, h: 40, solid: false }, { img: 'examtable', x: 15, y: 9, h: 40, solid: false }, { img: 'wheelchair', x: 5, y: 9, h: 40, solid: false },
+        // espera p/ acompanhantes (canto inferior esquerdo)
+        { img: 'bench', x: 3, y: 12, h: 24, solid: false }, { img: 'bench', x: 5, y: 12, h: 24, solid: false }, { img: 'bench', x: 7, y: 12, h: 24, solid: false },
+        { img: 'trash', x: 16, y: 12, h: 24, solid: false }
+      ],
+      seated: [{ x: 3, y: 12, hair: '#6b4a2a', coat: '#d6a6c2' }, { x: 5, y: 12, hair: '#2a2a30', coat: '#c8a6d6' }, { x: 7, y: 12, hair: '#7a5230', coat: '#d6b9c4' }],
+      wander: [{ img: 'camila', name: 'Nutri Onco', x: 12, y: 7 }, { img: 'thiago', name: 'Enfermagem', x: 9, y: 5 }]
     }),
+
+    // NEURO — sala de avaliação (21) com clima diagnóstico: modelo anatômico, maca.
     neuro: () => buildSectorWard({
-      id: 'neuro', tint: '.', hubSpawn: { tx: 16, ty: 2, dir: 0 },
+      id: 'neuro', tint: '.', w: 21, hubSpawn: { tx: 8, ty: 2, dir: 0 },
       beds: [{ id: 16, x: 5, y: 1, top: true }],
-      bedDecor: { 16: { blanket: '#c79ae6', equip: 'gtt', companion: true } }
+      bedDecor: { 16: { blanket: '#c79ae6', equip: 'gtt' } },
+      windows: ['3,0', '12,0', '17,0'],
+      wallDecor: [['10,0', 'clock'], ['8,0', 'wallmonitor'], ['14,0', 'wallmonitor'],
+        ['2,0', 'extinguisher'], ['18,0', 'extinguisher'],
+        ['0,5', 'poster'], ['20,5', 'poster'], ['0,10', 'poster'], ['20,10', 'poster']],
+      lights: [[5, 3], [10, 6], [15, 4], [10, 11]],
+      props: [
+        // ESTOQUE ao fundo + recepção encostada
+        { img: 'cabinet', x: 1, y: 1, h: 32, solid: false }, { img: 'locker', x: 2, y: 1, h: 44, solid: false },
+        { img: 'desk', x: 9, y: 1, h: 24 }, { img: 'chair', x: 9, y: 2, h: 32, solid: false },
+        { img: 'cabinet', x: 18, y: 1, h: 32, solid: false }, { img: 'locker', x: 19, y: 1, h: 44, solid: false },
+        { img: 'rug', x: 9, y: 4, h: 32 },
+        // canto diagnóstico (laterais, orientação neutra)
+        { img: 'skeleton', x: 1, y: 4, h: 48, solid: false }, { img: 'examtable', x: 19, y: 4, h: 40, solid: false },
+        { img: 'wheelchair', x: 1, y: 8, h: 40, solid: false }, { img: 'cart', x: 19, y: 8, h: 40, solid: false },
+        // placa de piso molhado (um canto só) + verde + lixeira no canto
+        { img: 'sign', x: 3, y: 11, h: 30, solid: false },
+        { img: 'plant', x: 1, y: 12, h: 32, solid: false }, { img: 'plant', x: 19, y: 12, h: 32, solid: false }, { img: 'plant', x: 13, y: 4, h: 32, solid: false },
+        // espera no canto inferior direito
+        { img: 'bench', x: 15, y: 12, h: 24, solid: false }, { img: 'bench', x: 17, y: 12, h: 24, solid: false },
+        { img: 'trash', x: 19, y: 11, h: 24, solid: false }
+      ],
+      seated: [{ x: 15, y: 12, hair: '#3a2a20', coat: '#b9c4d6' }, { x: 17, y: 12, hair: '#5a3a22', coat: '#c4c4d6' }],
+      wander: [{ img: 'thiago', name: 'Neuro-equipe', x: 12, y: 7 }, { img: 'camila', name: 'Fono', x: 7, y: 6 }]
     }),
+
+    // UTI/CTI — sala intensiva (22): leitos em box com cortinas, estoque nos cantos do
+    // fundo, estação de monitorização lateral e carrinhos de emergência. Centro livre.
     uti: () => buildSectorWard({
-      id: 'uti', tint: 'b', hubSpawn: { tx: 20, ty: 9, dir: 1 },
-      lights: [[4, 4], [8, 4], [13, 4], [10, 11]],
-      beds: [{ id: 15, x: 4, y: 1, top: true }, { id: 17, x: 8, y: 1, top: true }],
+      id: 'uti', tint: 'b', hubSpawn: { tx: 17, ty: 2, dir: 0 },
+      lights: [[4, 3], [11, 5], [18, 3], [11, 11]],
+      windows: ['2,0', '10,0', '18,0'],
+      wallDecor: [['11,0', 'clock'], ['6,0', 'wallmonitor'], ['10,0', 'wallmonitor'], ['14,0', 'wallmonitor'],
+        ['0,5', 'poster'], ['21,5', 'poster'], ['0,8', 'poster'], ['21,8', 'poster']],
+      beds: [
+        { id: 15, x: 4, y: 1, top: true }, { id: 17, x: 8, y: 1, top: true },
+        { id: 20, x: 12, y: 1, top: true }, { id: 21, x: 16, y: 1, top: true },
+        { id: 22, x: 4, y: 11, top: false }, { id: 23, x: 8, y: 11, top: false },
+        { id: 24, x: 16, y: 11, top: false }
+      ],
       bedDecor: {
         15: { blanket: '#86c9c4', equip: 'critical', companion: true },
-        17: { blanket: '#a9b3dd', equip: 'sne' }
-      }
+        17: { blanket: '#a9b3dd', equip: 'sne' },
+        20: { blanket: '#e6a88a', equip: 'critical', companion: true },
+        21: { blanket: '#c7a0e6', equip: 'critical' },
+        22: { blanket: '#9ad0e6', equip: 'sne', companion: true },
+        23: { blanket: '#e6b38a', equip: 'critical', companion: true },
+        24: { blanket: '#c7d0a0', equip: 'sne' }
+      },
+      props: [
+        // cortinas de box entre os leitos de cima (divisórias)
+        { img: 'curtain', x: 6, y: 2, h: 44, solid: false }, { img: 'curtain', x: 10, y: 2, h: 44, solid: false }, { img: 'curtain', x: 14, y: 2, h: 44, solid: false },
+        // ESTOQUE nos cantos da parede de fundo (de frente p/ a sala)
+        { img: 'locker', x: 1, y: 1, h: 44, solid: false }, { img: 'cabinet', x: 2, y: 1, h: 32, solid: false },
+        { img: 'cabinet', x: 19, y: 1, h: 32, solid: false }, { img: 'locker', x: 20, y: 1, h: 44, solid: false },
+        // estação de monitorização à esquerda (encostada, fora do corredor central)
+        { img: 'desk', x: 2, y: 5, h: 24, solid: false }, { img: 'screen', x: 1, y: 4, h: 22, solid: false }, { img: 'chair', x: 2, y: 6, h: 32, solid: false },
+        // carrinhos de emergência + maca (orientação neutra)
+        { img: 'cart', x: 6, y: 5, h: 40, solid: false }, { img: 'cart', x: 14, y: 5, h: 40, solid: false },
+        { img: 'cart', x: 19, y: 5, h: 40, solid: false }, { img: 'examtable', x: 19, y: 8, h: 40, solid: false },
+        // placa de piso molhado (um canto) + lixeira de canto + verde
+        { img: 'sign', x: 13, y: 7, h: 30, solid: false }, { img: 'trash', x: 19, y: 12, h: 24, solid: false },
+        { img: 'plant', x: 1, y: 12, h: 32, solid: false }, { img: 'plant', x: 11, y: 6, h: 32, solid: false }
+      ],
+      wander: [{ img: 'thiago', name: 'Intensivista', x: 11, y: 7 }, { img: 'camila', name: 'Enf. CTI', x: 12, y: 8 }]
     })
   };
 
@@ -294,7 +404,11 @@
   // ---- Estado ----
   let canvas, ctx, root, miniCv, miniCtx, dollCv, dollCtx;
   let player = { x: 10 * TILE + 16, y: 10 * TILE + 16, dir: 3, frame: 0, anim: 0, moving: false };
-  let camX = 0, camY = 0, ZOOM = 3, doorOpen = 0;
+  let camX = 0, camY = 0, ZOOM = 5, doorOpen = 0;
+  const ZOOM_MAX = 5;          // visão mais próxima (zoom padrão ao abrir)
+  let zoomInit = false;
+  // Zoom mínimo = o que faz o MAPA INTEIRO caber na tela (para tirar prints do setor).
+  function fitZoom() { return Math.min(ZOOM_MAX, canvas.width / (MAP_W * TILE), canvas.height / (MAP_H * TILE)); }
   const innerDoorOpen = new Map();   // 'x,y' -> 0..1 (abertura animada das portas dos quartos)
   const dust = [];                   // partículas de poeira sob os pés (vida visual)
   let dustTimer = 0;
@@ -483,6 +597,8 @@
 
   // ---- Render ----
   function bedStatus(id) {
+    // Leitos do CTI (motor cti.js) reportam o próprio status.
+    if (window.ctiStatus) { const cs = window.ctiStatus(id); if (cs) return cs; }
     const st = window.getGameState ? window.getGameState() : { completedModules: [] };
     const cm = st.completedModules || [];
     if (cm.includes(id)) return 'done';
@@ -625,6 +741,7 @@
   // Acompanhante sentado na poltrona (rosto, ombros e braços) que questiona a conduta.
   const COMP_HAIR = ['#3b2a20', '#5a3a22', '#1c1c22', '#6b4a2a', '#8a8f96'];
   const COMP_SHIRT = ['#c0688a', '#6a8cc7', '#5aa17a', '#c98a3a', '#8a6aa8'];
+  const COMP_PANTS = ['#3a4256', '#5a4636', '#34506b', '#4a4450', '#6b5340'];
   const COMP_SKIN = ['#e8b48f', '#f0c8a0', '#d79a6b'];
   function drawCompanion(x, y, t, seed) {
     seed = seed || 0;
@@ -641,6 +758,14 @@
     ctx.fillStyle = '#4a3d62'; roundRect(x - 1, y + 8, 4, 13, 2); ctx.fill();    // braço esq
     roundRect(x + 17, y + 8, 4, 13, 2); ctx.fill();                             // braço dir
     ctx.fillStyle = '#6b5a8a'; ctx.fillRect(x - 1, y + 8, 4, 2); ctx.fillRect(x + 17, y + 8, 4, 2);
+    // ---- Pernas (sentado): coxas saindo do assento + canelas descendo + sapatos ----
+    const pants = COMP_PANTS[seed % COMP_PANTS.length];
+    ctx.fillStyle = pants;
+    roundRect(cx - 6, y + 16, 5, 9, 2); ctx.fill();              // coxa/canela esq
+    roundRect(cx + 1, y + 16, 5, 9, 2); ctx.fill();              // coxa/canela dir
+    ctx.fillStyle = 'rgba(0,0,0,0.14)'; ctx.fillRect(cx - 1, y + 17, 2, 8);  // vinco entre as pernas
+    ctx.fillStyle = '#33363d';                                   // sapatos
+    roundRect(cx - 6, y + 24, 5, 3, 1); ctx.fill(); roundRect(cx + 1, y + 24, 5, 3, 1); ctx.fill();
     // ---- Acompanhante sentado ----
     // tronco / camisa
     ctx.fillStyle = shirt; roundRect(cx - 6, y + 6, 12, 12, 4); ctx.fill();
@@ -787,27 +912,15 @@
     ctx.restore();
   }
 
-  // Decalques de piso: cruz da recepção, faixas das alas e setas do corredor.
+  // Decalques de piso: cruz médica suave da recepção (sem setas no chão).
   // Específicos da enfermaria (Mundo 1); outros setores não os usam.
   function drawDecals(t) {
     if (activeWorldId !== 'hospital1') return;
     ctx.save();
     // cruz médica suave no centro da recepção
-    ctx.globalAlpha = 0.09; ctx.fillStyle = '#3aa6a0';
+    ctx.globalAlpha = 0.08; ctx.fillStyle = '#3aa6a0';
     const cxp = 10 * TILE + 16, cyp = 4 * TILE + 4;
     ctx.fillRect(cxp - 5, cyp - 16, 10, 32); ctx.fillRect(cxp - 16, cyp - 5, 32, 10);
-    // faixas coloridas de ala no piso (rosa à esquerda, azul à direita)
-    ctx.globalAlpha = 0.14;
-    ctx.fillStyle = '#e08bb4'; ctx.fillRect(1 * TILE, 6 * TILE + 13, 6 * TILE, 6);   // ala rosa
-    ctx.fillStyle = '#6ba3d8'; ctx.fillRect(15 * TILE, 6 * TILE + 13, 6 * TILE, 6);  // ala azul
-    // chevrons (setas) descendo o corredor central — guiam até a entrada
-    ctx.globalAlpha = 0.12; ctx.strokeStyle = '#7f8aa0'; ctx.lineWidth = 2;
-    for (let r = 0; r < 4; r++) {
-      const ay = (7 + r) * TILE + ((t * 18) % TILE);     // descem suavemente
-      ctx.beginPath();
-      ctx.moveTo(cxp - 7, ay - 4); ctx.lineTo(cxp, ay + 3); ctx.lineTo(cxp + 7, ay - 4);
-      ctx.stroke();
-    }
     ctx.restore();
   }
 
@@ -845,6 +958,7 @@
   // Foco de câmera: escurece tudo fora do cômodo atual (imersão), com borda suave
   // e transição interpolada ao trocar de sala.
   function drawRoomFocus() {
+    if (ZOOM < 1.3) return;   // no zoom de mapa inteiro (prints), não escurece as outras salas
     const r = currentRoom();
     const tx0 = r.x0 * TILE, ty0 = r.y0 * TILE - (r.y0 === 1 ? WALL_FACE : 0);
     const tx1 = (r.x1 + 1) * TILE, ty1 = (r.y1 + 1) * TILE;
@@ -909,6 +1023,12 @@
     }
   }
 
+  // Desenha um sprite; com flip=true espelha na horizontal (móvel de lado na parede direita).
+  function drawImg(img, px, yy, flip) {
+    if (!flip) { ctx.drawImage(img, px, yy); return; }
+    ctx.save(); ctx.translate(px + TILE, yy); ctx.scale(-1, 1); ctx.drawImage(img, 0, 0); ctx.restore();
+  }
+
   function drawSprites(t) {
     const list = [];
     // leitos + paciente (com sombra, respiração e ambiência por leito)
@@ -952,7 +1072,7 @@
           return;
         }
         shadow(p.x * TILE + 16, p.y * TILE + 30, 11, 3.5);
-        ctx.drawImage(IMG[p.img], p.x * TILE, yy);
+        drawImg(IMG[p.img], p.x * TILE, yy, p.flip);           // flip: espelha móveis de lado (parede direita)
         if (p.img === 'desk') {                                // tela piscando
           ctx.fillStyle = (Math.floor(t * 3) % 2) ? '#5fe0ea' : '#39c3cf';
           ctx.fillRect(p.x * TILE + 12, yy + 2, 8, 4);
@@ -1160,8 +1280,9 @@
 
     document.getElementById('w3d-action').addEventListener('click', () => { if (window.soundSynth) window.soundSynth.play('click'); doInteract(); });
     const zin = document.getElementById('w3d-zoom-in'), zout = document.getElementById('w3d-zoom-out');
-    if (zin) zin.addEventListener('click', () => { ZOOM = Math.min(5, ZOOM + 1); });
-    if (zout) zout.addEventListener('click', () => { ZOOM = Math.max(2, ZOOM - 1); });
+    if (zin) zin.addEventListener('click', () => { ZOOM = Math.min(ZOOM_MAX, ZOOM + 1); });
+    // zoom-out vai até caber o mapa INTEIRO na tela (último passo mostra tudo, p/ prints)
+    if (zout) zout.addEventListener('click', () => { ZOOM = Math.max(fitZoom(), ZOOM - 1); });
 
     window.addEventListener('keydown', (e) => {
       if (!isActive()) return; const k = e.key.toLowerCase();
@@ -1177,7 +1298,9 @@
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = w * dpr; canvas.height = h * dpr;
     canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
-    ZOOM = Math.max(2, Math.min(5, Math.round(Math.min(canvas.width, canvas.height) / (TILE * 8))));
+    // abre na visão mais próxima (ZOOM_MAX); depois preserva o zoom do usuário, só clampando.
+    if (!zoomInit) { ZOOM = ZOOM_MAX; zoomInit = true; }
+    else ZOOM = Math.max(fitZoom(), Math.min(ZOOM_MAX, ZOOM));
   }
 
   function refresh() { /* labels lêem o estado direto a cada frame */ }
@@ -1211,7 +1334,35 @@
     }
   }
 
-  window.NutriWorld = { refresh, resize, isReady: () => started };
+  // ---- Hooks de depuração/QA (carregar setor, conferir alcance via BFS) ----
+  function reachReport(id) {
+    const prev = activeWorldId;
+    loadWorld(id);
+    const sx = Math.floor(player.x / TILE), sy = Math.floor(player.y / TILE);
+    const seen = new Set(); const q = [[sx, sy]]; seen.add(sx + ',' + sy);
+    const N = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+    while (q.length) {
+      const [x, y] = q.shift();
+      for (const [dx, dy] of N) {
+        const nx = x + dx, ny = y + dy, k = nx + ',' + ny;
+        if (nx < 0 || ny < 0 || nx >= MAP_W || ny >= MAP_H) continue;
+        if (seen.has(k) || blocked.has(k)) continue;
+        seen.add(k); q.push([nx, ny]);
+      }
+    }
+    const reach = (x, y) => seen.has(x + ',' + y) || N.some(([dx, dy]) => seen.has((x + dx) + ',' + (y + dy)));
+    const beds = BEDS.map((b) => ({ id: b.id, ok: reach(b.x, b.y + (b.top ? 2 : -1)) }));
+    const exits = EXITS.map((e) => ({ to: e.to, ok: reach(e.tx, e.ty) }));
+    const out = { id, w: MAP_W, h: MAP_H, start: [sx, sy], spawnFree: !blocked.has(sx + ',' + sy), beds, exits };
+    loadWorld(prev);
+    return out;
+  }
+
+  window.NutriWorld = {
+    refresh, resize, isReady: () => started,
+    _world: () => activeWorldId, _load: (id) => loadWorld(id), _check: reachReport,
+    _ids: () => Object.keys(WORLDS)
+  };
   if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', init);
   else init();
 })();

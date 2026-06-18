@@ -2759,7 +2759,1360 @@ const nutriGameData = {
     15: "Terapia Nutricional Enteral — Paciente Crítico. Revisar: TNE precoce (24–48h), metas de 25–30 kcal/kg e proteína 1,5–2,0 g/kg, fórmulas para paciente grave/trauma (ex.: Protison, HP Energy), cabeceira elevada 30–45° e prevenção de broncoaspiração na traqueostomia/ventilação.",
     16: "Terapia Nutricional Enteral — Disfagia/Vias. Revisar: SNE (curto prazo) x GTT/ostomias (longo prazo, >4–6 semanas), fórmula polimérica padrão, fibras + água livre (constipação), lavagem da sonda e administração de medicações, fórmulas para diabetes (Diason) e segurança na disfagia.",
     17: "Terapia Nutricional Enteral — Complicações (Diarreia). Revisar: causas multifatoriais (velocidade/osmolaridade, sorbitol, antibióticos/C. difficile, contaminação, má absorção), conduta (reduzir velocidade, investigar causa, NÃO suspender de imediato) e fórmulas peptídicas/oligoméricas (Peptamen) e com fibras."
-  }
+  },
+
+  // ============================================================
+  // CENTRAL DE FÓRMULAS ENTERAIS (CTI) — produtos reais de mercado
+  // Valores nutricionais são de REFERÊNCIA (média por 100 mL / densidade por mL),
+  // didáticos — sempre confirmar no rótulo atual do fabricante antes de prescrever.
+  // ============================================================
+  formulasEnterais: [
+    {
+      id: "isosource_std", marca: "Nestlé", nome: "Isosource Standard",
+      densidade: 1.2, prot: 3.8, cho: 16.0, lip: 3.9, fibra: 0, osmo: 360,
+      categoria: "Polimérica padrão", isotonica: true,
+      indicacoes: "Paciente estável com TGI íntegro e necessidades normais; início de TNE.",
+      restricoes: "Sem fibra (atenção em constipação); não específica para diabetes/renal.",
+      destaque: "Normocalórica, isotônica — boa tolerância para iniciar a dieta."
+    },
+    {
+      id: "isosource_15", marca: "Nestlé", nome: "Isosource 1.5",
+      densidade: 1.5, prot: 6.8, cho: 17.0, lip: 5.8, fibra: 0, osmo: 490,
+      categoria: "Hipercalórica / hiperproteica", isotonica: false,
+      indicacoes: "Alta demanda energético-proteica com restrição de volume (crítico, trauma).",
+      restricoes: "Maior osmolaridade — progredir conforme tolerância; cuidado em diarreia osmótica.",
+      destaque: "Densidade calórica alta — atinge meta proteica com menos volume."
+    },
+    {
+      id: "isosource_soya", marca: "Nestlé", nome: "Isosource Soya Fiber",
+      densidade: 1.2, prot: 3.8, cho: 16.0, lip: 3.9, fibra: 1.4, osmo: 390,
+      categoria: "Polimérica com fibra",
+      indicacoes: "Uso prolongado, regulação do trânsito intestinal (constipação/diarreia leve).",
+      restricoes: "Fibra pode piorar distensão em íleo/instabilidade hemodinâmica grave.",
+      destaque: "Mix de fibras (soja) — saúde intestinal no uso crônico."
+    },
+    {
+      id: "novasource_gc", marca: "Nestlé", nome: "Novasource GC (Glicemia Controlada)",
+      densidade: 1.0, prot: 4.3, cho: 9.0, lip: 4.0, fibra: 1.5, osmo: 300,
+      categoria: "Diabetes / hiperglicemia",
+      indicacoes: "Hiperglicemia de estresse, diabetes; controle glicêmico no crítico.",
+      restricoes: "Densidade menor — pode exigir maior volume para meta calórica.",
+      destaque: "Baixo índice glicêmico, com fibra — atenua picos glicêmicos."
+    },
+    {
+      id: "peptamen", marca: "Nestlé", nome: "Peptamen",
+      densidade: 1.0, prot: 4.0, cho: 12.7, lip: 3.7, fibra: 0, osmo: 270,
+      categoria: "Peptídica (semielementar)",
+      indicacoes: "Má absorção, intolerância à polimérica, diarreia persistente, pancreatite.",
+      restricoes: "Custo maior; reservar para falha/má absorção comprovada.",
+      destaque: "Proteína hidrolisada do soro + TCM — fácil absorção."
+    },
+    {
+      id: "peptamen_intense", marca: "Nestlé", nome: "Peptamen Intense VHP",
+      densidade: 1.0, prot: 9.4, cho: 7.5, lip: 3.7, fibra: 0, osmo: 345,
+      categoria: "Peptídica hiperproteica (crítico)",
+      indicacoes: "Paciente crítico com alta meta proteica e controle calórico (anti-overfeeding).",
+      restricoes: "Muito hiperproteica — monitorar ureia/função renal e hidratação.",
+      destaque: "Altíssima proteína com baixa caloria — ideal para fase aguda do crítico."
+    },
+    {
+      id: "nutrison_diason", marca: "Danone / Nutricia", nome: "Nutrison Advanced Diason",
+      densidade: 1.03, prot: 4.3, cho: 11.3, lip: 4.2, fibra: 1.5, osmo: 300,
+      categoria: "Diabetes / hiperglicemia",
+      indicacoes: "Diabetes e hiperglicemia de estresse com necessidade de fibra.",
+      restricoes: "Não hipercalórica — avaliar volume para meta.",
+      destaque: "Baixo índice glicêmico com mix de fibras."
+    },
+    {
+      id: "nutrison_protein", marca: "Danone / Nutricia", nome: "Nutrison Protein Plus Energy",
+      densidade: 1.25, prot: 6.3, cho: 14.1, lip: 4.9, fibra: 0, osmo: 410,
+      categoria: "Hipercalórica / hiperproteica",
+      indicacoes: "Alta meta proteica e calórica com restrição de volume.",
+      restricoes: "Osmolaridade elevada; sem fibra.",
+      destaque: "Boa relação caloria-proteína para anabolismo no estável."
+    },
+    {
+      id: "prodiet_nephro", marca: "Prodiet", nome: "Nephro (Renal)",
+      densidade: 2.0, prot: 7.0, cho: 20.0, lip: 9.6, fibra: 0, osmo: 600,
+      categoria: "Nefropatia",
+      indicacoes: "DRC dialítica / restrição de volume e eletrólitos; alta densidade calórica.",
+      restricoes: "Hiperosmolar — progredir devagar; ajustar conforme diálise.",
+      destaque: "Densa em calorias, baixa em K/P/Na — controle hidroeletrolítico."
+    },
+    {
+      id: "fresubin_hepa", marca: "Fresenius Kabi", nome: "Fresubin Hepa",
+      densidade: 1.3, prot: 4.0, cho: 17.6, lip: 4.7, fibra: 1.5, osmo: 380,
+      categoria: "Hepatopatia",
+      indicacoes: "Insuficiência hepática / encefalopatia — rica em AACR (BCAA).",
+      restricoes: "Perfil aminoacídico específico; não usar como padrão geral.",
+      destaque: "Aminoácidos de cadeia ramificada — modula encefalopatia hepática."
+    },
+    {
+      id: "impact", marca: "Nestlé", nome: "Impact (Imunonutrição)",
+      densidade: 1.0, prot: 5.6, cho: 13.4, lip: 2.8, fibra: 0, osmo: 300,
+      categoria: "Imunomoduladora",
+      indicacoes: "Perioperatório de cirurgia GI/oncológica eletiva; trauma selecionado.",
+      restricoes: "ARGININA — CONTRAINDICADA na sepse grave/choque séptico (risco de vasodilatação/NO).",
+      destaque: "Arginina + ômega-3 + nucleotídeos — imunonutrição perioperatória."
+    },
+    {
+      id: "fresubin_energy_fibre", marca: "Fresenius Kabi", nome: "Fresubin Energy Fibre",
+      densidade: 1.5, prot: 5.6, cho: 18.8, lip: 5.8, fibra: 2.0, osmo: 450,
+      categoria: "Hipercalórica com fibra",
+      indicacoes: "Alta demanda calórica no uso prolongado com necessidade de fibra.",
+      restricoes: "Fibra + osmolaridade — cautela na fase aguda instável.",
+      destaque: "Hipercalórica com fibra para manutenção de longo prazo."
+    }
+  ],
+
+  // ============================================================
+  // CASOS DO CTI — motor de simulação de plantão (cti.js)
+  // Mantém o princípio: ao abrir o paciente há anamnese, avaliação nutricional,
+  // exame físico, antropometria, exames, evolução, prescrição e prontuário.
+  // ============================================================
+  ctiCases: [
+    {
+      id: "cti_sepse",
+      bedId: 20,
+      sector: "uti",
+      title: "Sepse de Foco Abdominal",
+      subtitle: "Terapia nutricional no paciente séptico",
+      patient: {
+        name: "Sr. Antônio Pereira", age: 64, sex: "M", avatar: "🧔🏽",
+        leito: "Leito 20 — CTI", peso: 78, altura: 1.72, imc: 26.4,
+        diagnostico: "Sepse de foco abdominal (pós-operatório de perfuração intestinal), D2 de internação no CTI.",
+        isolamento: false
+      },
+      plantao: {
+        admissao: "Admitido há 48h, pós-laparotomia por perfuração de cólon. Sepse de foco abdominal em antibioticoterapia. Em ventilação mecânica, sedação leve, noradrenalina em desmame (0,08 mcg/kg/min e reduzindo). Ainda SEM terapia nutricional iniciada.",
+        intercorrencias24h: [
+          "Lactato em queda (4,1 → 2,3 mmol/L) e pressão estabilizando com noradrenalina em desmame.",
+          "Glicemia capilar oscilando (160–210 mg/dL) — hiperglicemia de estresse.",
+          "Mantém sonda nasoenteral locada e posicionada (RX confirma)."
+        ],
+        pendencias: [
+          "Definir e iniciar a terapia nutricional (paciente em jejum há 48h).",
+          "Estabelecer meta calórico-proteica e estratégia de progressão.",
+          "Conversar com a filha (acompanhante) ansiosa sobre a alimentação."
+        ],
+        solicitacoes: [
+          "Equipe médica solicita parecer nutricional para início de dieta.",
+          "Enfermagem pergunta em que vazão deixar a bomba de infusão."
+        ]
+      },
+      prontuarioBase: {
+        anamnese: "Hipertenso, ex-tabagista. Sem histórico de desnutrição prévia. Internado por abdome agudo perfurativo, operado de urgência. Família relata alimentação habitual normal antes da internação.",
+        avaliacaoNutricional: "Triagem NRS-2002: escore 5 (em risco nutricional — doença grave/CTI + jejum). ASG não aplicável de forma completa (sedado), mas sem sinais de desnutrição grave prévia. Risco de síndrome de realimentação: BAIXO a MODERADO (sem jejum muito prolongado nem desnutrição prévia).",
+        exameFisico: "Sedado, VM, traqueostomia ausente (TOT). Abdome distendido, peristalse hipoativa porém presente, ferida operatória limpa. Edema +/4+ em MMII. Sem sinais de isquemia mesentérica.",
+        antropometria: "Peso atual estimado 78 kg • Altura 1,72 m • IMC 26,4 kg/m² • Peso ideal ~68 kg. Sem perda de peso significativa documentada. Para metas, usar peso ajustado/atual conforme protocolo."
+      },
+      labsByDay: {
+        0: [
+          { name: "PCR", value: "248 mg/L", ref: "< 5", flag: "alto" },
+          { name: "Lactato", value: "2,3 mmol/L", ref: "< 2,0", flag: "alto" },
+          { name: "Leucócitos", value: "18.400 /mm³", ref: "4–11 mil", flag: "alto" },
+          { name: "Glicemia", value: "188 mg/dL", ref: "70–110", flag: "alto" },
+          { name: "Ureia", value: "52 mg/dL", ref: "15–40", flag: "alto" },
+          { name: "Creatinina", value: "1,3 mg/dL", ref: "0,7–1,2", flag: "alto" },
+          { name: "Fósforo", value: "3,4 mg/dL", ref: "2,5–4,5", flag: "ok" },
+          { name: "Potássio", value: "4,2 mEq/L", ref: "3,5–5,0", flag: "ok" },
+          { name: "Albumina", value: "2,4 g/dL", ref: "3,5–5,0", flag: "baixo" }
+        ],
+        1: [
+          { name: "PCR", value: "210 mg/L", ref: "< 5", flag: "alto" },
+          { name: "Lactato", value: "1,8 mmol/L", ref: "< 2,0", flag: "ok" },
+          { name: "Glicemia", value: "205 mg/dL", ref: "70–110", flag: "alto" },
+          { name: "Ureia", value: "58 mg/dL", ref: "15–40", flag: "alto" },
+          { name: "Fósforo", value: "2,2 mg/dL", ref: "2,5–4,5", flag: "baixo" },
+          { name: "Potássio", value: "3,3 mEq/L", ref: "3,5–5,0", flag: "baixo" },
+          { name: "Magnésio", value: "1,4 mg/dL", ref: "1,6–2,6", flag: "baixo" }
+        ],
+        2: [
+          { name: "PCR", value: "150 mg/L", ref: "< 5", flag: "alto" },
+          { name: "Lactato", value: "1,4 mmol/L", ref: "< 2,0", flag: "ok" },
+          { name: "Glicemia", value: "168 mg/dL", ref: "70–110", flag: "alto" },
+          { name: "Ureia", value: "55 mg/dL", ref: "15–40", flag: "alto" },
+          { name: "Fósforo", value: "3,0 mg/dL", ref: "2,5–4,5", flag: "ok" },
+          { name: "Potássio", value: "4,0 mEq/L", ref: "3,5–5,0", flag: "ok" }
+        ],
+        3: [
+          { name: "PCR", value: "98 mg/L", ref: "< 5", flag: "alto" },
+          { name: "Lactato", value: "1,2 mmol/L", ref: "< 2,0", flag: "ok" },
+          { name: "Glicemia", value: "150 mg/dL", ref: "70–110", flag: "alto" },
+          { name: "Ureia", value: "48 mg/dL", ref: "15–40", flag: "alto" },
+          { name: "Fósforo", value: "3,3 mg/dL", ref: "2,5–4,5", flag: "ok" },
+          { name: "Albumina", value: "2,6 g/dL", ref: "3,5–5,0", flag: "baixo" }
+        ]
+      },
+      stages: [
+        {
+          id: "indicacao", title: "1 · Indicação da via", icon: "🧭",
+          prompt: "Paciente séptico, hemodinamicamente ESTABILIZANDO (noradrenalina em desmame, lactato em queda), TGI funcionante, em jejum há 48h. Qual a conduta nutricional inicial?",
+          options: [
+            { id: "tne_precoce", text: "Iniciar Terapia Nutricional Enteral PRECOCE por SNE, em vazão baixa (trófica), já que está estabilizando.", correct: true,
+              feedback: "Correto! Com TGI funcionante e hemodinâmica em estabilização (vasopressor em desmame), indica-se TNE precoce em vazão trófica, progredindo conforme tolerância." },
+            { id: "npt", text: "Iniciar Nutrição Parenteral Total imediatamente.", correct: false, critical: true,
+              feedback: "Inadequado/fora da alçada: com TGI funcionante a via enteral é preferível; além disso, NP é prescrição médica. NP precoce sem indicação aumenta risco infeccioso." },
+            { id: "jejum", text: "Manter jejum até a sepse resolver completamente.", correct: false, critical: true,
+              feedback: "ERRO: o jejum prolongado agrava o catabolismo e a atrofia intestinal. A TNE precoce trófica é indicada no séptico estabilizando." },
+            { id: "oral", text: "Liberar dieta via oral plena.", correct: false, critical: true,
+              feedback: "Impossível: paciente sob ventilação mecânica e sedado — via oral insegura. A via é enteral por sonda." }
+          ],
+          explain: "Diretrizes (BRASPEN/ESPEN/ASPEN): iniciar TNE precoce (24–48h) no crítico com TGI funcionante assim que estabilizado. Em vasopressor em DESMAME e lactato caindo, inicia-se nutrição trófica/hipocalórica e progride."
+        },
+        {
+          id: "formula", kind: "formula", title: "2 · Escolha da fórmula", icon: "🧪",
+          prompt: "Selecione a fórmula enteral mais adequada para iniciar neste paciente séptico, hiperglicêmico, na fase aguda.",
+          correctIds: ["isosource_std", "peptamen_intense", "novasource_gc", "nutrison_diason"],
+          bestId: "isosource_std",
+          notes: {
+            isosource_std: "Boa escolha: polimérica padrão isotônica é a fórmula inicial clássica do crítico com TGI funcionante e boa tolerância.",
+            peptamen_intense: "Aceitável: hiperproteica controla a meta proteica do crítico; reserve a peptídica para má absorção/intolerância.",
+            novasource_gc: "Aceitável: ajuda no controle da hiperglicemia de estresse, mas a densidade baixa pode dificultar a meta calórica.",
+            nutrison_diason: "Aceitável: opção para hiperglicemia com fibra.",
+            impact: "ERRO CRÍTICO: Impact contém ARGININA — contraindicada na sepse grave/choque séptico. Imunonutrição com arginina é para perioperatório eletivo, não para sepse instalada.",
+            isosource_soya: "Subótima agora: fibra na fase aguda com peristalse hipoativa/distensão pode piorar a intolerância. Reservar para fase de manutenção.",
+            fresubin_energy_fibre: "Subótima agora: hipercalórica com fibra e osmolaridade alta — risco de intolerância na fase aguda."
+          },
+          explain: "Na sepse: fórmula polimérica padrão isotônica é o ponto de partida. Evite imunonutrição com ARGININA (Impact) na sepse grave. Considere fórmula para glicemia se hiperglicemia persistente. Fibra: evitar na fase aguda instável."
+        },
+        {
+          id: "inicio", title: "3 · Como iniciar e metas", icon: "⏱️",
+          prompt: "Como iniciar a infusão e quais metas perseguir na fase aguda (com hiperglicemia e vasopressor em desmame)?",
+          options: [
+            { id: "trofico", text: "Iniciar trófico/hipocalórico (≈10–20 ml/h), meta proteica alta (1,3–2,0 g/kg/dia) e progredir calorias conforme tolerância; cabeceira a 30–45°; monitorar glicemia (protocolo de insulina).", correct: true,
+              feedback: "Perfeito! Na fase aguda do crítico evita-se hiperalimentação: começa-se com vazão baixa, prioriza-se proteína e progride-se as calorias gradualmente, com cabeceira elevada e controle glicêmico." },
+            { id: "meta_cheia", text: "Iniciar já na meta calórica plena (25–30 kcal/kg) em 24h para evitar déficit.", correct: false, critical: true,
+              feedback: "ERRO: hiperalimentação precoce no crítico associa-se a piora (hiperglicemia, overfeeding, disfunção). Progressão gradual é o correto." },
+            { id: "sem_cabeceira", text: "Infundir em bolus rápido com o paciente deitado para ganhar tempo.", correct: false, critical: true,
+              feedback: "ERRO: deitado + bolus rápido aumenta o risco de broncoaspiração. Infusão contínua com cabeceira elevada 30–45°." }
+          ],
+          explain: "Fase aguda: nutrição trófica/hipocalórica com meta proteica alta, progressão lenta de calorias, cabeceira 30–45° e controle glicêmico (alvo geralmente 140–180 mg/dL no crítico)."
+        }
+      ],
+      monitor: [
+        {
+          hora: "24h", labsDay: 1, icon: "📈",
+          evento: "Enfermagem relata: 2 episódios de fezes amolecidas e leve distensão abdominal. Glicemia 205 mg/dL. Labs novos: fósforo 2,2 ↓, potássio 3,3 ↓, magnésio 1,4 ↓.",
+          prompt: "Como interpretar e conduzir nas primeiras 24h?",
+          options: [
+            { id: "refeeding", text: "Reconhecer SÍNDROME DE REALIMENTAÇÃO incipiente (queda de P/K/Mg): repor eletrólitos, oferecer tiamina e manter progressão LENTA da dieta sem suspender.", correct: true,
+              feedback: "Excelente! A queda de fósforo/potássio/magnésio ao iniciar a dieta sinaliza realimentação: repõe-se eletrólitos + tiamina e mantém-se a progressão cautelosa, sem suspender a TNE." },
+            { id: "suspende", text: "Suspender a dieta imediatamente por causa das fezes amolecidas.", correct: false, critical: true,
+              feedback: "ERRO: não se suspende a TNE ao primeiro sinal de fezes amolecidas. Investiga-se causa, ajusta-se velocidade. E o ponto principal aqui é a realimentação (eletrólitos)." },
+            { id: "ignora", text: "Ignorar os eletrólitos e acelerar a dieta para a meta plena.", correct: false, critical: true,
+              feedback: "ERRO GRAVE: acelerar com P/K/Mg em queda pode precipitar realimentação grave (arritmia). Corrigir eletrólitos antes de progredir." }
+          ],
+          explain: "Síndrome de realimentação: hipofosfatemia + hipocalemia + hipomagnesemia ao reintroduzir nutrição. Conduta: repor eletrólitos, tiamina, progredir devagar — não suspender."
+        },
+        {
+          hora: "48h", labsDay: 2, icon: "📉",
+          evento: "Eletrólitos corrigidos (P 3,0 / K 4,0). PCR e lactato em queda — sepse melhorando. Boa tolerância à dieta, abdome menos distendido, peristalse presente.",
+          prompt: "Conduta nutricional em 48h?",
+          options: [
+            { id: "progride", text: "Progredir a vazão rumo à meta calórica plena (25–30 kcal/kg) mantendo a meta proteica e o controle glicêmico.", correct: true,
+              feedback: "Correto! Com eletrólitos corrigidos, sepse melhorando e boa tolerância, progride-se para a meta calórica plena de forma escalonada." },
+            { id: "para", text: "Manter trófico indefinidamente por segurança.", correct: false,
+              feedback: "Subótimo: manter hipocalórico além da fase aguda gera déficit acumulado e perda de massa magra. É hora de progredir." },
+            { id: "imuno", text: "Trocar para fórmula imunomoduladora com arginina agora.", correct: false, critical: true,
+              feedback: "ERRO: arginina segue contraindicada na sepse. A fórmula padrão está funcionando — mantém-se e progride." }
+          ],
+          explain: "Após a fase aguda, com tolerância e sepse em controle, avança-se para a meta calórica plena (25–30 kcal/kg/dia) mantendo proteína alta."
+        },
+        {
+          hora: "72h", labsDay: 3, icon: "✅",
+          evento: "Paciente na meta calórico-proteica, glicemia melhor controlada (150), PCR 98 e caindo, extubação em programação. Boa aceitação da dieta.",
+          prompt: "Registro e plano para a evolução em 72h?",
+          options: [
+            { id: "manter_reavaliar", text: "Manter a TNE na meta, monitorar tolerância/glicemia/eletrólitos e reavaliar transição para via oral quando extubar e a deglutição for segura.", correct: true,
+              feedback: "Perfeito! Mantém-se a meta, segue monitorando e planeja-se a transição para via oral de forma segura após extubação e avaliação da deglutição." },
+            { id: "suspende_full", text: "Suspender a TNE já, presumindo que vai comer por boca após extubar.", correct: false, critical: true,
+              feedback: "ERRO: não se suspende a TNE antes de garantir ingestão oral segura e suficiente. Transição é gradual." }
+          ],
+          explain: "Transição enteral→oral é gradual e condicionada à extubação, deglutição segura e ingestão oral adequada. Mantém-se a TNE até a oral cobrir as necessidades."
+        }
+      ],
+      family: {
+        speaker: "Marina (filha do Sr. Antônio)", avatar: "👩🏽",
+        lines: [
+          {
+            q: "“Doutora, por que meu pai está sendo alimentado por essa sonda e não pode comer comida de verdade pela boca?”",
+            options: [
+              { id: "f_ok", text: "Explicar com empatia: ele está sedado e no respirador, então comer pela boca não é seguro agora (risco de engasgo/pneumonia). A sonda leva uma fórmula completa direto ao estômago/intestino para nutri-lo enquanto se recupera.", deltaConf: 2,
+                feedback: "Ótima comunicação: acolhe a preocupação e explica em linguagem simples o porquê da via enteral. A confiança da família aumenta." },
+              { id: "f_seco", text: "Responder secamente que é decisão técnica e que ela não precisa entender os detalhes.", deltaConf: -2,
+                feedback: "Comunicação ruim: desvaloriza a família e reduz a confiança e a adesão ao tratamento." },
+              { id: "f_promessa", text: "Prometer que amanhã ele já vai comer normalmente para tranquilizá-la.", deltaConf: -1,
+                feedback: "Evite prometer o que não pode garantir: gera frustração e quebra de confiança quando não se concretiza." }
+            ]
+          }
+        ]
+      },
+      team: {
+        speaker: "Dra. Helena (intensivista)", avatar: "👩🏻‍⚕️",
+        lines: [
+          {
+            q: "“Nutri, a glicemia dele está teimando em 200. Você quer mudar alguma coisa na dieta?”",
+            options: [
+              { id: "t_ok", text: "Sugerir fórmula para controle glicêmico e/ou ajuste de velocidade, mantendo o protocolo de insulina da UTI e o alvo de 140–180 mg/dL.", deltaConf: 2,
+                feedback: "Boa articulação multiprofissional: integra dieta + insulina e usa alvo glicêmico do crítico." },
+              { id: "t_cortar", text: "Mandar cortar a dieta para baixar a glicemia.", deltaConf: -2,
+                feedback: "Inadequado: cortar a nutrição para controlar glicemia é erro — controla-se com insulina/ajuste de fórmula, não com jejum." }
+            ]
+          }
+        ]
+      },
+      prontuarioEvolucao: {
+        diagnostico: [
+          { text: "Risco nutricional (NRS-2002 = 5) em paciente crítico séptico, sob VM, em fase aguda.", correct: true },
+          { text: "Desnutrição grave estabelecida com necessidade de NP imediata.", correct: false },
+          { text: "Eutrofia sem risco — sem necessidade de terapia nutricional.", correct: false }
+        ],
+        objetivos: [
+          { text: "Atingir meta proteica (1,3–2,0 g/kg) e progredir calorias evitando overfeeding; prevenir realimentação.", correct: true },
+          { text: "Atingir meta calórica plena em 24h a qualquer custo.", correct: false }
+        ],
+        conduta: [
+          { text: "TNE precoce por SNE, fórmula polimérica padrão, início trófico com progressão, cabeceira 30–45°, controle glicêmico e reposição de eletrólitos.", correct: true },
+          { text: "Jejum + NPT por conta própria.", correct: false }
+        ],
+        evolucao: [
+          { text: "Boa tolerância após manejo da realimentação; sepse em melhora (PCR/lactato caindo); progredindo para meta; planejar transição oral pós-extubação.", correct: true },
+          { text: "Sem intercorrências e dieta plena desde o primeiro momento.", correct: false }
+        ]
+      },
+      discussion: "O Sr. Antônio ilustra a terapia nutricional no paciente séptico crítico. Os pilares: (1) TNE PRECOCE quando o TGI funciona e a hemodinâmica está estabilizando — vasopressor em desmame e lactato em queda autorizam iniciar em vazão trófica; (2) na fase aguda evita-se a HIPERALIMENTAÇÃO — começa-se hipocalórico com meta PROTEICA alta e progride-se as calorias; (3) fórmula polimérica padrão isotônica como ponto de partida, evitando imunonutrição com ARGININA (contraindicada na sepse grave); (4) vigilância da SÍNDROME DE REALIMENTAÇÃO (queda de fósforo, potássio e magnésio), corrigindo eletrólitos e ofertando tiamina sem suspender a dieta; (5) cabeceira elevada e controle glicêmico (alvo 140–180 mg/dL). A diarreia leve não justifica suspender a TNE: investiga-se causa e ajusta-se a velocidade.",
+      concurso: "Como cai em concurso: indicação e momento da TNE precoce no crítico (24–48h); contraindicações relativas da nutrição enteral; metas calórico-proteicas do paciente grave (BRASPEN/ASPEN/ESPEN); síndrome de realimentação (tríade hipofosfatemia/hipocalemia/hipomagnesemia + tiamina); contraindicação da arginina na sepse; prevenção de broncoaspiração (cabeceira 30–45°); e a regra de alçada (nutrição enteral é do nutricionista; parenteral é prescrição médica).",
+      quiz: [
+        {
+          question: "Em paciente crítico séptico com TGI funcionante e vasopressor em desmame, quando se deve iniciar a terapia nutricional enteral?",
+          options: [
+            "Somente após a resolução completa da sepse.",
+            "Precocemente (24–48h), em vazão trófica, assim que estabilizado.",
+            "Nunca; o crítico deve receber sempre parenteral.",
+            "Após 7 dias de jejum para 'descansar' o intestino."
+          ],
+          correct: 1,
+          explanation: "As diretrizes recomendam TNE precoce (24–48h) no crítico com TGI funcionante e hemodinâmica estabilizada/estabilizando, iniciando em vazão trófica e progredindo conforme tolerância."
+        },
+        {
+          question: "Qual achado laboratorial é típico da síndrome de realimentação ao iniciar a nutrição?",
+          options: [
+            "Hiperfosfatemia, hipercalemia e hipermagnesemia.",
+            "Hipofosfatemia, hipocalemia e hipomagnesemia.",
+            "Apenas hiperglicemia isolada.",
+            "Elevação isolada da albumina."
+          ],
+          correct: 1,
+          explanation: "A realimentação cursa com queda de fósforo, potássio e magnésio (deslocamento intracelular com o estímulo insulínico). Conduta: repor eletrólitos, ofertar tiamina e progredir devagar."
+        },
+        {
+          question: "Por que a fórmula imunomoduladora rica em ARGININA (ex.: Impact) deve ser evitada na sepse grave/choque séptico?",
+          options: [
+            "Porque a arginina causa constipação.",
+            "Porque a arginina, precursora de óxido nítrico, pode agravar a vasodilatação/instabilidade hemodinâmica.",
+            "Porque tem poucas calorias.",
+            "Porque é contraindicada em qualquer cirurgia."
+          ],
+          correct: 1,
+          explanation: "A arginina é substrato para a síntese de óxido nítrico (vasodilatador). Na sepse grave/choque séptico isso pode agravar a instabilidade hemodinâmica — por isso a imunonutrição com arginina é reservada ao perioperatório eletivo, não à sepse instalada."
+        },
+        {
+          question: "Qual a estratégia calórica correta na FASE AGUDA do paciente crítico?",
+          options: [
+            "Hiperalimentação plena (25–30 kcal/kg) já nas primeiras 24h.",
+            "Nutrição trófica/hipocalórica com meta proteica alta, progredindo as calorias conforme tolerância.",
+            "Jejum total até a alta da UTI.",
+            "Apenas soro glicosado endovenoso."
+          ],
+          correct: 1,
+          explanation: "Na fase aguda evita-se o overfeeding: inicia-se hipocalórico com prioridade proteica e progride-se as calorias gradualmente, reduzindo complicações (hiperglicemia, disfunção)."
+        },
+        {
+          question: "Diante de leve diarreia (fezes amolecidas) no paciente em nutrição enteral, a conduta inicial mais adequada é:",
+          options: [
+            "Suspender imediatamente a dieta enteral.",
+            "Investigar a causa e ajustar velocidade/fórmula, sem suspender de imediato.",
+            "Trocar para parenteral total.",
+            "Aumentar bruscamente a vazão."
+          ],
+          correct: 1,
+          explanation: "A diarreia na TNE é multifatorial (velocidade, osmolaridade, medicações, antibióticos/C. difficile). Investiga-se a causa e ajusta-se a conduta (velocidade, fórmula com/sem fibra ou peptídica) — não se suspende a dieta ao primeiro episódio."
+        }
+      ]
+    },
+
+    {
+      id: "cti_choque",
+      bedId: 21,
+      sector: "uti",
+      title: "Choque Séptico (foco pulmonar)",
+      subtitle: "Momento de iniciar a terapia nutricional no choque",
+      patient: {
+        name: "Sra. Cleusa Martins", age: 58, sex: "F", avatar: "👩🏼",
+        leito: "Leito 21 — CTI", peso: 70, altura: 1.62, imc: 26.7,
+        diagnostico: "Choque séptico de foco pulmonar (pneumonia grave), em ressuscitação hemodinâmica, D1 no CTI.",
+        isolamento: true
+      },
+      plantao: {
+        admissao: "Admitida há 12h por pneumonia grave evoluindo para CHOQUE SÉPTICO. Em ventilação mecânica, sedada. Noradrenalina em dose ALTA (0,45 mcg/kg/min) + vasopressina, ainda em escalonamento. Lactato elevado e oligúria. SEM terapia nutricional — em ressuscitação.",
+        intercorrencias24h: [
+          "Lactato AINDA elevado (5,2 mmol/L) — hipoperfusão; vasopressor em dose alta/ascendente.",
+          "Oligúria e lesão renal aguda incipiente (creatinina subindo).",
+          "Abdome sem distensão no momento, peristalse hipoativa."
+        ],
+        pendencias: [
+          "Decidir o MOMENTO de iniciar (ou adiar) a terapia nutricional no choque.",
+          "Definir sinais de alarme de intolerância/isquemia para vigiar."
+        ],
+        solicitacoes: [
+          "Intensivista pergunta se já pode iniciar dieta enteral plena.",
+          "Enfermagem aguarda orientação sobre a sonda."
+        ]
+      },
+      prontuarioBase: {
+        anamnese: "Diabética tipo 2, obesa grau I. Internada por pneumonia comunitária grave, rápida deterioração para choque. Sem desnutrição prévia conhecida.",
+        avaliacaoNutricional: "NRS-2002: escore 5 (risco — doença grave + jejum). Risco de realimentação: BAIXO. Prioridade atual é a estabilização hemodinâmica antes da nutrição plena.",
+        exameFisico: "Sedada, VM, extremidades frias e moteadas (má perfusão), TEC lentificado. Abdome plano, peristalse hipoativa, sem sinais de isquemia no momento. Edema discreto.",
+        antropometria: "Peso 70 kg • Altura 1,62 m • IMC 26,7 kg/m². Usar peso ajustado para metas (obesidade). Sem perda de peso documentada."
+      },
+      labsByDay: {
+        0: [
+          { name: "Lactato", value: "5,2 mmol/L", ref: "< 2,0", flag: "alto" },
+          { name: "PCR", value: "320 mg/L", ref: "< 5", flag: "alto" },
+          { name: "Leucócitos", value: "22.000 /mm³", ref: "4–11 mil", flag: "alto" },
+          { name: "Glicemia", value: "242 mg/dL", ref: "70–110", flag: "alto" },
+          { name: "Creatinina", value: "1,9 mg/dL", ref: "0,7–1,2", flag: "alto" },
+          { name: "pH arterial", value: "7,28", ref: "7,35–7,45", flag: "baixo" }
+        ],
+        1: [
+          { name: "Lactato", value: "6,0 mmol/L", ref: "< 2,0", flag: "alto" },
+          { name: "Noradrenalina", value: "0,55 mcg/kg/min", ref: "desmame", flag: "alto" },
+          { name: "Diurese", value: "0,3 ml/kg/h", ref: "> 0,5", flag: "baixo" },
+          { name: "Glicemia", value: "228 mg/dL", ref: "70–110", flag: "alto" }
+        ],
+        2: [
+          { name: "Lactato", value: "2,4 mmol/L", ref: "< 2,0", flag: "alto" },
+          { name: "Noradrenalina", value: "0,12 mcg/kg/min", ref: "desmame", flag: "baixo" },
+          { name: "Diurese", value: "0,7 ml/kg/h", ref: "> 0,5", flag: "ok" },
+          { name: "Glicemia", value: "190 mg/dL", ref: "70–110", flag: "alto" }
+        ],
+        3: [
+          { name: "Lactato", value: "1,5 mmol/L", ref: "< 2,0", flag: "ok" },
+          { name: "PCR", value: "180 mg/L", ref: "< 5", flag: "alto" },
+          { name: "Creatinina", value: "1,4 mg/dL", ref: "0,7–1,2", flag: "alto" },
+          { name: "Glicemia", value: "165 mg/dL", ref: "70–110", flag: "alto" }
+        ]
+      },
+      stages: [
+        {
+          id: "indicacao", title: "1 · Momento de iniciar", icon: "🧭",
+          prompt: "Choque séptico NÃO controlado: noradrenalina em dose alta e ascendente, lactato elevado e subindo, oligúria. Qual a conduta nutricional AGORA?",
+          options: [
+            { id: "adiar", text: "ADIAR a nutrição enteral enquanto o choque não está controlado; reavaliar para iniciar trófico (vazão mínima) somente após estabilização hemodinâmica.", correct: true,
+              feedback: "Correto! No choque não controlado, com vasopressor em dose alta/ascendente e hipoperfusão, a TNE plena é arriscada (isquemia mesentérica/necrose intestinal não-oclusiva). Adia-se e inicia-se trófico quando estabilizar." },
+            { id: "plena", text: "Iniciar nutrição enteral PLENA imediatamente para não atrasar as metas.", correct: false, critical: true,
+              feedback: "ERRO GRAVE: nutrição plena durante choque não controlado pode precipitar isquemia mesentérica. Não se busca meta calórica no choque ativo." },
+            { id: "npt", text: "Iniciar nutrição parenteral total já.", correct: false, critical: true,
+              feedback: "Inadequado: além de ser prescrição médica, NP precoce no choque não está indicada de rotina; o foco é a ressuscitação." },
+            { id: "jejum_dias", text: "Programar jejum por vários dias mesmo após estabilizar o choque.", correct: false, critical: true,
+              feedback: "ERRO: assim que estabilizar, inicia-se TNE trófica precoce. Jejum prolongado pós-estabilização é deletério." }
+          ],
+          explain: "Diretrizes (ESPEN/ASPEN/BRASPEN): no choque NÃO controlado (vasopressor alto/ascendente, lactato elevado, hipoperfusão) adia-se a TNE; inicia-se em dose trófica/baixa quando o paciente estiver estabilizando (vasopressor estável/em redução, lactato caindo)."
+        },
+        {
+          id: "formula", kind: "formula", title: "2 · Fórmula para iniciar (trófico)", icon: "🧪",
+          prompt: "Quando for liberado iniciar (vazão trófica), qual fórmula escolher para esta paciente diabética, em fase aguda?",
+          correctIds: ["isosource_std", "novasource_gc", "nutrison_diason"],
+          bestId: "isosource_std",
+          notes: {
+            isosource_std: "Boa escolha: polimérica padrão isotônica em vazão trófica é o início seguro no crítico.",
+            novasource_gc: "Aceitável: ajuda na hiperglicemia, mas avalie a meta com densidade menor.",
+            nutrison_diason: "Aceitável: opção para hiperglicemia com fibra (cautela com fibra na fase muito aguda).",
+            impact: "ERRO CRÍTICO: imunonutrição com ARGININA é contraindicada na sepse/choque séptico (vasodilatação por óxido nítrico).",
+            isosource_15: "Subótima agora: hipercalórica/hiperosmolar na fase aguda — risco de intolerância; reservar para progressão.",
+            isosource_soya: "Cautela: fibra na fase muito aguda/instável pode piorar distensão.",
+            fresubin_energy_fibre: "Subótima: hipercalórica com fibra e alta osmolaridade na fase aguda."
+          },
+          explain: "Mesmo princípio da sepse: inicia-se com polimérica padrão isotônica em vazão trófica; evita-se arginina (Impact). Fórmula para glicemia é razoável na diabética com hiperglicemia persistente."
+        },
+        {
+          id: "alarme", title: "3 · Sinais de alarme", icon: "🚨",
+          prompt: "Ao iniciar o trófico, quais sinais indicam INTOLERÂNCIA/isquemia intestinal que exigem segurar a dieta?",
+          options: [
+            { id: "sinais", text: "Distensão abdominal progressiva, ausência de ruídos/flatos, dor, aumento do resíduo gástrico, piora do lactato/acidose — segurar a dieta e comunicar a equipe.", correct: true,
+              feedback: "Perfeito! Esses são sinais de intolerância/isquemia mesentérica no crítico em vasopressor. Diante deles, segura-se a TNE e reavalia-se com a equipe." },
+            { id: "ignora", text: "Nenhum sinal importa: manter e acelerar a dieta sempre.", correct: false, critical: true,
+              feedback: "ERRO GRAVE: ignorar distensão/ausência de flatos/piora do lactato pode mascarar isquemia intestinal evoluindo para necrose." }
+          ],
+          explain: "No crítico em vasopressor, vigiar distensão, ausência de peristalse/flatos, resíduo gástrico elevado, dor e piora de lactato/acidose. São sinais de intolerância — segurar a progressão."
+        }
+      ],
+      monitor: [
+        {
+          hora: "24h", labsDay: 1, icon: "🚨",
+          evento: "Choque ainda escalonando: noradrenalina subiu (0,55), lactato 6,0, abdome começando a distender e sem flatos. Foi tentado iniciar trófico.",
+          prompt: "Conduta nas primeiras 24h?",
+          options: [
+            { id: "segura", text: "SUSPENDER/segurar a dieta trófica diante dos sinais de intolerância e da piora do choque; priorizar a ressuscitação e reavaliar.", correct: true,
+              feedback: "Correto! Com choque piorando, lactato subindo e abdome distendendo sem flatos, segura-se a TNE (risco de isquemia) e foca-se na estabilização." },
+            { id: "aumenta", text: "Aumentar a vazão para atingir a meta calórica logo.", correct: false, critical: true,
+              feedback: "ERRO GRAVE: progredir a dieta no choque piorando, com sinais de intolerância, pode precipitar isquemia/necrose intestinal." },
+            { id: "fibra", text: "Trocar para fórmula rica em fibra para 'regular o intestino'.", correct: false, critical: true,
+              feedback: "ERRO: fibra na fase aguda instável piora a distensão e não é a conduta. O problema é hemodinâmico, não de trânsito." }
+          ],
+          explain: "Se o choque piora e surgem sinais de intolerância, a nutrição é SEGURADA — a hemodinâmica tem prioridade. Não se progride dieta em isquemia potencial."
+        },
+        {
+          hora: "48h", labsDay: 2, icon: "📉",
+          evento: "Resposta à ressuscitação: lactato 2,4 e caindo, noradrenalina em DESMAME (0,12), diurese recuperando, abdome menos tenso com peristalse retornando.",
+          prompt: "Conduta em 48h?",
+          options: [
+            { id: "inicia_trofico", text: "Iniciar/retomar a TNE TRÓFICA (vazão baixa) agora que está estabilizando, progredindo devagar conforme tolerância, com controle glicêmico.", correct: true,
+              feedback: "Correto! Com vasopressor em desmame e lactato caindo, é o momento de iniciar o trófico e progredir lentamente, vigiando tolerância e glicemia." },
+            { id: "espera_mais", text: "Continuar em jejum até a alta da UTI por segurança.", correct: false,
+              feedback: "Subótimo: estabilizou — adiar mais a nutrição aumenta o déficit e o catabolismo. É hora de iniciar o trófico." },
+            { id: "plena_agora", text: "Já saltar para a meta calórica plena em 24h.", correct: false, critical: true,
+              feedback: "ERRO: progressão deve ser gradual; overfeeding logo após o choque é deletério." }
+          ],
+          explain: "Estabilizando (vasopressor em desmame, lactato caindo, perfusão melhorando), inicia-se TNE trófica e progride-se devagar — não se salta para a meta plena."
+        },
+        {
+          hora: "72h", labsDay: 3, icon: "✅",
+          evento: "Sepse/choque em controle, noradrenalina quase suspensa, boa tolerância à dieta trófica, glicemia melhorando com insulina.",
+          prompt: "Plano em 72h?",
+          options: [
+            { id: "progride", text: "Progredir gradualmente rumo à meta calórico-proteica, mantendo controle glicêmico e vigilância de tolerância.", correct: true,
+              feedback: "Perfeito! Com choque controlado e boa tolerância, progride-se de forma escalonada até a meta, seguindo a monitorização." },
+            { id: "para", text: "Suspender a dieta porque a paciente 'já melhorou'.", correct: false, critical: true,
+              feedback: "ERRO: melhora clínica não é motivo para suspender a nutrição — ela é parte da recuperação." }
+          ],
+          explain: "Choque controlado e boa tolerância: progressão escalonada até a meta calórico-proteica, mantendo glicemia controlada."
+        }
+      ],
+      family: {
+        speaker: "Rodrigo (filho da Sra. Cleusa)", avatar: "🧑🏻",
+        lines: [
+          {
+            q: "“Doutora, faz dois dias que minha mãe não come nada. Vocês estão deixando ela passar fome?”",
+            options: [
+              { id: "f_ok", text: "Explicar com empatia que, durante o choque, o corpo não tolera bem a alimentação e nutrir à força poderia prejudicar o intestino; assim que ela estabilizou, iniciamos a dieta pela sonda de forma cuidadosa e crescente.", deltaConf: 2,
+                feedback: "Excelente: valida a preocupação e explica o porquê do início cauteloso. Confiança aumenta." },
+              { id: "f_tecnico", text: "Dizer apenas que 'são protocolos da UTI' e encerrar.", deltaConf: -2,
+                feedback: "Comunicação fria: não acolhe e reduz a confiança da família." }
+            ]
+          }
+        ]
+      },
+      team: {
+        speaker: "Dr. Paulo (intensivista)", avatar: "👨🏽‍⚕️",
+        lines: [
+          {
+            q: "“Nutri, posso liberar a dieta plena já que a pressão deu uma melhorada?”",
+            options: [
+              { id: "t_ok", text: "Sugerir iniciar TRÓFICO e progredir conforme tolerância, já que o vasopressor ainda está em desmame — evitando overfeeding e vigiando sinais de intolerância.", deltaConf: 2,
+                feedback: "Boa articulação: alinha o início gradual com o estágio hemodinâmico." },
+              { id: "t_plena", text: "Concordar em liberar a dieta plena imediatamente.", deltaConf: -2,
+                feedback: "Inadequado: ainda em desmame de vasopressor, o correto é trófico com progressão — não plena de imediato." }
+            ]
+          }
+        ]
+      },
+      prontuarioEvolucao: {
+        diagnostico: [
+          { text: "Paciente crítica em choque séptico, risco nutricional (NRS-2002=5), em fase de ressuscitação.", correct: true },
+          { text: "Desnutrição grave exigindo nutrição parenteral imediata.", correct: false }
+        ],
+        objetivos: [
+          { text: "Adiar a nutrição plena durante o choque, iniciar trófico ao estabilizar e progredir evitando overfeeding/intolerância.", correct: true },
+          { text: "Atingir meta calórica plena nas primeiras 24h.", correct: false }
+        ],
+        conduta: [
+          { text: "TNE adiada no choque não controlado; trófico ao estabilizar (vasopressor em desmame, lactato caindo), polimérica padrão, controle glicêmico e vigilância de tolerância.", correct: true },
+          { text: "Dieta enteral plena desde a admissão.", correct: false }
+        ],
+        evolucao: [
+          { text: "Após ressuscitação, vasopressor em desmame e lactato caindo; trófico iniciado com boa tolerância, progredindo para a meta.", correct: true },
+          { text: "Sem intercorrências, dieta plena tolerada desde o choque ativo.", correct: false }
+        ]
+      },
+      discussion: "A Sra. Cleusa mostra a diferença entre SEPSE estabilizando e CHOQUE não controlado. No choque com vasopressor em dose alta/ascendente, lactato elevado e hipoperfusão, a nutrição enteral PLENA é arriscada (isquemia mesentérica/necrose intestinal não-oclusiva) e deve ser ADIADA — a prioridade é a ressuscitação. Assim que o paciente estabiliza (vasopressor estável/em desmame, lactato caindo, perfusão e diurese melhorando), inicia-se TNE TRÓFICA e progride-se devagar, vigiando sinais de intolerância (distensão, ausência de flatos, resíduo elevado, piora do lactato). Evita-se overfeeding e imunonutrição com arginina; mantém-se o controle glicêmico.",
+      concurso: "Como cai em concurso: contraindicações/cautelas da nutrição enteral no choque (instabilidade hemodinâmica, vasopressor em dose alta/ascendente); diferença entre adiar no choque não controlado x iniciar trófico ao estabilizar; sinais de intolerância e isquemia mesentérica; metas calórico-proteicas progressivas no crítico; e a contraindicação da arginina na sepse/choque séptico.",
+      quiz: [
+        {
+          question: "Em paciente com choque séptico NÃO controlado (noradrenalina em dose alta e ascendente, lactato elevado), a conduta nutricional é:",
+          options: [
+            "Iniciar nutrição enteral plena imediatamente.",
+            "Adiar a nutrição enteral e iniciar trófico apenas após estabilização hemodinâmica.",
+            "Iniciar parenteral total de rotina.",
+            "Jejum por 7 dias mesmo após estabilizar."
+          ],
+          correct: 1,
+          explanation: "No choque não controlado, a TNE plena é arriscada (isquemia mesentérica). Adia-se e inicia-se em dose trófica quando o paciente estiver estabilizando (vasopressor estável/em redução, lactato caindo)."
+        },
+        {
+          question: "Qual conjunto de achados sugere INTOLERÂNCIA/isquemia intestinal no crítico em vasopressor, indicando segurar a dieta?",
+          options: [
+            "Distensão abdominal, ausência de flatos, resíduo gástrico elevado e piora do lactato.",
+            "Boa diurese e glicemia normal.",
+            "Eliminação de flatos e abdome plano indolor.",
+            "Apenas febre isolada."
+          ],
+          correct: 0,
+          explanation: "Distensão progressiva, ausência de peristalse/flatos, resíduo gástrico elevado, dor e piora do lactato/acidose apontam intolerância/isquemia — segura-se a progressão e reavalia-se."
+        },
+        {
+          question: "Após a ressuscitação, com vasopressor em desmame e lactato caindo, a estratégia correta é:",
+          options: [
+            "Saltar direto para a meta calórica plena em 24h.",
+            "Iniciar TNE trófica e progredir gradualmente conforme tolerância.",
+            "Manter jejum até a alta da UTI.",
+            "Trocar para parenteral."
+          ],
+          correct: 1,
+          explanation: "Ao estabilizar, inicia-se nutrição trófica e progride-se devagar até a meta, evitando overfeeding e vigiando a tolerância."
+        },
+        {
+          question: "Por que evitar fórmula imunomoduladora com arginina no choque séptico?",
+          options: [
+            "Porque reduz a glicemia demais.",
+            "Porque a arginina, precursora de óxido nítrico, pode agravar a vasodilatação e a instabilidade hemodinâmica.",
+            "Porque não tem proteína suficiente.",
+            "Porque causa constipação."
+          ],
+          correct: 1,
+          explanation: "A arginina é substrato de óxido nítrico (vasodilatador); na sepse/choque pode piorar a instabilidade hemodinâmica. Reservada ao perioperatório eletivo."
+        }
+      ]
+    },
+
+    {
+      id: "cti_avc",
+      bedId: 22,
+      sector: "uti",
+      title: "AVC Grave — Protocolo PIAVEM",
+      subtitle: "Disfagia, segurança da via oral e via de nutrição",
+      patient: {
+        name: "Sr. Benedito Alves", age: 72, sex: "M", avatar: "👴🏽",
+        leito: "Leito 22 — CTI", peso: 64, altura: 1.68, imc: 22.7,
+        diagnostico: "AVC isquêmico extenso (território de ACM), rebaixamento do nível de consciência (Glasgow 11) e disfagia — protocolo PIAVEM acionado.",
+        isolamento: false
+      },
+      plantao: {
+        admissao: "Admitido há 18h por AVC isquêmico extenso. Rebaixamento do nível de consciência (Glasgow 11), hemiplegia e sinais de DISFAGIA. PIAVEM (protocolo de avaliação da deglutição/via oral) ACIONADO: via oral suspensa até avaliação. Aguardando fonoaudiologia. Sonda nasoenteral locada.",
+        intercorrencias24h: [
+          "Rebaixamento do nível de consciência (Glasgow 11) — proteção de via aérea limítrofe.",
+          "Engasgo com a própria saliva observado pela enfermagem — risco de broncoaspiração.",
+          "Via oral mantida SUSPENSA pelo PIAVEM até avaliação da fono."
+        ],
+        pendencias: [
+          "Definir a estratégia nutricional inicial respeitando o PIAVEM.",
+          "Acionar/garantir a avaliação da fonoaudiologia antes de qualquer via oral.",
+          "Orientar a família sobre o porquê de não alimentar pela boca agora."
+        ],
+        solicitacoes: [
+          "Enfermagem pergunta se pode oferecer água/dieta pastosa pela boca.",
+          "Equipe quer definir via e fórmula da nutrição."
+        ]
+      },
+      prontuarioBase: {
+        anamnese: "Hipertenso, fibrilação atrial. AVC isquêmico extenso com disfagia e rebaixamento. Antes do evento, alimentava-se normalmente por via oral.",
+        avaliacaoNutricional: "NRS-2002: escore 4 (risco — doença grave + ingestão reduzida). IMC 22,7 (eutrofia). Risco de realimentação: BAIXO. Risco de broncoaspiração: ALTO (disfagia + rebaixamento).",
+        exameFisico: "Sonolento, responde a estímulos (Glasgow 11), hemiplegia à direita, desvio de rima. Reflexo de tosse débil, acúmulo de secreção. Abdome normal, peristalse presente.",
+        antropometria: "Peso 64 kg • Altura 1,68 m • IMC 22,7 kg/m². Sem perda de peso aguda documentada. Monitorar evolução (risco de desnutrição por disfagia prolongada)."
+      },
+      labsByDay: {
+        0: [
+          { name: "Glicemia", value: "138 mg/dL", ref: "70–110", flag: "alto" },
+          { name: "Sódio", value: "139 mEq/L", ref: "135–145", flag: "ok" },
+          { name: "Albumina", value: "3,2 g/dL", ref: "3,5–5,0", flag: "baixo" },
+          { name: "Hemoglobina", value: "12,8 g/dL", ref: "13–17", flag: "baixo" },
+          { name: "PCR", value: "44 mg/L", ref: "< 5", flag: "alto" }
+        ],
+        1: [
+          { name: "Glicemia", value: "144 mg/dL", ref: "70–110", flag: "alto" },
+          { name: "Sódio", value: "137 mEq/L", ref: "135–145", flag: "ok" },
+          { name: "PCR", value: "52 mg/L", ref: "< 5", flag: "alto" }
+        ],
+        2: [
+          { name: "Glicemia", value: "132 mg/dL", ref: "70–110", flag: "alto" },
+          { name: "PCR", value: "60 mg/L", ref: "< 5", flag: "alto" },
+          { name: "Leucócitos", value: "13.500 /mm³", ref: "4–11 mil", flag: "alto" }
+        ],
+        3: [
+          { name: "Glicemia", value: "126 mg/dL", ref: "70–110", flag: "alto" },
+          { name: "PCR", value: "40 mg/L", ref: "< 5", flag: "alto" },
+          { name: "Albumina", value: "3,3 g/dL", ref: "3,5–5,0", flag: "baixo" }
+        ]
+      },
+      stages: [
+        {
+          id: "via", title: "1 · PIAVEM e segurança da via oral", icon: "🧠",
+          prompt: "Paciente com AVC extenso, rebaixamento (Glasgow 11) e disfagia, com PIAVEM acionado. Qual a conduta nutricional inicial?",
+          options: [
+            { id: "jejum_fono_sne", text: "Manter a via oral SUSPENSA, garantir a avaliação da FONOAUDIOLOGIA (PIAVEM) e iniciar TNE por sonda nasoenteral para nutrir com segurança.", correct: true,
+              feedback: "Correto! Com disfagia + rebaixamento, a via oral é insegura (risco de broncoaspiração). Mantém-se a oral suspensa, aciona-se a fono e nutre-se por SNE." },
+            { id: "oral", text: "Liberar dieta pastosa e água pela boca para estimular a deglutição.", correct: false, critical: true,
+              feedback: "ERRO GRAVE: oferecer via oral com disfagia e rebaixamento pode causar broncoaspiração e pneumonia. A via oral fica suspensa até a avaliação da fono." },
+            { id: "npt", text: "Iniciar nutrição parenteral total.", correct: false, critical: true,
+              feedback: "Inadequado: o TGI funciona — a via é ENTERAL por sonda. NP é prescrição médica e não está indicada aqui." },
+            { id: "espera", text: "Aguardar dias em jejum até o paciente 'acordar' para comer pela boca.", correct: false, critical: true,
+              feedback: "ERRO: não se espera em jejum. Nutre-se precocemente por SNE enquanto a deglutição é avaliada." }
+          ],
+          explain: "No AVC com disfagia/rebaixamento, o PIAVEM mantém a via oral suspensa até a avaliação da fonoaudiologia. Nutre-se precocemente por via enteral (SNE) com cabeceira elevada, reduzindo o risco de broncoaspiração."
+        },
+        {
+          id: "formula", kind: "formula", title: "2 · Escolha da fórmula", icon: "🧪",
+          prompt: "Para a nutrição por SNE deste paciente eutrófico, sem disfunção orgânica específica, qual fórmula iniciar?",
+          correctIds: ["isosource_std", "isosource_soya", "nutrison_diason"],
+          bestId: "isosource_std",
+          notes: {
+            isosource_std: "Boa escolha: polimérica padrão isotônica é o início adequado para o paciente com TGI íntegro.",
+            isosource_soya: "Boa opção: com fibra, ajuda na regulação intestinal no uso prolongado (atenção à constipação comum no acamado).",
+            nutrison_diason: "Aceitável: útil se hiperglicemia relevante.",
+            impact: "Inadequada aqui: imunonutrição é para perioperatório eletivo, não para o AVC agudo.",
+            prodiet_nephro: "Inadequada: fórmula renal sem indicação (função renal preservada).",
+            fresubin_hepa: "Inadequada: fórmula para hepatopatia/AACR sem indicação neste caso."
+          },
+          explain: "AVC com TGI íntegro: polimérica padrão. Como o paciente tende a ficar acamado/constipado, fórmula COM FIBRA + água livre é uma boa estratégia na fase de manutenção."
+        },
+        {
+          id: "viatempo", title: "3 · Via x tempo + segurança", icon: "⏱️",
+          prompt: "Sobre a via de nutrição e a segurança da administração neste paciente disfágico:",
+          options: [
+            { id: "sne_gtt", text: "SNE agora (curto prazo); se a disfagia persistir além de 4–6 semanas, programar gastrostomia (GTT). Manter cabeceira elevada 30–45° e lavar a sonda.", correct: true,
+              feedback: "Perfeito! SNE é a via de curto prazo; disfagia prolongada (>4–6 semanas) indica GTT. Cabeceira elevada e cuidados com a sonda reduzem broncoaspiração e obstrução." },
+            { id: "gtt_ja", text: "Indicar gastrostomia imediatamente, no primeiro dia.", correct: false,
+              feedback: "Precoce: começa-se com SNE; a GTT é considerada se a disfagia se mostrar PROLONGADA (>4–6 semanas)." },
+            { id: "deitado", text: "Infundir com o paciente deitado para facilitar o manejo da enfermagem.", correct: false, critical: true,
+              feedback: "ERRO: deitado aumenta o risco de broncoaspiração. Cabeceira elevada 30–45° é obrigatória na TNE, sobretudo na disfagia." }
+          ],
+          explain: "SNE para curto prazo; GTT se disfagia prolongada (>4–6 semanas). Cabeceira a 30–45°, lavagem da sonda e cuidado com medicações reduzem complicações."
+        }
+      ],
+      monitor: [
+        {
+          hora: "24h", labsDay: 1, icon: "🫁",
+          evento: "A equipe tentou oferecer água por colher para 'testar': o paciente TOSSIU, engasgou e dessaturou brevemente. Fono ainda não avaliou formalmente.",
+          prompt: "Conduta diante do engasgo na tentativa de via oral?",
+          options: [
+            { id: "suspende_oral", text: "SUSPENDER imediatamente a via oral, manter a nutrição por SNE e reforçar a necessidade da avaliação formal da fonoaudiologia antes de qualquer nova tentativa.", correct: true,
+              feedback: "Correto! Tosse/engasgo/dessaturação na oferta oral confirmam disfagia insegura. Suspende-se a via oral, mantém-se a SNE e aguarda-se a fono." },
+            { id: "insiste", text: "Insistir na oferta de líquidos para 'treinar' a deglutição.", correct: false, critical: true,
+              feedback: "ERRO GRAVE: insistir após engasgo/broncoaspiração pode causar pneumonia aspirativa. A via oral fica suspensa." },
+            { id: "suspende_tudo", text: "Suspender também a nutrição por sonda por medo de aspiração.", correct: false, critical: true,
+              feedback: "ERRO: a SNE com cabeceira elevada é justamente a forma SEGURA de nutrir. Não se suspende a nutrição enteral." }
+          ],
+          explain: "Sinais de broncoaspiração (tosse, engasgo, dessaturação, voz molhada) na oferta oral indicam disfagia insegura: suspende-se a via oral, mantém-se a SNE e aguarda-se a avaliação da fono."
+        },
+        {
+          hora: "48h", labsDay: 2, icon: "🩺",
+          evento: "Fonoaudiologia avaliou (videofluoroscopia/avaliação clínica): DISFAGIA OROFARÍNGEA GRAVE, com aspiração silenciosa para líquidos. Recomenda manter via oral suspensa.",
+          prompt: "Conduta nutricional em 48h?",
+          options: [
+            { id: "mantem_sne", text: "Manter nutrição exclusiva por SNE (cabeceira elevada), seguir as recomendações da fono e reavaliar a deglutição periodicamente.", correct: true,
+              feedback: "Correto! Disfagia grave com aspiração: nutrição segura por SNE, seguindo a fono, com reavaliações da deglutição ao longo do tempo." },
+            { id: "libera", text: "Liberar dieta oral normal já que 'a fono avaliou'.", correct: false, critical: true,
+              feedback: "ERRO: a fono recomendou MANTER a via oral suspensa por aspiração. Liberar oral aqui é perigoso." }
+          ],
+          explain: "Disfagia grave com aspiração confirmada: nutrição por SNE, seguindo a fonoaudiologia. Qualquer via oral terapêutica (se houver) é conduzida pela fono, com consistências/espessantes específicos."
+        },
+        {
+          hora: "72h", labsDay: 3, icon: "💧",
+          evento: "Boa tolerância à dieta por SNE. Surge CONSTIPAÇÃO (sem evacuar há 3 dias) — paciente acamado. Disfagia persiste; alta da UTI em discussão.",
+          prompt: "Como ajustar a conduta em 72h?",
+          options: [
+            { id: "fibra_agua", text: "Otimizar a fórmula COM FIBRA e garantir ÁGUA LIVRE (hidratação) para manejar a constipação; manter SNE e, se a disfagia for prolongada, programar GTT.", correct: true,
+              feedback: "Perfeito! Constipação no acamado em TNE: fórmula com fibra + água livre adequada. Mantém-se a SNE e planeja-se GTT se a disfagia persistir além de 4–6 semanas." },
+            { id: "suspende", text: "Suspender a dieta enteral até o paciente evacuar.", correct: false, critical: true,
+              feedback: "ERRO: não se suspende a nutrição por constipação. Ajusta-se fibra/água e manejo intestinal." }
+          ],
+          explain: "Constipação na TNE do acamado: fórmula com fibra, água livre suficiente e manejo intestinal. Disfagia prolongada (>4–6 semanas) → indicar GTT em vez de manter SNE."
+        }
+      ],
+      family: {
+        speaker: "Sônia (esposa do Sr. Benedito)", avatar: "👵🏽",
+        lines: [
+          {
+            q: "“Por que vocês não dão um caldinho, uma papinha pela boca? Ele sempre comeu bem, vai ficar fraco com essa sonda!”",
+            options: [
+              { id: "f_ok", text: "Explicar com carinho que o AVC afetou a deglutição: comer pela boca agora faria o alimento ir para o pulmão (risco de pneumonia). A sonda garante toda a nutrição com segurança enquanto a fono avalia se e quando ele poderá voltar a comer.", deltaConf: 2,
+                feedback: "Excelente comunicação: explica a disfagia e o risco de aspiração em linguagem simples, dando esperança realista. Confiança aumenta." },
+              { id: "f_culpa", text: "Dizer que se ela insistir na comida pela boca, a culpa de uma pneumonia será dela.", deltaConf: -2,
+                feedback: "Comunicação culpabilizadora e ríspida: afasta a família e prejudica a adesão." },
+              { id: "f_promessa", text: "Prometer que em 2 dias ele volta a comer normalmente.", deltaConf: -1,
+                feedback: "Evite prometer prazos de recuperação da deglutição — depende da evolução e da fono." }
+            ]
+          }
+        ]
+      },
+      team: {
+        speaker: "Dra. Tânia (fonoaudióloga)", avatar: "👩🏼‍⚕️",
+        lines: [
+          {
+            q: "“Nutri, confirmei aspiração silenciosa para líquidos. Como fica a nutrição dele?”",
+            options: [
+              { id: "t_ok", text: "Manter nutrição exclusiva por SNE com cabeceira elevada, seguir suas orientações de via oral e combinar reavaliações periódicas da deglutição.", deltaConf: 2,
+                feedback: "Ótimo trabalho interdisciplinar: integra a conduta nutricional às recomendações da fono." },
+              { id: "t_ignora", text: "Dizer que vai liberar um pouco de líquido mesmo assim, porque o paciente precisa se hidratar pela boca.", deltaConf: -2,
+                feedback: "Inadequado: contraria a avaliação da fono e expõe o paciente à aspiração. Hidratação vai pela sonda (água livre)." }
+            ]
+          }
+        ]
+      },
+      prontuarioEvolucao: {
+        diagnostico: [
+          { text: "Risco nutricional (NRS-2002=4) com disfagia orofaríngea grave e alto risco de broncoaspiração pós-AVC.", correct: true },
+          { text: "Paciente sem risco, pode receber dieta oral livre.", correct: false }
+        ],
+        objetivos: [
+          { text: "Nutrir com segurança por via enteral, prevenir broncoaspiração e desnutrição, e reavaliar a deglutição com a fono.", correct: true },
+          { text: "Estimular a via oral o quanto antes, mesmo com aspiração.", correct: false }
+        ],
+        conduta: [
+          { text: "Via oral suspensa (PIAVEM); TNE por SNE, polimérica (com fibra na manutenção) + água livre, cabeceira 30–45°; GTT se disfagia prolongada.", correct: true },
+          { text: "Dieta oral pastosa liberada e parenteral de apoio.", correct: false }
+        ],
+        evolucao: [
+          { text: "Disfagia grave confirmada pela fono; nutrição segura por SNE bem tolerada; constipação manejada com fibra/água; planejar GTT se persistir.", correct: true },
+          { text: "Deglutição normal, dieta oral plena bem tolerada.", correct: false }
+        ]
+      },
+      discussion: "O Sr. Benedito ilustra a terapia nutricional no AVC grave com disfagia. O protocolo PIAVEM determina suspender a via oral até a avaliação da deglutição, porque disfagia + rebaixamento elevam o risco de BRONCOASPIRAÇÃO e pneumonia. Nutre-se precocemente por via ENTERAL (SNE), com cabeceira elevada 30–45°. A fonoaudiologia é peça-chave: define a segurança e a consistência de qualquer via oral. Tosse/engasgo/dessaturação ou aspiração silenciosa contraindicam a via oral. A SNE é via de curto prazo; se a disfagia for PROLONGADA (>4–6 semanas), indica-se gastrostomia (GTT). No acamado, a constipação é manejada com fórmula com fibra e água livre — sem suspender a dieta.",
+      concurso: "Como cai em concurso: rastreio e manejo da disfagia no AVC (protocolos como o PIAVEM); segurança da via oral e papel da fonoaudiologia; prevenção de broncoaspiração (cabeceira 30–45°, via enteral); escolha da via conforme o tempo (SNE curto prazo x GTT >4–6 semanas); manejo de constipação na TNE (fibra + água livre); e a regra de alçada (enteral é do nutricionista; parenteral é médica).",
+      quiz: [
+        {
+          question: "No AVC grave com disfagia e rebaixamento de consciência, a conduta inicial de via alimentar é:",
+          options: [
+            "Liberar dieta pastosa por via oral para estimular a deglutição.",
+            "Suspender a via oral, acionar a fonoaudiologia e nutrir por sonda nasoenteral.",
+            "Iniciar parenteral total.",
+            "Manter jejum por vários dias."
+          ],
+          correct: 1,
+          explanation: "Disfagia + rebaixamento tornam a via oral insegura (broncoaspiração). Suspende-se a oral (PIAVEM), aciona-se a fono e nutre-se precocemente por SNE com cabeceira elevada."
+        },
+        {
+          question: "Diante de tosse e engasgo do paciente na tentativa de oferta de líquidos por via oral, deve-se:",
+          options: [
+            "Insistir para treinar a deglutição.",
+            "Suspender a via oral e manter a nutrição por sonda, aguardando avaliação da fono.",
+            "Suspender também a nutrição por sonda.",
+            "Trocar para parenteral."
+          ],
+          correct: 1,
+          explanation: "Tosse/engasgo/dessaturação indicam disfagia insegura e risco de aspiração: suspende-se a via oral e mantém-se a SNE; a fono define a segurança da deglutição."
+        },
+        {
+          question: "Sobre a via de nutrição na disfagia do AVC, é correto afirmar:",
+          options: [
+            "A gastrostomia deve ser feita já no primeiro dia.",
+            "A SNE é via de curto prazo; a GTT é indicada se a disfagia persistir além de 4–6 semanas.",
+            "A via oral pode ser liberada assim que o paciente acordar, sem avaliação.",
+            "A cabeceira deve ficar baixa durante a dieta."
+          ],
+          correct: 1,
+          explanation: "Inicia-se com SNE (curto prazo). A gastrostomia (GTT) é indicada quando a necessidade de via enteral é PROLONGADA (>4–6 semanas). A cabeceira fica elevada a 30–45°."
+        },
+        {
+          question: "No paciente acamado em nutrição enteral que evolui com constipação, a conduta adequada é:",
+          options: [
+            "Suspender a dieta enteral até evacuar.",
+            "Ajustar para fórmula com fibra e garantir água livre, mantendo a nutrição.",
+            "Trocar para parenteral.",
+            "Reduzir drasticamente as calorias."
+          ],
+          correct: 1,
+          explanation: "A constipação na TNE do acamado é manejada com fórmula com fibra, água livre adequada e cuidados intestinais — sem suspender a nutrição."
+        }
+      ]
+    },
+
+    {
+      id: "cti_queimado",
+      bedId: 23,
+      sector: "uti",
+      title: "Grande Queimado (SCQ 45%)",
+      subtitle: "Hipermetabolismo, alta demanda energético-proteica e cicatrização",
+      patient: {
+        name: "Sr. Márcio Tavares", age: 39, sex: "M", avatar: "🧑🏻",
+        leito: "Leito 23 — CTI", peso: 80, altura: 1.78, imc: 25.3,
+        diagnostico: "Grande queimado — superfície corporal queimada (SCQ) de 45% (2º e 3º graus), D1 no CTI, em ventilação mecânica.",
+        isolamento: true
+      },
+      plantao: {
+        admissao: "Vítima de queimadura por fogo (SCQ 45%), há 8h. Reposição volêmica em curso (fórmula de Parkland), VM, sedado. Estado HIPERMETABÓLICO/hipercatabólico intenso. Ainda sem terapia nutricional — janela para início PRECOCE.",
+        intercorrencias24h: [
+          "Hipermetabolismo acentuado (resposta de fase aguda à queimadura).",
+          "Hiperglicemia de estresse (glicemia 210) e perdas proteicas elevadas.",
+          "TGI funcionante; sonda nasoenteral locada e posicionada."
+        ],
+        pendencias: [
+          "Iniciar TNE PRECOCE e definir metas energética e proteica elevadas.",
+          "Planejar suplementação de micronutrientes para cicatrização.",
+          "Programar a progressão e a monitorização da tolerância."
+        ],
+        solicitacoes: [
+          "Cirurgia plástica reforça a importância do suporte nutricional para a cicatrização/enxertos.",
+          "Equipe pergunta qual fórmula e metas adotar."
+        ]
+      },
+      prontuarioBase: {
+        anamnese: "Previamente hígido, trabalhador. Queimadura extensa por fogo direto em acidente. Sem desnutrição prévia. Alto risco de desnutrição aguda pelo catabolismo.",
+        avaliacaoNutricional: "NRS-2002: escore elevado (doença crítica + alta demanda). Grande queimado é um dos estados de MAIOR demanda energético-proteica da clínica. Risco de realimentação: BAIXO. Atenção a perdas de micronutrientes pela pele lesada.",
+        exameFisico: "Sedado, VM. Queimaduras de 2º/3º graus em tronco e membros (curativos). Sem distensão abdominal, peristalse presente. Balanço hídrico positivo pela ressuscitação.",
+        antropometria: "Peso 80 kg • Altura 1,78 m • IMC 25,3 kg/m². Peso prejudicado por edema/ressuscitação — usar peso pré-queimadura para metas. Vigiar perda de massa magra acelerada."
+      },
+      labsByDay: {
+        0: [
+          { name: "Glicemia", value: "210 mg/dL", ref: "70–110", flag: "alto" },
+          { name: "PCR", value: "180 mg/L", ref: "< 5", flag: "alto" },
+          { name: "Albumina", value: "2,2 g/dL", ref: "3,5–5,0", flag: "baixo" },
+          { name: "Ureia", value: "44 mg/dL", ref: "15–40", flag: "alto" },
+          { name: "Zinco", value: "55 mcg/dL", ref: "70–120", flag: "baixo" },
+          { name: "Sódio", value: "146 mEq/L", ref: "135–145", flag: "alto" }
+        ],
+        1: [
+          { name: "Glicemia", value: "224 mg/dL", ref: "70–110", flag: "alto" },
+          { name: "PCR", value: "220 mg/L", ref: "< 5", flag: "alto" },
+          { name: "Balanço N", value: "negativo", ref: "equilíbrio", flag: "baixo" },
+          { name: "Zinco", value: "52 mcg/dL", ref: "70–120", flag: "baixo" }
+        ],
+        2: [
+          { name: "Glicemia", value: "188 mg/dL", ref: "70–110", flag: "alto" },
+          { name: "PCR", value: "190 mg/L", ref: "< 5", flag: "alto" },
+          { name: "Albumina", value: "2,4 g/dL", ref: "3,5–5,0", flag: "baixo" },
+          { name: "Pré-albumina", value: "subindo", ref: "—", flag: "ok" }
+        ],
+        3: [
+          { name: "Glicemia", value: "168 mg/dL", ref: "70–110", flag: "alto" },
+          { name: "PCR", value: "150 mg/L", ref: "< 5", flag: "alto" },
+          { name: "Balanço N", value: "melhorando", ref: "equilíbrio", flag: "ok" }
+        ]
+      },
+      stages: [
+        {
+          id: "indicacao", title: "1 · Início e metas", icon: "🔥",
+          prompt: "Grande queimado (SCQ 45%), TGI funcionante, hemodinâmica em ressuscitação mas respondendo. Qual a conduta nutricional?",
+          options: [
+            { id: "precoce_alta", text: "Iniciar TNE PRECOCE (primeiras 24–48h, idealmente já nas primeiras horas), com meta energética ALTA e proteína elevada (≈1,5–2,0 g/kg ou mais), progredindo conforme tolerância.", correct: true,
+              feedback: "Correto! O grande queimado é hipermetabólico: a TNE precoce com alta oferta proteica e energética atenua o catabolismo e favorece a cicatrização. Progredir conforme tolerância." },
+            { id: "tardio", text: "Adiar a nutrição por 5–7 dias para 'estabilizar' as queimaduras.", correct: false, critical: true,
+              feedback: "ERRO GRAVE: no queimado a nutrição é PRECOCE. Adiar agrava o catabolismo, a perda de massa magra e prejudica a cicatrização." },
+            { id: "hipocalorico_fixo", text: "Manter dieta hipocalórica fixa durante toda a internação para evitar overfeeding.", correct: false,
+              feedback: "Inadequado: diferente da fase aguda do choque, o queimado tem demanda ALTA e sustentada. Hipocalórico fixo gera déficit grave e prejudica enxertos." },
+            { id: "npt", text: "Iniciar parenteral total como via principal.", correct: false, critical: true,
+              feedback: "Inadequado: com TGI funcionante, a via é ENTERAL (precoce). NP é prescrição médica e reservada à falência/intolerância enteral." }
+          ],
+          explain: "Queimadura extensa = hipermetabolismo intenso e prolongado. Diretrizes: TNE PRECOCE (idealmente nas primeiras horas), com metas energéticas altas (fórmulas tipo Toronto/Curreri) e proteína elevada (1,5–2,0 g/kg ou mais), progredindo conforme tolerância."
+        },
+        {
+          id: "formula", kind: "formula", title: "2 · Fórmula", icon: "🧪",
+          prompt: "Qual fórmula melhor atende à altíssima demanda energético-proteica deste grande queimado?",
+          correctIds: ["isosource_15", "nutrison_protein", "fresubin_energy_fibre", "peptamen_intense"],
+          bestId: "nutrison_protein",
+          notes: {
+            nutrison_protein: "Ótima: hipercalórica E hiperproteica atende à demanda do queimado com volume otimizado.",
+            isosource_15: "Boa: hipercalórica ajuda a atingir a meta energética alta; combinar com aporte proteico adequado.",
+            fresubin_energy_fibre: "Boa para manutenção: hipercalórica com fibra; cautela com fibra na fase muito aguda.",
+            peptamen_intense: "Aceitável: altíssima proteína; útil se houver intolerância à polimérica.",
+            isosource_std: "Subótima: normocalórica pode não atingir a meta energética alta sem volume excessivo.",
+            novasource_gc: "Subótima para a meta calórica (densidade baixa), embora ajude na hiperglicemia.",
+            impact: "Cautela: imunonutrição é debatida; arginina não é o foco aqui e é contraindicada se houver sepse associada."
+          },
+          explain: "Pela demanda energético-proteica altíssima, prioriza-se fórmula hipercalórica E hiperproteica. Acrescenta-se atenção a micronutrientes da cicatrização (zinco, cobre, selênio, vitaminas C e D) e, em alguns protocolos, glutamina."
+        },
+        {
+          id: "micros", title: "3 · Micronutrientes e cicatrização", icon: "🧴",
+          prompt: "Além de calorias e proteína, o que é fundamental no suporte do grande queimado para a cicatrização?",
+          options: [
+            { id: "micros_ok", text: "Reposição de micronutrientes-chave para cicatrização e imunidade — ZINCO, cobre, selênio, vitaminas C e D — pelas perdas cutâneas; em alguns protocolos, glutamina.", correct: true,
+              feedback: "Perfeito! As perdas pela pele lesada e a demanda de cicatrização exigem reposição de zinco, cobre, selênio, vitamina C e D. A glutamina é usada em alguns protocolos de queimados." },
+            { id: "restringe", text: "Restringir proteína para 'poupar' os rins.", correct: false, critical: true,
+              feedback: "ERRO: restringir proteína no queimado é deletério — a demanda é ALTA para cicatrização e reposição das perdas. Sem indicação renal específica, não se restringe." },
+            { id: "nada", text: "Micronutrientes não importam; basta bater a meta calórica.", correct: false,
+              feedback: "Incorreto: a cicatrização depende criticamente de micronutrientes (zinco, vit C, etc.). Ignorá-los atrasa a recuperação das feridas." }
+          ],
+          explain: "Cicatrização e imunidade no queimado dependem de micronutrientes (zinco, cobre, selênio, vitaminas C e D), repostos pelas perdas cutâneas. Proteína alta é mandatória — não se restringe sem indicação específica."
+        }
+      ],
+      monitor: [
+        {
+          hora: "24h", labsDay: 1, icon: "📈",
+          evento: "Hipermetabolismo evidente: PCR subindo, balanço nitrogenado negativo, glicemia 224. Boa tolerância à dieta iniciada, abdome sem distensão.",
+          prompt: "Conduta nutricional em 24h?",
+          options: [
+            { id: "progride", text: "Progredir a oferta rumo à meta energético-proteica alta conforme tolerância, intensificar controle glicêmico (insulina) e manter micronutrientes.", correct: true,
+              feedback: "Correto! Com boa tolerância e demanda altíssima, progride-se para a meta, controla-se a hiperglicemia com insulina (não cortando dieta) e mantêm-se os micronutrientes." },
+            { id: "corta_glicemia", text: "Cortar a dieta para baixar a glicemia de 224.", correct: false, critical: true,
+              feedback: "ERRO: a hiperglicemia se controla com INSULINA, não cortando a nutrição — o queimado precisa do aporte. Cortar piora o catabolismo." },
+            { id: "para_proteina", text: "Reduzir a proteína por causa da ureia levemente alta.", correct: false,
+              feedback: "Inadequado: a ureia reflete o catabolismo/oferta proteica alta necessária; sem disfunção renal que indique, mantém-se a proteína elevada." }
+          ],
+          explain: "No queimado a hiperglicemia é controlada com insulina mantendo a nutrição. A proteína alta é necessária; ureia discretamente elevada não justifica reduzir sem indicação renal."
+        },
+        {
+          hora: "48h", labsDay: 2, icon: "🩹",
+          evento: "Pré-albumina começando a subir, albumina ainda baixa (fase aguda), boa tolerância. Programada troca de curativos/enxerto.",
+          prompt: "Conduta em 48h?",
+          options: [
+            { id: "mantem_meta", text: "Manter a meta energético-proteica alta e os micronutrientes para suportar a cicatrização/enxertos; seguir monitorando tolerância e glicemia.", correct: true,
+              feedback: "Correto! O suporte nutricional robusto é decisivo para a pega do enxerto e a cicatrização. Mantém-se a meta e a monitorização." },
+            { id: "albumina", text: "Prescrever albumina humana para corrigir a albumina baixa.", correct: false,
+              feedback: "Inadequado/fora de alçada: albumina baixa na fase aguda reflete inflamação (não desnutrição aguda) e sua reposição é decisão médica, não conduta nutricional de rotina." }
+          ],
+          explain: "Albumina é marcador inflamatório na fase aguda — não se usa para guiar a dieta nem se 'corrige' nutricionalmente. Pré-albumina/tendência clínica orientam melhor. Mantém-se o suporte alto."
+        },
+        {
+          hora: "72h", labsDay: 3, icon: "✅",
+          evento: "Balanço nitrogenado melhorando, glicemia mais controlada, feridas evoluindo bem. Boa tolerância à dieta plena.",
+          prompt: "Plano em 72h?",
+          options: [
+            { id: "manter_reavaliar", text: "Manter a meta alta enquanto durar o hipermetabolismo, reavaliar necessidades periodicamente e ajustar conforme a evolução das feridas.", correct: true,
+              feedback: "Perfeito! O hipermetabolismo do queimado é prolongado: mantém-se o aporte alto e reavalia-se conforme a cicatrização evolui." },
+            { id: "reduz_cedo", text: "Reduzir bruscamente as calorias já que melhorou em 72h.", correct: false, critical: true,
+              feedback: "ERRO: o hipermetabolismo persiste por semanas no grande queimado. Reduzir cedo compromete a cicatrização." }
+          ],
+          explain: "O estado hipermetabólico do queimado dura semanas. O aporte alto é mantido e reavaliado conforme a evolução das feridas e a redução gradual da resposta inflamatória."
+        }
+      ],
+      family: {
+        speaker: "Júlia (esposa do Sr. Márcio)", avatar: "👩🏻",
+        lines: [
+          {
+            q: "“Doutora, ele está recebendo tanta dieta… isso não vai sobrecarregar o corpo dele já tão machucado?”",
+            options: [
+              { id: "f_ok", text: "Explicar com empatia que a queimadura faz o corpo gastar MUITO mais energia e proteína; oferecer essa nutrição reforçada é o que ajuda a pele a cicatrizar e a recuperar a força — é parte do tratamento.", deltaConf: 2,
+                feedback: "Excelente: explica o hipermetabolismo de forma simples e tranquiliza com o propósito (cicatrização). Confiança aumenta." },
+              { id: "f_seco", text: "Dizer que ela não entende de medicina e deixar para lá.", deltaConf: -2,
+                feedback: "Comunicação desrespeitosa: afasta a família e reduz a confiança." }
+            ]
+          }
+        ]
+      },
+      team: {
+        speaker: "Dr. Aldo (cirurgião plástico)", avatar: "👨🏻‍⚕️",
+        lines: [
+          {
+            q: "“Nutri, vou enxertar amanhã. O suporte nutricional está otimizado para a pega do enxerto?”",
+            options: [
+              { id: "t_ok", text: "Confirmar meta energético-proteica alta atingida, micronutrientes de cicatrização repostos (zinco, vit C) e controle glicêmico — tudo alinhado para favorecer a pega do enxerto.", deltaConf: 2,
+                feedback: "Ótima integração com a cirurgia: o suporte nutricional otimizado favorece a cicatrização e a pega do enxerto." },
+              { id: "t_min", text: "Dizer que nutrição não interfere na cirurgia e que é só técnica operatória.", deltaConf: -2,
+                feedback: "Incorreto: o estado nutricional impacta diretamente a cicatrização e a pega do enxerto. Subestimar isso prejudica o paciente." }
+            ]
+          }
+        ]
+      },
+      prontuarioEvolucao: {
+        diagnostico: [
+          { text: "Grande queimado (SCQ 45%) hipermetabólico/hipercatabólico, com altíssima demanda energético-proteica.", correct: true },
+          { text: "Paciente de baixa demanda, dieta hipocalórica indicada.", correct: false }
+        ],
+        objetivos: [
+          { text: "Atingir metas energética e proteica altas precocemente, repor micronutrientes de cicatrização e controlar a glicemia.", correct: true },
+          { text: "Restringir proteína e calorias para poupar órgãos.", correct: false }
+        ],
+        conduta: [
+          { text: "TNE precoce, fórmula hipercalórica/hiperproteica, proteína 1,5–2,0 g/kg+, micronutrientes (zinco/cobre/selênio/vit C e D), insulina para hiperglicemia.", correct: true },
+          { text: "Jejum por 5 dias + parenteral.", correct: false }
+        ],
+        evolucao: [
+          { text: "Boa tolerância à TNE; balanço nitrogenado melhorando; feridas evoluindo; mantida meta alta enquanto persiste o hipermetabolismo.", correct: true },
+          { text: "Dieta reduzida precocemente por melhora aparente.", correct: false }
+        ]
+      },
+      discussion: "O Sr. Márcio representa o estado de MAIOR demanda energético-proteica da clínica: o grande queimado. A queimadura desencadeia hipermetabolismo e hipercatabolismo intensos e PROLONGADOS (semanas). Pilares: (1) TNE PRECOCE (idealmente nas primeiras horas), pela integridade do TGI; (2) metas energéticas altas (estimadas por fórmulas como Toronto/Curreri ou calorimetria) e proteína elevada (1,5–2,0 g/kg ou mais); (3) micronutrientes de cicatrização e imunidade — zinco, cobre, selênio, vitaminas C e D — repostos pelas perdas cutâneas, além de glutamina em alguns protocolos; (4) controle glicêmico com INSULINA (sem cortar a dieta); (5) manter o aporte alto enquanto durar o hipermetabolismo, sem reduzir precocemente. Albumina baixa na fase aguda é marcador inflamatório — não guia a dieta nem se 'corrige' com nutrição.",
+      concurso: "Como cai em concurso: hipermetabolismo do grande queimado e necessidade de TNE PRECOCE; estimativas energéticas (fórmulas de Curreri/Toronto, calorimetria indireta como padrão-ouro); metas proteicas elevadas; micronutrientes da cicatrização (zinco, cobre, selênio, vitamina C); papel da glutamina; controle glicêmico com insulina; e o uso (limitado) da albumina como marcador inflamatório, não nutricional na fase aguda.",
+      quiz: [
+        {
+          question: "Qual a característica metabólica central do grande queimado que define a conduta nutricional?",
+          options: [
+            "Hipometabolismo, exigindo dieta hipocalórica.",
+            "Hipermetabolismo e hipercatabolismo intensos e prolongados, exigindo alta oferta energético-proteica.",
+            "Metabolismo normal, sem necessidade de ajuste.",
+            "Necessidade exclusiva de parenteral."
+          ],
+          correct: 1,
+          explanation: "A queimadura extensa cursa com hipermetabolismo/hipercatabolismo prolongado, exigindo TNE precoce com metas energéticas e proteicas elevadas."
+        },
+        {
+          question: "Quando iniciar a terapia nutricional no grande queimado com TGI funcionante?",
+          options: [
+            "Após 5–7 dias para estabilizar as feridas.",
+            "Precocemente (primeiras horas a 24–48h), por via enteral.",
+            "Somente por via parenteral.",
+            "Apenas quando o paciente acordar."
+          ],
+          correct: 1,
+          explanation: "A TNE deve ser PRECOCE no queimado (idealmente nas primeiras horas), reduzindo o catabolismo e favorecendo a cicatrização."
+        },
+        {
+          question: "Quais micronutrientes têm papel-chave na cicatrização do queimado e devem ser repostos pelas perdas cutâneas?",
+          options: [
+            "Apenas sódio e potássio.",
+            "Zinco, cobre, selênio e vitaminas C e D.",
+            "Somente vitamina K.",
+            "Nenhum micronutriente é relevante."
+          ],
+          correct: 1,
+          explanation: "Zinco, cobre, selênio e vitaminas C e D são fundamentais para cicatrização e imunidade, e perdem-se pela pele lesada — devendo ser repostos."
+        },
+        {
+          question: "Diante de glicemia de 224 mg/dL no queimado em nutrição, a conduta correta é:",
+          options: [
+            "Suspender a dieta para baixar a glicemia.",
+            "Controlar com insulina, mantendo o aporte nutricional necessário.",
+            "Reduzir a proteína pela metade.",
+            "Trocar para soro glicosado."
+          ],
+          correct: 1,
+          explanation: "A hiperglicemia de estresse é controlada com insulina, sem cortar a nutrição — o queimado depende do aporte energético-proteico alto."
+        }
+      ]
+    },
+
+    {
+      id: "cti_realim",
+      bedId: 24,
+      sector: "uti",
+      title: "Síndrome de Realimentação",
+      subtitle: "Reintroduzir nutrição com segurança no desnutrido grave",
+      patient: {
+        name: "Sr. Joaquim Ferreira", age: 67, sex: "M", avatar: "👨🏼",
+        leito: "Leito 24 — CTI", peso: 46, altura: 1.70, imc: 15.9,
+        diagnostico: "Desnutrição grave (IMC 15,9) com jejum prolongado — ALTO risco de síndrome de realimentação. Internado para suporte.",
+        isolamento: false
+      },
+      plantao: {
+        admissao: "Idoso, etilista crônico, encontrado em situação de abandono, com ingestão alimentar mínima por ~2 semanas. Desnutrição grave (IMC 15,9), sarcopenia importante. Internado desidratado. JEJUM atual — risco ALTÍSSIMO de realimentação ao reintroduzir nutrição.",
+        intercorrencias24h: [
+          "Eletrólitos basais no limite inferior (fósforo 2,6 / potássio 3,5 / magnésio 1,6).",
+          "Etilismo crônico — risco de deficiência de TIAMINA (B1).",
+          "Ingestão alimentar quase nula nas últimas 2 semanas."
+        ],
+        pendencias: [
+          "Reintroduzir a nutrição com SEGURANÇA (evitar realimentação grave).",
+          "Garantir tiamina e reposição/monitorização de eletrólitos.",
+          "Definir velocidade inicial e ritmo de progressão."
+        ],
+        solicitacoes: [
+          "Equipe pergunta se pode 'mandar a dieta cheia' para recuperar o peso rápido.",
+          "Enfermagem aguarda a vazão inicial."
+        ]
+      },
+      prontuarioBase: {
+        anamnese: "Etilista crônico, morava sozinho. Perda ponderal acentuada nos últimos meses, ingestão mínima há ~2 semanas. Sem comorbidades renais/hepáticas descompensadas conhecidas além do contexto.",
+        avaliacaoNutricional: "ASG: desnutrição grave (C). IMC 15,9 (magreza grave). Critérios de ALTO risco de realimentação (NICE): IMC muito baixo, perda de peso significativa, ingestão mínima >10 dias e eletrólitos basais baixos. Tiamina presumivelmente depletada (etilismo).",
+        exameFisico: "Caquético, sarcopenia evidente (panturrilha reduzida), desidratado, hipotrófico. Abdome escavado, peristalse presente. Sem edema importante no momento.",
+        antropometria: "Peso 46 kg • Altura 1,70 m • IMC 15,9 kg/m² (magreza grave). Perda ponderal estimada > 15% em meses. Circunferência da panturrilha reduzida (sarcopenia)."
+      },
+      labsByDay: {
+        0: [
+          { name: "Fósforo", value: "2,6 mg/dL", ref: "2,5–4,5", flag: "ok" },
+          { name: "Potássio", value: "3,5 mEq/L", ref: "3,5–5,0", flag: "ok" },
+          { name: "Magnésio", value: "1,6 mg/dL", ref: "1,6–2,6", flag: "ok" },
+          { name: "Glicemia", value: "78 mg/dL", ref: "70–110", flag: "ok" },
+          { name: "Albumina", value: "2,3 g/dL", ref: "3,5–5,0", flag: "baixo" }
+        ],
+        1: [
+          { name: "Fósforo", value: "1,5 mg/dL", ref: "2,5–4,5", flag: "baixo" },
+          { name: "Potássio", value: "2,9 mEq/L", ref: "3,5–5,0", flag: "baixo" },
+          { name: "Magnésio", value: "1,3 mg/dL", ref: "1,6–2,6", flag: "baixo" },
+          { name: "Glicemia", value: "122 mg/dL", ref: "70–110", flag: "alto" }
+        ],
+        2: [
+          { name: "Fósforo", value: "2,4 mg/dL", ref: "2,5–4,5", flag: "baixo" },
+          { name: "Potássio", value: "3,6 mEq/L", ref: "3,5–5,0", flag: "ok" },
+          { name: "Magnésio", value: "1,7 mg/dL", ref: "1,6–2,6", flag: "ok" }
+        ],
+        3: [
+          { name: "Fósforo", value: "3,0 mg/dL", ref: "2,5–4,5", flag: "ok" },
+          { name: "Potássio", value: "4,0 mEq/L", ref: "3,5–5,0", flag: "ok" },
+          { name: "Magnésio", value: "1,9 mg/dL", ref: "1,6–2,6", flag: "ok" }
+        ]
+      },
+      stages: [
+        {
+          id: "indicacao", title: "1 · Como reintroduzir", icon: "🧭",
+          prompt: "Desnutrido grave (IMC 15,9) com jejum prolongado e ALTO risco de realimentação. Como reintroduzir a nutrição?",
+          options: [
+            { id: "lento_tiamina", text: "Iniciar com oferta calórica BAIXA (≈10–15 kcal/kg/dia, ou menos em risco extremo), administrar TIAMINA antes/junto e repor/monitorar eletrólitos; progredir LENTAMENTE em vários dias.", correct: true,
+              feedback: "Correto! No alto risco de realimentação, começa-se com poucas calorias, oferta-se tiamina ANTES da nutrição e corrige-se/monitora-se P, K e Mg, progredindo devagar ao longo de dias." },
+            { id: "meta_cheia", text: "Mandar a dieta plena já no primeiro dia para recuperar o peso rapidamente.", correct: false, critical: true,
+              feedback: "ERRO GRAVÍSSIMO: alimentar plenamente o desnutrido grave precipita síndrome de realimentação (hipofosfatemia/hipocalemia/hipomagnesemia, arritmias, ICC, morte). Inicia-se baixo e devagar." },
+            { id: "jejum", text: "Manter jejum por mais alguns dias para 'preparar' o organismo.", correct: false, critical: true,
+              feedback: "ERRO: prolongar o jejum piora a desnutrição. O correto é reintroduzir CEDO, porém de forma cautelosa e progressiva com tiamina e eletrólitos." },
+            { id: "npt_cheia", text: "Iniciar parenteral plena para garantir o aporte.", correct: false, critical: true,
+              feedback: "Inadequado: a via não muda o risco — alimentar plenamente (enteral OU parenteral) o desnutrido grave precipita realimentação. E NP é prescrição médica." }
+          ],
+          explain: "Síndrome de realimentação: ao reintroduzir nutrição no desnutrido, o estímulo insulínico desloca P, K e Mg para dentro das células, causando hipofosfatemia/hipocalemia/hipomagnesemia (risco de arritmia/ICC). Conduta: iniciar BAIXO (10–15 kcal/kg ou menos), TIAMINA antes da nutrição, repor/monitorar eletrólitos, progredir lentamente."
+        },
+        {
+          id: "formula", kind: "formula", title: "2 · Fórmula e ritmo", icon: "🧪",
+          prompt: "Que fórmula usar para iniciar (em vazão baixa) neste paciente?",
+          correctIds: ["isosource_std", "novasource_gc"],
+          bestId: "isosource_std",
+          notes: {
+            isosource_std: "Boa escolha: polimérica padrão isotônica em VAZÃO BAIXA é adequada; o que importa é a baixa oferta calórica inicial e a progressão lenta.",
+            novasource_gc: "Aceitável: pode ajudar a modular a glicemia durante a realimentação, mas o ponto central é a baixa oferta inicial.",
+            isosource_15: "Subótima: hipercalórica facilita ultrapassar a oferta segura — risco de realimentação. Preferir normocalórica em vazão baixa.",
+            nutrison_protein: "Subótima agora: hipercalórica/hiperproteica densa pode exceder a oferta segura na largada.",
+            peptamen_intense: "Subótima agora: foco em proteína muito alta não é a prioridade na largada da realimentação.",
+            impact: "Inadequada: imunonutrição não tem papel aqui e a arginina não é o foco."
+          },
+          explain: "A escolha importa menos que a OFERTA CALÓRICA BAIXA inicial e a progressão lenta. Polimérica padrão em vazão baixa é adequada; evitar fórmulas muito calóricas que facilitem ultrapassar a oferta segura."
+        },
+        {
+          id: "tiamina", title: "3 · Tiamina e eletrólitos", icon: "💊",
+          prompt: "Antes e durante a reintrodução, o que é indispensável neste etilista desnutrido?",
+          options: [
+            { id: "tiamina_ok", text: "Administrar TIAMINA (B1) ANTES de iniciar a nutrição (prevenção de encefalopatia de Wernicke) e corrigir/monitorar fósforo, potássio e magnésio diariamente.", correct: true,
+              feedback: "Perfeito! Tiamina antes da nutrição previne a encefalopatia de Wernicke (especialmente no etilista), e a vigilância diária de P/K/Mg permite corrigir precocemente a realimentação." },
+            { id: "so_caloria", text: "Focar só em aumentar calorias rápido; vitaminas não importam agora.", correct: false, critical: true,
+              feedback: "ERRO: sem tiamina, a infusão de glicose pode precipitar Wernicke; e ignorar eletrólitos pode levar a arritmia fatal. São prioridades." },
+            { id: "espera_eletro", text: "Só repor eletrólitos se o paciente ficar sintomático.", correct: false, critical: true,
+              feedback: "ERRO: na realimentação a reposição/monitorização é PROATIVA (diária), não se espera o paciente ficar sintomático (arritmia pode ser o primeiro sinal)." }
+          ],
+          explain: "Tiamina ANTES da nutrição (previne Wernicke, sobretudo no etilista) e reposição/monitorização proativa e diária de fósforo, potássio e magnésio são pilares da prevenção da síndrome de realimentação."
+        }
+      ],
+      monitor: [
+        {
+          hora: "24h", labsDay: 1, icon: "🚨",
+          evento: "Após iniciar a dieta baixa: fósforo despencou (1,5 ↓), potássio 2,9 ↓ e magnésio 1,3 ↓. Paciente ainda estável. Glicemia subiu para 122.",
+          prompt: "Conduta diante da queda de eletrólitos em 24h?",
+          options: [
+            { id: "repoe_segura", text: "Reconhecer realimentação em curso: REPOR vigorosamente P, K e Mg, manter tiamina e SEGURAR a progressão calórica (sem necessariamente suspender), monitorando de perto.", correct: true,
+              feedback: "Correto! A queda de P/K/Mg confirma realimentação: repõe-se agressivamente os eletrólitos, mantém-se tiamina e segura-se a progressão (não se acelera) até estabilizar." },
+            { id: "acelera", text: "Acelerar a dieta para a meta, já que ele está estável.", correct: false, critical: true,
+              feedback: "ERRO GRAVÍSSIMO: progredir com P/K/Mg em queda pode precipitar arritmia fatal e ICC. Segura-se a progressão e corrige-se os eletrólitos." },
+            { id: "suspende_tudo", text: "Suspender toda a nutrição e voltar ao jejum.", correct: false,
+              feedback: "Subótimo: em geral NÃO se suspende — segura-se a progressão e corrige-se os eletrólitos. Suspender totalmente costuma ser desnecessário e prolonga a desnutrição." }
+          ],
+          explain: "Queda de P/K/Mg ao reintroduzir = realimentação em curso. Conduta: repor eletrólitos agressivamente, manter tiamina, SEGURAR (não acelerar) a oferta calórica e monitorar de perto — raramente é preciso suspender totalmente."
+        },
+        {
+          hora: "48h", labsDay: 2, icon: "📉",
+          evento: "Eletrólitos recuperando com a reposição (P 2,4 / K 3,6 / Mg 1,7). Paciente estável, boa tolerância à dieta baixa.",
+          prompt: "Conduta em 48h?",
+          options: [
+            { id: "progride_lento", text: "Progredir a oferta calórica de forma LENTA e gradual (ao longo de dias), mantendo a vigilância diária de eletrólitos e a tiamina.", correct: true,
+              feedback: "Correto! Com eletrólitos estabilizando, progride-se devagar (não de uma vez), seguindo a monitorização diária — a meta plena é atingida em vários dias." },
+            { id: "salta_meta", text: "Saltar para a meta calórica plena agora que melhorou.", correct: false, critical: true,
+              feedback: "ERRO: a progressão segue LENTA por dias mesmo após estabilizar os eletrólitos. Saltar reacende a realimentação." }
+          ],
+          explain: "Após estabilizar os eletrólitos, a progressão continua GRADUAL (vários dias) até a meta, com monitorização diária — nunca um salto para a meta plena."
+        },
+        {
+          hora: "72h", labsDay: 3, icon: "✅",
+          evento: "Eletrólitos normalizados, boa tolerância, progressão calórica em curso e segura. Paciente mais ativo.",
+          prompt: "Plano em 72h?",
+          options: [
+            { id: "continua", text: "Continuar a progressão gradual até a meta nutricional plena, mantendo monitorização de eletrólitos e suplementação vitamínica enquanto necessário.", correct: true,
+              feedback: "Perfeito! Com tudo estável, segue-se a progressão gradual até a meta plena, mantendo a vigilância e a suplementação — recuperação nutricional segura." },
+            { id: "para", text: "Suspender a monitorização de eletrólitos porque normalizaram uma vez.", correct: false,
+              feedback: "Subótimo: a monitorização deve continuar durante toda a fase de progressão (o risco persiste enquanto se aumenta a oferta)." }
+          ],
+          explain: "A recuperação nutricional do desnutrido grave é gradual e monitorada por vários dias. Mantêm-se a vigilância de eletrólitos e a suplementação vitamínica durante toda a progressão."
+        }
+      ],
+      family: {
+        speaker: "Antônia (sobrinha do Sr. Joaquim)", avatar: "👩🏼",
+        lines: [
+          {
+            q: "“Doutora, meu tio está tão magrinho! Não dá pra dar logo bastante comida pra ele engordar rápido?”",
+            options: [
+              { id: "f_ok", text: "Explicar com cuidado que, depois de muito tempo sem comer, alimentar demais de uma vez é PERIGOSO (pode causar problemas graves no coração e nos sais do sangue). Por isso começamos devagar e aumentamos aos poucos, com segurança.", deltaConf: 2,
+                feedback: "Excelente: explica o risco da realimentação em linguagem simples e justifica o início lento. Confiança aumenta." },
+              { id: "f_concorda", text: "Concordar e prometer caprichar na dieta cheia já hoje para ele engordar.", deltaConf: -2,
+                feedback: "Perigoso: ceder à pressão e alimentar plenamente o desnutrido grave precipita a síndrome de realimentação. A conduta é técnica, não emocional." }
+            ]
+          }
+        ]
+      },
+      team: {
+        speaker: "Dra. Lia (clínica)", avatar: "👩🏻‍⚕️",
+        lines: [
+          {
+            q: "“Nutri, ele está muito desnutrido. Posso liberar a dieta plena para acelerar a recuperação?”",
+            options: [
+              { id: "t_ok", text: "Explicar que há ALTO risco de realimentação: iniciamos baixo, com tiamina e reposição de eletrólitos, progredindo em vários dias — e combinamos a monitorização diária de P/K/Mg.", deltaConf: 2,
+                feedback: "Ótima articulação técnica: alinha a equipe ao protocolo de realimentação segura." },
+              { id: "t_libera", text: "Concordar em liberar a dieta plena imediatamente.", deltaConf: -2,
+                feedback: "Inadequado: liberar dieta plena no alto risco de realimentação é perigoso. O correto é iniciar baixo e progredir devagar." }
+            ]
+          }
+        ]
+      },
+      prontuarioEvolucao: {
+        diagnostico: [
+          { text: "Desnutrição grave (IMC 15,9) com ALTO risco de síndrome de realimentação e provável deficiência de tiamina.", correct: true },
+          { text: "Eutrofia, sem risco — liberar dieta plena.", correct: false }
+        ],
+        objetivos: [
+          { text: "Reintroduzir a nutrição com segurança, prevenir a realimentação (tiamina + eletrólitos) e recuperar o estado nutricional gradualmente.", correct: true },
+          { text: "Recuperar o peso o mais rápido possível com dieta plena imediata.", correct: false }
+        ],
+        conduta: [
+          { text: "Início com baixa oferta calórica (10–15 kcal/kg), tiamina antes da nutrição, reposição/monitorização diária de P/K/Mg e progressão lenta por dias.", correct: true },
+          { text: "Dieta plena no dia 1, sem tiamina nem controle de eletrólitos.", correct: false }
+        ],
+        evolucao: [
+          { text: "Realimentação manejada (queda de eletrólitos corrigida sem suspender); progressão lenta e segura até a meta com monitorização contínua.", correct: true },
+          { text: "Sem intercorrências, dieta plena tolerada desde o início.", correct: false }
+        ]
+      },
+      discussion: "O Sr. Joaquim é o caso clássico de SÍNDROME DE REALIMENTAÇÃO. No desnutrido grave (IMC muito baixo, perda ponderal acentuada, ingestão mínima por dias e eletrólitos basais baixos), a reintrodução da nutrição estimula a insulina, que desloca fósforo, potássio e magnésio para dentro das células — causando hipofosfatemia, hipocalemia e hipomagnesemia, com risco de arritmias, insuficiência cardíaca e morte. A prevenção: iniciar com OFERTA CALÓRICA BAIXA (10–15 kcal/kg/dia, ou menos no risco extremo), administrar TIAMINA antes da nutrição (previne encefalopatia de Wernicke, sobretudo no etilista), repor e MONITORAR eletrólitos diariamente, e progredir LENTAMENTE ao longo de dias. Diante da queda de eletrólitos, repõe-se e segura-se a progressão — em geral sem suspender totalmente. A pressa em 'engordar rápido' é justamente o erro fatal.",
+      concurso: "Como cai em concurso: critérios de risco de realimentação (NICE — IMC baixo, perda de peso, jejum prolongado, eletrólitos basais baixos); tríade hipofosfatemia/hipocalemia/hipomagnesemia; papel da TIAMINA (Wernicke) antes da nutrição; oferta calórica inicial baixa e progressão lenta; e o manejo (repor eletrólitos + segurar progressão, não necessariamente suspender).",
+      quiz: [
+        {
+          question: "Qual a alteração eletrolítica MAIS característica da síndrome de realimentação?",
+          options: [
+            "Hipernatremia.",
+            "Hipofosfatemia (com hipocalemia e hipomagnesemia).",
+            "Hipercalcemia.",
+            "Hipercalemia isolada."
+          ],
+          correct: 1,
+          explanation: "A hipofosfatemia é o marco da realimentação, acompanhada de hipocalemia e hipomagnesemia, pelo deslocamento intracelular induzido pela insulina."
+        },
+        {
+          question: "Como iniciar a nutrição no paciente com ALTO risco de realimentação?",
+          options: [
+            "Dieta plena imediata para recuperar peso rápido.",
+            "Oferta calórica baixa (10–15 kcal/kg), com tiamina e reposição/monitorização de eletrólitos, progredindo lentamente.",
+            "Jejum por mais uma semana.",
+            "Parenteral plena no primeiro dia."
+          ],
+          correct: 1,
+          explanation: "Inicia-se com poucas calorias, oferta-se tiamina antes da nutrição, corrige-se/monitora-se P/K/Mg e progride-se devagar ao longo de dias."
+        },
+        {
+          question: "Por que a tiamina deve ser administrada antes/junto da reintrodução da nutrição, sobretudo no etilista?",
+          options: [
+            "Para aumentar o apetite.",
+            "Para prevenir a encefalopatia de Wernicke ao metabolizar a glicose ofertada.",
+            "Para corrigir a anemia.",
+            "Para reduzir a glicemia."
+          ],
+          correct: 1,
+          explanation: "A oferta de glicose sem tiamina pode precipitar a encefalopatia de Wernicke no depletado (etilista). Por isso a tiamina vem antes/junto da nutrição."
+        },
+        {
+          question: "Diante da queda de fósforo, potássio e magnésio nas primeiras 24h de reintrodução, a conduta é:",
+          options: [
+            "Acelerar a dieta porque o paciente está estável.",
+            "Repor os eletrólitos e segurar a progressão calórica, monitorando de perto.",
+            "Suspender definitivamente qualquer nutrição.",
+            "Ignorar, pois é esperado e inofensivo."
+          ],
+          correct: 1,
+          explanation: "A queda confirma realimentação em curso: repõem-se os eletrólitos agressivamente e segura-se a progressão (sem necessariamente suspender), com monitorização estreita."
+        }
+      ]
+    }
+  ]
 };
 
 // Exportar para uso no navegador

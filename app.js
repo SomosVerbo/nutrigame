@@ -1050,6 +1050,11 @@ const COMPANION_REMARKS = {
 
 // Modal de interação do leito
 function interactWithPatient(moduleId) {
+  // Leitos do CTI usam o motor de plantão (cti.js), não o fluxo de módulo padrão.
+  if (window.ctiCaseForBed && window.ctiCaseForBed(moduleId)) {
+    window.startCtiCase(moduleId);
+    return;
+  }
   const mod = nutriGameData.modules.find(m => m.id === moduleId);
   if (!mod) return;
   
