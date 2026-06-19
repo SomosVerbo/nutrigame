@@ -106,15 +106,21 @@
       { img: 'thiago', name: 'Nutri Thiago', x: 12, y: 10 }
     ];
     const props = [
+      // ZONA 1 — Recepção (topo): balcão virado pra baixo, cadeiras de atendimento,
+      // tapete na frente e plantas nos cantos. Sem vending/bebedouro aqui (foram pra espera).
       { img: 'desk', x: 10, y: 2, h: 24 },
       { img: 'chair', x: 9, y: 2, h: 32, solid: false }, { img: 'chair', x: 11, y: 2, h: 32, solid: false },
       { img: 'rug', x: 10, y: 4, h: 32 },
-      { img: 'vending', x: 8, y: 1, h: 44, solid: false }, { img: 'vending', x: 13, y: 1, h: 44, solid: false },
-      { img: 'cooler', x: 8, y: 4, h: 32, solid: false }, { img: 'cooler', x: 13, y: 4, h: 32, solid: false },
-      { img: 'cart', x: 9, y: 8, h: 40, solid: false }, { img: 'cart', x: 12, y: 8, h: 40, solid: false },
-      { img: 'trash', x: 8, y: 9, h: 24, solid: false }, { img: 'trash', x: 13, y: 9, h: 24, solid: false },
+      { img: 'plant', x: 8, y: 1, h: 32, solid: false }, { img: 'plant', x: 13, y: 1, h: 32, solid: false },
+      // ZONA 2 — Estação de enfermagem (meio): um carrinho encostado em cada divisória,
+      // fora do corredor central; lixeira de apoio. Centro (x10–11) livre pra circular.
+      { img: 'cart', x: 8, y: 6, h: 40, solid: false }, { img: 'cart', x: 13, y: 6, h: 40, solid: false },
+      { img: 'trash', x: 8, y: 9, h: 24, solid: false },
+      // ZONA 3 — Sala de espera (base): bancos enfileirados com visitantes, bebedouro
+      // e vending encostados na parede de baixo, plantas nos cantos e lixeira ao lado da porta.
       { img: 'bench', x: 8, y: 11, h: 24, solid: false }, { img: 'bench', x: 10, y: 11, h: 24, solid: false }, { img: 'bench', x: 12, y: 11, h: 24, solid: false },
-      { img: 'plant', x: 8, y: 12, h: 32, solid: false }, { img: 'plant', x: 13, y: 12, h: 32, solid: false },
+      { img: 'plant', x: 8, y: 12, h: 32, solid: false }, { img: 'vending', x: 9, y: 12, h: 44, solid: false },
+      { img: 'trash', x: 11, y: 12, h: 24, solid: false }, { img: 'cooler', x: 12, y: 12, h: 32, solid: false }, { img: 'plant', x: 13, y: 12, h: 32, solid: false },
       // Enfermarias laterais: armários e lockers DE LADO, encostados nas paredes externas
       // (viram pra dentro) e nas divisórias internas (espelhados), + 1 item de apoio.
       // Q1 (sup. esq.)
