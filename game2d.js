@@ -106,19 +106,20 @@
       { img: 'thiago', name: 'Nutri Thiago', x: 12, y: 10 }
     ];
     const props = [
-      // ZONA 1 — Recepção (topo): balcão virado pra baixo, cadeiras de atendimento,
-      // tapete na frente e plantas nos cantos. Sem vending/bebedouro aqui (foram pra espera).
+      // ZONA 1 — Recepção (topo): só o balcão virado pra baixo + plantas nos cantos.
+      // (removidas as cadeiras laterais, que pareciam mesa de jantar, e o tapete solto.)
       { img: 'desk', x: 10, y: 2, h: 24 },
-      { img: 'chair', x: 9, y: 2, h: 32, solid: false }, { img: 'chair', x: 11, y: 2, h: 32, solid: false },
-      { img: 'rug', x: 10, y: 4, h: 32 },
       { img: 'plant', x: 8, y: 1, h: 32, solid: false }, { img: 'plant', x: 13, y: 1, h: 32, solid: false },
-      // ZONA 2 — Estação de enfermagem (meio): um carrinho encostado em cada divisória,
-      // fora do corredor central; lixeira de apoio. Centro (x10–11) livre pra circular.
-      { img: 'cart', x: 8, y: 6, h: 40, solid: false }, { img: 'cart', x: 13, y: 6, h: 40, solid: false },
-      { img: 'trash', x: 8, y: 9, h: 24, solid: false },
-      // ZONA 3 — Sala de espera (base): bancos enfileirados com visitantes, bebedouro
-      // e vending encostados na parede de baixo, plantas nos cantos e lixeira ao lado da porta.
-      { img: 'bench', x: 8, y: 11, h: 24, solid: false }, { img: 'bench', x: 10, y: 11, h: 24, solid: false }, { img: 'bench', x: 12, y: 11, h: 24, solid: false },
+      // ZONA 2 — Espera lateral: bancos ENCOSTADOS nas divisórias internas (esq. x8 /
+      // dir. x13), enfileirados pra preencher os vãos; carrinhos clínicos + plantas.
+      // Assim ninguém fica "com mesa" no meio do caminho; o corredor central fica livre.
+      { img: 'bench', x: 8, y: 4, h: 24, solid: false }, { img: 'bench', x: 8, y: 5, h: 24, solid: false },
+      { img: 'bench', x: 13, y: 4, h: 24, solid: false }, { img: 'bench', x: 13, y: 5, h: 24, solid: false },
+      { img: 'cart', x: 8, y: 8, h: 40, solid: false }, { img: 'cart', x: 13, y: 8, h: 40, solid: false },
+      { img: 'plant', x: 8, y: 9, h: 32, solid: false }, { img: 'plant', x: 13, y: 9, h: 32, solid: false },
+      // ZONA 3 — Sala de espera (base): bancos nas laterais + vending/bebedouro na
+      // parede de baixo + lixeira + plantas nos cantos. Centro (x10–11) livre até a porta.
+      { img: 'bench', x: 8, y: 11, h: 24, solid: false }, { img: 'bench', x: 13, y: 11, h: 24, solid: false },
       { img: 'plant', x: 8, y: 12, h: 32, solid: false }, { img: 'vending', x: 9, y: 12, h: 44, solid: false },
       { img: 'trash', x: 11, y: 12, h: 24, solid: false }, { img: 'cooler', x: 12, y: 12, h: 32, solid: false }, { img: 'plant', x: 13, y: 12, h: 32, solid: false },
       // Enfermarias laterais: armários e lockers DE LADO, encostados nas paredes externas
@@ -137,10 +138,13 @@
       props.push({ img: 'sidetable', x: b.x + 1, y: ay, h: 28, solid: false });
       props.push({ img: 'ivstand', x: b.x - 1, y: ay, h: 48, solid: false });
     });
+    // Visitantes sentados nos bancos laterais (encostados nas divisórias), não em fila
+    // na entrada — assim lê como sala de espera, e não como balcões de atendimento.
     const seated = [
-      { x: 8, y: 11, hair: '#6b4a2a', coat: '#d6a6c2' },
-      { x: 10, y: 11, hair: '#2a2a30', coat: '#a6c8d6' },
-      { x: 12, y: 11, hair: '#7a5230', coat: '#cdbf9a' }
+      { x: 8, y: 4, hair: '#6b4a2a', coat: '#d6a6c2' },
+      { x: 13, y: 5, hair: '#2a2a30', coat: '#a6c8d6' },
+      { x: 8, y: 11, hair: '#7a5230', coat: '#cdbf9a' },
+      { x: 13, y: 11, hair: '#3a2a20', coat: '#b9c4d6' }
     ];
     return {
       id: 'hospital1', w: 22, h: 14,
