@@ -1,7 +1,7 @@
-const CACHE_NAME = "nutrigame-cache-v53";
+const CACHE_NAME = "nutrigame-cache-v54";
 const CLINIC = ["floor","floor_rose","floor_blue","wall","wall_base","wall_window","wall_v","wall_h","plant","desk","bed",
   "chair","cabinet","cooler","rug","screen","poster","clock",
-  "ivstand","cart","sidetable","curtain","locker","cabinet_side","locker_side","bench","trash",
+  "ivstand","cart","sidetable","curtain","locker","cabinet_side","locker_side","bench","bench_side","trash",
   "vending","wheelchair","examtable","skeleton","sign","wallmonitor","elevator","stairs","extinguisher",
   "ana","camila","thiago","npc_roberto","npc_clara","npc_lucas"].map(n => "assets2d/clinic/" + n + ".png");
 const ASSETS = [
