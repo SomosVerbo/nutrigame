@@ -2572,3 +2572,20 @@ body {
   }
 }
 
+
+/* ================= TABELA DE EXAMES LABORATORIAIS ================= */
+.exams-results-panel { margin-top: 16px; }
+.exams-results-panel h4 { margin-bottom: 8px; }
+.lab-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.lab-table th { text-align: left; font-size: 11px; color: var(--neutral-gray); text-transform: uppercase; font-weight: 700; padding: 6px 8px; border-bottom: 1px solid rgba(0,0,0,.12); }
+.lab-table td { padding: 8px; border-bottom: 1px solid rgba(0,0,0,.07); color: var(--dark-text); vertical-align: top; }
+.lab-table .lab-val { font-weight: 700; white-space: nowrap; }
+.lab-table .lab-ref { color: var(--neutral-gray); font-size: 11.5px; }
+.lab-table tr.lab-up .lab-val { color: #C62828; }
+.lab-table tr.lab-down .lab-val { color: #B26A00; }
+.lab-table tr.lab-ok .lab-val { color: #2E7D32; }
+.dark-theme .lab-table th { border-bottom-color: rgba(255,255,255,.12); }
+.dark-theme .lab-table td { border-bottom-color: rgba(255,255,255,.07); }
+.dark-theme .lab-table tr.lab-up .lab-val { color: #ff9b9b; }
+.dark-theme .lab-table tr.lab-down .lab-val { color: #ffd98a; }
+.dark-theme .lab-table tr.lab-ok .lab-val { color: #9ce6b0; }

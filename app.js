@@ -1591,6 +1591,31 @@ function renderExamsGrid(options) {
 
     container.appendChild(row);
   });
+
+  renderExamsResults(options);
+}
+
+// Tabela de exames laboratoriais (mesmo formato do plantão do CTI)
+function labTableHTML(labs) {
+  const rows = labs.map(e => {
+    const fl = e.flag === "alto" ? "up" : e.flag === "baixo" ? "down" : "ok";
+    const arrow = fl === "up" ? "↑" : fl === "down" ? "↓" : "•";
+    return `<tr class="lab-${fl}"><td>${e.name}</td><td class="lab-val">${e.value} <span class="lab-arrow">${arrow}</span></td><td class="lab-ref">${e.ref}</td></tr>`;
+  }).join("");
+  return `<table class="lab-table"><thead><tr><th>Exame</th><th>Resultado</th><th>Referência</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+// Resultados já recebidos, reunidos numa tabela só
+function renderExamsResults(options) {
+  const box = document.getElementById("exams-results-panel");
+  if (!box) return;
+  const labs = options
+    .filter(o => o.labs && activeCase.requestedExams.includes(o.id))
+    .flatMap(o => o.labs);
+  box.innerHTML = labs.length
+    ? `<h4>🧪 Resultados laboratoriais</h4>${labTableHTML(labs)}`
+    : "";
+  box.style.display = labs.length ? "" : "none";
 }
 
 function updateExamsLimitText() {
@@ -1653,7 +1678,14 @@ function openExamModal(exam) {
   } else {
     rangesText = "Valores de Referência Médicos e Clínicos convencionais. O ideal funcional busca faixas ideais para máxima vitalidade celular.";
   }
-  document.getElementById("modal-exam-ranges").textContent = rangesText;
+  document.getElementById("modal-exam-ranges").textContent = exam.laudo || rangesText;
+
+  // Exame de sangue: tabela com resultado, seta e referência no lugar do texto corrido
+  const labsBox = document.getElementById("modal-exam-labs");
+  const badge = document.querySelector("#modal-exam-result .exam-result-badge");
+  labsBox.innerHTML = exam.labs ? labTableHTML(exam.labs) : "";
+  labsBox.style.display = exam.labs ? "" : "none";
+  badge.style.display = exam.labs ? "none" : "";
 
   document.getElementById("modal-exam-result").classList.add("active");
 }

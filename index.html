@@ -26,7 +26,7 @@
   <meta name="theme-color" content="#7A0043">
   
   <!-- Link do arquivo CSS com cache busting -->
-  <link rel="stylesheet" href="style.css?v=1.0.8">
+  <link rel="stylesheet" href="style.css?v=1.0.9">
   <link rel="stylesheet" href="world3d.css?v=1.4.3">
 </head>
 <body>
@@ -298,6 +298,7 @@
             <div class="exams-list" id="exams-selection-grid">
               <!-- Gerado via JS -->
             </div>
+            <div class="exams-results-panel" id="exams-results-panel" style="display:none"></div>
           </div>
         </div>
 
@@ -404,6 +405,7 @@
             <span class="label">Resultado do Paciente:</span>
             <span class="value" id="modal-exam-value">Baixo</span>
           </div>
+          <div class="lab-table-wrap" id="modal-exam-labs" style="display:none"></div>
           
           <div class="functional-ranges">
             <h4>Interpretação Funcional da Pós-Graduação</h4>
@@ -545,8 +547,8 @@
   </div> <!-- FIM DO APP CONTAINER -->
 
   <!-- Scripts do App -->
-  <script src="data.js?v=1.7.0"></script>
-  <script src="app.js?v=1.6.1"></script>
+  <script src="data.js?v=1.7.1"></script>
+  <script src="app.js?v=1.6.2"></script>
   <!-- Motor 2.5D (canvas pixel-art) — carrega após os globais do app.js -->
   <script src="game2d.js?v=1.10.11"></script>
   <!-- Motor do CTI (simulação de plantão) — usa os globais do app.js -->

@@ -42,8 +42,13 @@ const nutriGameData = {
               name: "Ferritina e Ferro Sérico",
               price: "low",
               needed: true,
-              result: "Ferritina: 18 ng/dL (Ideal funcional: > 70 ng/dL para mulheres jovens) | Ferro: 52 mcg/dL. Indica deficiência de ferro (mesmo sem anemia estabelecida).",
-              feedback: "Correto! A ferritina abaixo de 30-40 ng/dL está diretamente associada a fadiga, queda de cabelo e unhas fracas, mesmo com hemograma normal."
+              result: "Ferritina: 18 ng/mL (Ideal funcional: > 70 ng/mL para mulheres jovens) | Ferro: 52 mcg/dL. Indica deficiência de ferro (mesmo sem anemia estabelecida).",
+              laudo: "Deficiência de ferro, mesmo sem anemia estabelecida.",
+              labs: [
+                { name: "Ferritina", value: "18 ng/mL", ref: "10–150 (ideal > 70)", flag: "baixo" },
+                { name: "Ferro sérico", value: "52 mcg/dL", ref: "50–170", flag: "ok" },
+              ],
+              feedback: "Correto! A ferritina abaixo de 30-40 ng/mL está diretamente associada a fadiga, queda de cabelo e unhas fracas, mesmo com hemograma normal."
             },
             {
               id: "tsh",
@@ -51,6 +56,11 @@ const nutriGameData = {
               price: "low",
               needed: true,
               result: "TSH: 3.8 mUI/L (Ideal funcional: 1.0 a 2.0 mUI/L) | T4 Livre: 0.9 ng/dL. Sugere um quadro de hipotireoidismo subclínico / funcional.",
+              laudo: "Sugere hipotireoidismo subclínico / funcional.",
+              labs: [
+                { name: "TSH", value: "3,8 mUI/L", ref: "0,45–4,5 (ideal 1,0–2,0)", flag: "alto" },
+                { name: "T4 livre", value: "0,9 ng/dL", ref: "0,7–1,8", flag: "ok" },
+              ],
               feedback: "Perfeito! O cansaço crônico e extremidades frias são sinais típicos de lentidão tireoidiana, comum na presença de estresse crônico e baixo cortisol."
             },
             {
@@ -59,6 +69,10 @@ const nutriGameData = {
               price: "low",
               needed: false,
               result: "25(OH)D: 32 ng/mL (Suficiente, mas abaixo do ideal funcional de 40-50 ng/mL).",
+              laudo: "Suficiente para o laboratório, mas abaixo do ideal funcional.",
+              labs: [
+                { name: "25(OH)D", value: "32 ng/mL", ref: "≥ 30 (ideal 40–50)", flag: "baixo" },
+              ],
               feedback: "Útil, mas secundário neste momento de queixa aguda."
             },
             {
@@ -67,6 +81,10 @@ const nutriGameData = {
               price: "high",
               needed: false,
               result: "Amilase: 65 U/L (Normal).",
+              laudo: "Dentro da normalidade.",
+              labs: [
+                { name: "Amilase", value: "65 U/L", ref: "28–100", flag: "ok" },
+              ],
               feedback: "Inadequado. Não há queixa clínica abdominal ou suspeita de pancreatite que justifique este exame."
             }
           ]
@@ -112,7 +130,7 @@ const nutriGameData = {
         },
         discussion: {
           title: "Discussão Clínica e Raciocínio Funcional",
-          text: "O caso da Júlia retrata a clássica síndrome da fadiga crônica decorrente de estresse crônico desregulador do eixo HPA (hipotálamo-pituitária-adrenal), aliada a deficiências nutricionais funcionais. Na Nutrição Funcional, os valores ideais de referência (ou limiares funcionais) diferem dos laboratoriais tradicionais. Uma ferritina de 18 ng/dL, embora dentro da maioria dos limites de laboratório (>10), é insuficiente para a produção de energia mitocondrial e saúde tireoidiana, pois o ferro é cofator da tireoide peroxidase (TPO). Além disso, a curva de cortisol salivar confirmou a 'fadiga adrenal', onde o uso de estimulantes centrais (cafeína) é contraindicado, devendo-se priorizar ervas adaptógenas/calmantes e minerais relaxantes (magnésio)."
+          text: "O caso da Júlia retrata a clássica síndrome da fadiga crônica decorrente de estresse crônico desregulador do eixo HPA (hipotálamo-pituitária-adrenal), aliada a deficiências nutricionais funcionais. Na Nutrição Funcional, os valores ideais de referência (ou limiares funcionais) diferem dos laboratoriais tradicionais. Uma ferritina de 18 ng/mL, embora dentro da maioria dos limites de laboratório (>10), é insuficiente para a produção de energia mitocondrial e saúde tireoidiana, pois o ferro é cofator da tireoide peroxidase (TPO). Além disso, a curva de cortisol salivar confirmou a 'fadiga adrenal', onde o uso de estimulantes centrais (cafeína) é contraindicado, devendo-se priorizar ervas adaptógenas/calmantes e minerais relaxantes (magnésio)."
         }
       },
       quiz: [
@@ -207,6 +225,11 @@ const nutriGameData = {
               price: "low",
               needed: true,
               result: "B12: 240 pg/mL (Ideal funcional: > 500 pg/mL) | Homocisteína: 16.2 mcmol/L (Ideal funcional: < 9.0 mcmol/L).",
+              laudo: "B12 baixa para o ideal funcional e homocisteína elevada.",
+              labs: [
+                { name: "Vitamina B12", value: "240 pg/mL", ref: "> 200 (ideal > 500)", flag: "baixo" },
+                { name: "Homocisteína", value: "16,2 mcmol/L", ref: "5–15 (ideal < 9)", flag: "alto" },
+              ],
               feedback: "Excelente! B12 baixa e homocisteína alta indicam disfunção no processo de metilação, possivelmente associada à baixa acidez estomacal (hipocloridria), que impede a absorção correta da B12."
             },
             {
@@ -356,6 +379,12 @@ const nutriGameData = {
               price: "low",
               needed: true,
               result: "TGO: 22 U/L | TGP: 25 U/L | GGT: 28 U/L (Tudo normal).",
+              laudo: "Perfil hepático normal.",
+              labs: [
+                { name: "TGO (AST)", value: "22 U/L", ref: "até 40", flag: "ok" },
+                { name: "TGP (ALT)", value: "25 U/L", ref: "até 41", flag: "ok" },
+                { name: "GGT", value: "28 U/L", ref: "até 60", flag: "ok" },
+              ],
               feedback: "Correto! Sempre importante verificar a integridade hepática do paciente antes de prescrever fitoterápicos de uso crônico."
             },
             {
@@ -497,6 +526,12 @@ const nutriGameData = {
               price: "low",
               needed: true,
               result: "ALT: 64 U/L (Elevada) | AST: 48 U/L (Elevada) | GGT: 72 U/L (Elevada). Indica inflamação hepática ativa.",
+              laudo: "Indica inflamação hepática ativa.",
+              labs: [
+                { name: "TGP (ALT)", value: "64 U/L", ref: "até 35", flag: "alto" },
+                { name: "TGO (AST)", value: "48 U/L", ref: "até 32", flag: "alto" },
+                { name: "GGT", value: "72 U/L", ref: "até 40", flag: "alto" },
+              ],
               feedback: "Excelente! Imprescindível para monitorar a lesão/inflamação dos hepatócitos decorrente da gordura acumulada."
             },
             {
@@ -505,6 +540,12 @@ const nutriGameData = {
               price: "low",
               needed: true,
               result: "Glicemia: 98 mg/dL | Insulina: 18.5 uUI/mL | HOMA-IR: 4.47. Indica resistência à insulina severa.",
+              laudo: "Indica resistência à insulina severa.",
+              labs: [
+                { name: "Glicemia de jejum", value: "98 mg/dL", ref: "70–99", flag: "ok" },
+                { name: "Insulina de jejum", value: "18,5 uUI/mL", ref: "2–20 (ideal 2–6)", flag: "alto" },
+                { name: "HOMA-IR", value: "4,47", ref: "< 2,7", flag: "alto" },
+              ],
               feedback: "Perfeito! A resistência à insulina é o motor fisiopatológico principal da esteatose hepática não-alcoólica."
             },
             {
@@ -513,6 +554,13 @@ const nutriGameData = {
               price: "low",
               needed: true,
               result: "Colesterol Total: 238 mg/dL | Triglicerídeos: 210 mg/dL (Elevado) | HDL: 41 mg/dL (Baixo) | LDL: 155 mg/dL.",
+              laudo: "Dislipidemia: triglicerídeos e LDL altos, HDL baixo.",
+              labs: [
+                { name: "Colesterol total", value: "238 mg/dL", ref: "< 190", flag: "alto" },
+                { name: "Triglicerídeos", value: "210 mg/dL", ref: "< 150", flag: "alto" },
+                { name: "HDL", value: "41 mg/dL", ref: "> 50", flag: "baixo" },
+                { name: "LDL", value: "155 mg/dL", ref: "< 130", flag: "alto" },
+              ],
               feedback: "Correto. Triglicerídeos altos e HDL baixo são característicos do quadro metabólico que gera gordura visceral e hepática."
             },
             {
@@ -654,6 +702,10 @@ const nutriGameData = {
               price: "medium",
               needed: true,
               result: "Magnésio intraeritrocitário: 3.8 mg/dL (Ideal funcional: > 5.5 mg/dL). Indica deficiência severa de magnésio tecidual.",
+              laudo: "Indica deficiência severa de magnésio tecidual.",
+              labs: [
+                { name: "Magnésio intraeritrocitário", value: "3,8 mg/dL", ref: "4,2–6,8 (ideal > 5,5)", flag: "baixo" },
+              ],
               feedback: "Excelente! O magnésio sérico normal não exclui a deficiência tecidual, pois apenas 1% do magnésio está no sangue extracelular. O magnésio intraeritrocitário é o padrão-ouro funcional."
             },
             {
@@ -662,6 +714,10 @@ const nutriGameData = {
               price: "low",
               needed: true,
               result: "25(OH)D: 22 ng/mL (Deficiente. Ideal funcional: 40-50 ng/mL para saúde músculo-esquelética).",
+              laudo: "Deficiente para a saúde músculo-esquelética.",
+              labs: [
+                { name: "25(OH)D", value: "22 ng/mL", ref: "≥ 30 (ideal 40–50)", flag: "baixo" },
+              ],
               feedback: "Excelente! A hipovitaminose D piora a absorção intestinal de cálcio e magnésio, desregulando o tônus muscular."
             },
             {
@@ -670,6 +726,11 @@ const nutriGameData = {
               price: "low",
               needed: false,
               result: "Cálcio sérico: 9.8 mg/dL (Normal) | Cálcio ionizado: 1.25 mmol/L (Normal).",
+              laudo: "Cálcio dentro da normalidade.",
+              labs: [
+                { name: "Cálcio total", value: "9,8 mg/dL", ref: "8,6–10,3", flag: "ok" },
+                { name: "Cálcio ionizado", value: "1,25 mmol/L", ref: "1,11–1,40", flag: "ok" },
+              ],
               feedback: "Secundário. O cálcio sérico é rigidamente controlado pelo paratormônio (PTH), raramente caindo exceto em patologias graves."
             }
           ]
@@ -810,6 +871,12 @@ const nutriGameData = {
               price: "low",
               needed: true,
               result: "Glicemia: 96 mg/dL | Insulina: 14 uUI/mL (HOMA-IR: 3.32). Indica resistência periférica à insulina.",
+              laudo: "Indica resistência periférica à insulina.",
+              labs: [
+                { name: "Glicemia de jejum", value: "96 mg/dL", ref: "70–99", flag: "ok" },
+                { name: "Insulina de jejum", value: "14 uUI/mL", ref: "2–20 (ideal 2–6)", flag: "alto" },
+                { name: "HOMA-IR", value: "3,32", ref: "< 2,7", flag: "alto" },
+              ],
               feedback: "Excelente escolha! A insulina ideal funcional de jejum deve estar entre 2 e 6 uUI/mL. Valores acima de 10 indicam resistência à insulina e bloqueio na queima de gordura."
             },
             {
@@ -818,6 +885,10 @@ const nutriGameData = {
               price: "low",
               needed: true,
               result: "PCR-us: 3.4 mg/L (Elevada. Ideal funcional: < 1.0 mg/L). Indica inflamação subclínica crônica.",
+              laudo: "Indica inflamação subclínica crônica.",
+              labs: [
+                { name: "PCR ultrassensível", value: "3,4 mg/L", ref: "< 5,0 (ideal < 1,0)", flag: "alto" },
+              ],
               feedback: "Correto! A inflamação sistêmica de baixo grau (sugerida pela PCR-us > 1.0) está diretamente ligada à disbiose (endotoxemia metabólica) e bloqueio metabólico de peso."
             },
             {
@@ -826,6 +897,10 @@ const nutriGameData = {
               price: "low",
               needed: true,
               result: "HbA1c: 5.7% (Ideal funcional: < 5.4%). Indica glicação de proteínas nos últimos 90 dias.",
+              laudo: "Indica glicação de proteínas nos últimos 90 dias.",
+              labs: [
+                { name: "Hemoglobina glicada", value: "5,7%", ref: "< 5,7 (ideal < 5,4)", flag: "alto" },
+              ],
               feedback: "Perfeito! A HbA1c de 5.7% já aponta para um estado pré-diabético / resistência insulínica crônica pela visão funcional."
             },
             {
@@ -833,7 +908,11 @@ const nutriGameData = {
               name: "T3 Reverso (rT3)",
               price: "medium",
               needed: false,
-              result: "rT3: 0.35 ng/mL (Normal).",
+              result: "rT3: 0.25 ng/mL (Normal).",
+              laudo: "Dentro da normalidade.",
+              labs: [
+                { name: "T3 reverso", value: "0,25 ng/mL", ref: "0,09–0,35", flag: "ok" },
+              ],
               feedback: "Secundário. Embora útil em fadiga severa com hipotireoidismo franco, outros exames inflamatórios/metabólicos são prioritários."
             }
           ]
@@ -974,6 +1053,10 @@ const nutriGameData = {
               price: "low",
               needed: true,
               result: "Homocisteína: 17.5 mcmol/L (Ideal funcional: < 9.0 mcmol/L). Indica hiperhomocisteinemia significativa.",
+              laudo: "Indica hiper-homocisteinemia significativa.",
+              labs: [
+                { name: "Homocisteína", value: "17,5 mcmol/L", ref: "5–15 (ideal < 9)", flag: "alto" },
+              ],
               feedback: "Excelente escolha! A homocisteína é um biomarcador crucial de metilação. Níveis acima de 10 aumentam o risco cardiovascular, abortos de repetição e enxaqueca."
             },
             {
@@ -990,6 +1073,10 @@ const nutriGameData = {
               price: "low",
               needed: false,
               result: "Folato sérico: 4.2 ng/mL (Limiar inferior).",
+              laudo: "Folato no limiar inferior.",
+              labs: [
+                { name: "Folato sérico", value: "4,2 ng/mL", ref: "3,9–26,8", flag: "baixo" },
+              ],
               feedback: "Secundário. O folato sérico flutua muito com a dieta recente. A homocisteína e a genética do MTHFR fornecem informações mais precisas sobre o status funcional do folato."
             }
           ]
@@ -1123,6 +1210,12 @@ const nutriGameData = {
               price: "low",
               needed: true,
               result: "Triglicerídeos: 240 mg/dL | HDL: 35 mg/dL | Relação TG/HDL: 6.8 (Elevada). Perfil lipídico alterado.",
+              laudo: "Perfil lipídico alterado, com relação TG/HDL elevada.",
+              labs: [
+                { name: "Triglicerídeos", value: "240 mg/dL", ref: "< 150", flag: "alto" },
+                { name: "HDL", value: "35 mg/dL", ref: "> 40", flag: "baixo" },
+                { name: "Relação TG/HDL", value: "6,8", ref: "< 3,0", flag: "alto" },
+              ],
               feedback: "Excelente! A relação Triglicerídeos/HDL é um marcador de resistência insulínica e partículas de LDL pequenas e densas. Valores acima de 2.0 indicam disfunção metabólica ativa."
             },
             {
@@ -1131,6 +1224,12 @@ const nutriGameData = {
               price: "low",
               needed: true,
               result: "Glicemia: 104 mg/dL (Glicemia de jejum alterada) | Insulina: 26 uUI/mL (Muito elevada) | HOMA-IR: 6.67. Indica resistência severa à insulina.",
+              laudo: "Glicemia de jejum alterada e resistência severa à insulina.",
+              labs: [
+                { name: "Glicemia de jejum", value: "104 mg/dL", ref: "70–99", flag: "alto" },
+                { name: "Insulina de jejum", value: "26 uUI/mL", ref: "2–20 (ideal 2–6)", flag: "alto" },
+                { name: "HOMA-IR", value: "6,67", ref: "< 2,7", flag: "alto" },
+              ],
               feedback: "Perfeito! O HOMA-IR de 6.67 aponta para um quadro grave de resistência periférica à insulina. As células de Roberto precisam de quantidades massivas de insulina para captar glicose."
             },
             {
@@ -1139,6 +1238,10 @@ const nutriGameData = {
               price: "low",
               needed: true,
               result: "Ácido úrico: 7.9 mg/dL (Elevado. Ideal funcional: < 5.5 mg/dL).",
+              laudo: "Ácido úrico elevado.",
+              labs: [
+                { name: "Ácido úrico", value: "7,9 mg/dL", ref: "3,4–7,0 (ideal < 5,5)", flag: "alto" },
+              ],
               feedback: "Correto! O ácido úrico elevado está fortemente associado à hiperinsulinemia, pois a insulina reduz a excreção renal de ácido úrico, além do alto consumo de frutose industrializada."
             },
             {
@@ -1288,7 +1391,12 @@ const nutriGameData = {
               name: "Vitamina B12 e Ferritina",
               price: "low",
               needed: true,
-              result: "B12: 210 pg/mL (baixa) | Ferritina: 14 ng/dL (baixa). As bactérias do delgado consomem B12 e competem por nutrientes.",
+              result: "B12: 210 pg/mL (baixa) | Ferritina: 14 ng/mL (baixa). As bactérias do delgado consomem B12 e competem por nutrientes.",
+              laudo: "As bactérias do delgado consomem B12 e competem por nutrientes.",
+              labs: [
+                { name: "Vitamina B12", value: "210 pg/mL", ref: "> 200 (ideal > 500)", flag: "baixo" },
+                { name: "Ferritina", value: "14 ng/mL", ref: "10–150 (ideal > 70)", flag: "baixo" },
+              ],
               feedback: "Correto! No SIBO, as bactérias em excesso no delgado consomem B12 e ferro e podem desconjugar sais biliares, gerando má absorção e carências."
             },
             {
@@ -1427,6 +1535,10 @@ const nutriGameData = {
               price: "low",
               needed: true,
               result: "25(OH)D: 19 ng/mL (Deficiente. Ideal funcional para imunidade: 40-60 ng/mL).",
+              laudo: "Deficiente para a imunidade.",
+              labs: [
+                { name: "25(OH)D", value: "19 ng/mL", ref: "≥ 30 (ideal 40–60)", flag: "baixo" },
+              ],
               feedback: "Excelente! A vitamina D é um imunomodulador essencial: atua em células do sistema imune e na produção de peptídeos antimicrobianos (catelicidina). Níveis baixos associam-se a infecções respiratórias de repetição."
             },
             {
@@ -1435,6 +1547,11 @@ const nutriGameData = {
               price: "medium",
               needed: true,
               result: "Zinco: 62 mcg/dL (baixo) | Cobre: normal. A leuconíquia, disgeusia e cicatrização lenta apontavam para deficiência de zinco.",
+              laudo: "A leuconíquia, a disgeusia e a cicatrização lenta apontavam para deficiência de zinco.",
+              labs: [
+                { name: "Zinco", value: "62 mcg/dL", ref: "70–120", flag: "baixo" },
+                { name: "Cobre", value: "96 mcg/dL", ref: "70–140", flag: "ok" },
+              ],
               feedback: "Perfeito! Zinco baixo combina com os sinais clínicos (manchas nas unhas, alteração do paladar, má cicatrização) e compromete a imunidade celular (linfócitos T) e a barreira epitelial."
             },
             {
@@ -1443,6 +1560,10 @@ const nutriGameData = {
               price: "high",
               needed: false,
               result: "FAN não reagente; sem evidência de autoimunidade.",
+              laudo: "Sem evidência de autoimunidade.",
+              labs: [
+                { name: "FAN", value: "Não reagente", ref: "Não reagente", flag: "ok" },
+              ],
               feedback: "Excesso de investigação para o quadro. O caso aponta para imunodeficiência nutricional funcional (carências + estilo de vida), não para doença autoimune. Reservar para sinais/sintomas sugestivos."
             }
           ]
@@ -1573,6 +1694,12 @@ const nutriGameData = {
               price: "low",
               needed: true,
               result: "TSH: 5,2 mUI/L (elevado) | T4 livre: normal-baixo | T3 livre: baixo. Sugere hipotireoidismo ainda não compensado e possível falha de conversão de T4 em T3.",
+              laudo: "Hipotireoidismo ainda não compensado e possível falha de conversão de T4 em T3.",
+              labs: [
+                { name: "TSH", value: "5,2 mUI/L", ref: "0,45–4,5", flag: "alto" },
+                { name: "T4 livre", value: "0,8 ng/dL", ref: "0,7–1,8", flag: "ok" },
+                { name: "T3 livre", value: "2,1 pg/mL", ref: "2,3–4,2", flag: "baixo" },
+              ],
               feedback: "Correto! Avaliar T3 livre (não só TSH e T4) é essencial: muitos pacientes 'tratados' seguem sintomáticos por baixa conversão periférica de T4 em T3 (o hormônio ativo)."
             },
             {
@@ -1581,6 +1708,11 @@ const nutriGameData = {
               price: "medium",
               needed: true,
               result: "Anti-TPO: 480 UI/mL (muito elevado) | Anti-Tireoglobulina: elevado. Confirma Tireoidite de Hashimoto (autoimune).",
+              laudo: "Confirma tireoidite de Hashimoto (autoimune).",
+              labs: [
+                { name: "Anti-TPO", value: "480 UI/mL", ref: "< 35", flag: "alto" },
+                { name: "Anti-tireoglobulina", value: "186 UI/mL", ref: "< 115", flag: "alto" },
+              ],
               feedback: "Excelente! Os anticorpos elevados confirmam a natureza AUTOIMUNE (Hashimoto) do hipotireoidismo — o que muda a abordagem para o controle da autoimunidade, e não apenas a reposição hormonal."
             },
             {
@@ -1589,6 +1721,11 @@ const nutriGameData = {
               price: "medium",
               needed: true,
               result: "Selênio: baixo | 25(OH)D: 24 ng/mL (insuficiente). Ambos relevantes na modulação autoimune e na função tireoidiana.",
+              laudo: "Ambos relevantes na modulação autoimune e na função tireoidiana.",
+              labs: [
+                { name: "Selênio", value: "46 mcg/L", ref: "60–120", flag: "baixo" },
+                { name: "25(OH)D", value: "24 ng/mL", ref: "≥ 30 (ideal 40–50)", flag: "baixo" },
+              ],
               feedback: "Ótimo! Selênio é cofator das deiodinases (conversão de T4 em T3) e da glutationa peroxidase tireoidiana; a vitamina D baixa associa-se a maior atividade autoimune. Ambos são alvos terapêuticos."
             },
             {
@@ -1727,6 +1864,12 @@ const nutriGameData = {
               price: "low",
               needed: true,
               result: "Glicemia: 95 mg/dL | Insulina: 19 uUI/mL | HOMA-IR: 4,45. Resistência à insulina significativa.",
+              laudo: "Resistência à insulina significativa.",
+              labs: [
+                { name: "Glicemia de jejum", value: "95 mg/dL", ref: "70–99", flag: "ok" },
+                { name: "Insulina de jejum", value: "19 uUI/mL", ref: "2–20 (ideal 2–6)", flag: "alto" },
+                { name: "HOMA-IR", value: "4,45", ref: "< 2,7", flag: "alto" },
+              ],
               feedback: "Excelente! A resistência à insulina é o motor metabólico de grande parte das SOP: a hiperinsulinemia estimula os ovários e as adrenais a produzir andrógenos e reduz a SHBG, elevando a testosterona livre."
             },
             {
@@ -1735,6 +1878,12 @@ const nutriGameData = {
               price: "medium",
               needed: true,
               result: "Testosterona livre elevada | SHBG baixa | Androstenediona elevada. Confirma hiperandrogenismo bioquímico.",
+              laudo: "Confirma hiperandrogenismo bioquímico.",
+              labs: [
+                { name: "Testosterona livre", value: "9,8 pg/mL", ref: "0,5–6,4", flag: "alto" },
+                { name: "SHBG", value: "16 nmol/L", ref: "18–144", flag: "baixo" },
+                { name: "Androstenediona", value: "4,1 ng/mL", ref: "0,3–3,3", flag: "alto" },
+              ],
               feedback: "Correto! O hiperandrogenismo (clínico e/ou laboratorial) é critério diagnóstico da SOP. A SHBG baixa (reduzida pela hiperinsulinemia) aumenta a fração livre e ativa da testosterona."
             },
             {
@@ -1743,6 +1892,11 @@ const nutriGameData = {
               price: "low",
               needed: true,
               result: "25(OH)D: 23 ng/mL (insuficiente) | TSH: normal. A deficiência de vitamina D é comum na SOP e piora a resistência à insulina.",
+              laudo: "A deficiência de vitamina D é comum na SOP e piora a resistência à insulina.",
+              labs: [
+                { name: "25(OH)D", value: "23 ng/mL", ref: "≥ 30 (ideal 40–50)", flag: "baixo" },
+                { name: "TSH", value: "1,8 mUI/L", ref: "0,45–4,5", flag: "ok" },
+              ],
               feedback: "Bom! Vale descartar tireoidopatia (que mimetiza sintomas) e avaliar a vitamina D, frequentemente baixa na SOP e relacionada à sensibilidade insulínica e à função ovariana."
             },
             {
@@ -1887,6 +2041,13 @@ const nutriGameData = {
               price: "low",
               needed: true,
               result: "Ureia pré-HD: 180 mg/dL | Potássio: 5,8 mEq/L (elevado) | Fósforo: 6,2 mg/dL (elevado). Quadro dialítico com hipercalemia e hiperfosfatemia.",
+              laudo: "Quadro dialítico com hipercalemia e hiperfosfatemia.",
+              labs: [
+                { name: "Ureia pré-HD", value: "180 mg/dL", ref: "15–40", flag: "alto" },
+                { name: "Creatinina", value: "8,9 mg/dL", ref: "0,7–1,3", flag: "alto" },
+                { name: "Potássio", value: "5,8 mEq/L", ref: "3,5–5,0", flag: "alto" },
+                { name: "Fósforo", value: "6,2 mg/dL", ref: "2,5–4,5", flag: "alto" },
+              ],
               feedback: "Essencial! Na DRC dialítica o cuidado é com POTÁSSIO, FÓSFORO, SÓDIO e VOLUME — e não com restrição proteica (que é do DRC conservador)."
             },
             {
@@ -1895,6 +2056,11 @@ const nutriGameData = {
               price: "low",
               needed: true,
               result: "Albumina: 2,8 g/dL (baixa). Marcador de desnutrição/inflamação e de oferta proteica insuficiente.",
+              laudo: "Marcador de desnutrição/inflamação e de oferta proteica insuficiente.",
+              labs: [
+                { name: "Albumina", value: "2,8 g/dL", ref: "3,5–5,0", flag: "baixo" },
+                { name: "Proteínas totais", value: "5,6 g/dL", ref: "6,0–8,0", flag: "baixo" },
+              ],
               feedback: "Correto! A hipoalbuminemia aqui reflete oferta proteica inadequada + perdas dialíticas, confirmando que a fórmula hipoproteica está prejudicando o paciente."
             },
             {
@@ -1911,6 +2077,10 @@ const nutriGameData = {
               price: "high",
               needed: false,
               result: "Amilase: 70 U/L (normal).",
+              laudo: "Dentro da normalidade.",
+              labs: [
+                { name: "Amilase", value: "70 U/L", ref: "28–100", flag: "ok" },
+              ],
               feedback: "Inadequado. Não há suspeita de pancreatite; exame desnecessário."
             }
           ]
@@ -2056,6 +2226,11 @@ const nutriGameData = {
               price: "low",
               needed: true,
               result: "Albumina: 2,9 g/dL (baixa) | PCR: elevada. Padrão inflamatório da caquexia neoplásica.",
+              laudo: "Padrão inflamatório da caquexia neoplásica.",
+              labs: [
+                { name: "Albumina", value: "2,9 g/dL", ref: "3,5–5,0", flag: "baixo" },
+                { name: "PCR", value: "48 mg/L", ref: "< 5", flag: "alto" },
+              ],
               feedback: "Correto! A caquexia do câncer cursa com inflamação sistêmica (TNF-α, IL-6), que perpetua o catabolismo muscular."
             },
             {
@@ -2378,6 +2553,10 @@ const nutriGameData = {
               price: "low",
               needed: true,
               result: "Glicemia de jejum: 150 mg/dL — paciente diabética. Pode se beneficiar de fórmula especializada para controle glicêmico.",
+              laudo: "Paciente diabética: pode se beneficiar de fórmula especializada para controle glicêmico.",
+              labs: [
+                { name: "Glicemia de jejum", value: "150 mg/dL", ref: "70–99", flag: "alto" },
+              ],
               feedback: "Boa! Em diabéticos, fórmulas específicas (baixo índice glicêmico, ex.: tipo Diason) ajudam no controle."
             },
             {
@@ -2547,6 +2726,10 @@ const nutriGameData = {
               price: "high",
               needed: false,
               result: "Amilase normal; sem suspeita de pancreatite.",
+              laudo: "Sem suspeita de pancreatite.",
+              labs: [
+                { name: "Amilase", value: "62 U/L", ref: "28–100", flag: "ok" },
+              ],
               feedback: "Inadequado. Não contribui para a investigação da diarreia neste contexto."
             }
           ]
@@ -2697,7 +2880,7 @@ const nutriGameData = {
     ],
     exames: [
       { nome: "Cortisol Salivar (curva)", lab: "Manhã 3,7-9,5 ng/mL; Noite < 1,0", funcional: "Curva robusta de manhã, decaindo à noite. Achatamento matinal + elevação noturna = desregulação do eixo HPA.", modulo: 1 },
-      { nome: "Ferritina", lab: "10-150 ng/dL", funcional: "> 70 ng/dL (mulheres férteis). < 30-40 já associa a fadiga e queda de cabelo.", modulo: 1 },
+      { nome: "Ferritina", lab: "10-150 ng/mL", funcional: "> 70 ng/mL (mulheres férteis). < 30-40 já associa a fadiga e queda de cabelo.", modulo: 1 },
       { nome: "TSH", lab: "0,45-4,5 mUI/L", funcional: "1,0-2,0 mUI/L. Avaliar também T4 livre e T3 livre.", modulo: 1 },
       { nome: "Homocisteína", lab: "5-15 mcmol/L", funcional: "< 9,0 mcmol/L. Marcador de metilação e risco cardiovascular.", modulo: 2 },
       { nome: "Magnésio Intraeritrocitário", lab: "Sérico 1,8-2,6 mg/dL", funcional: "> 5,5 mg/dL (intraeritrocitário — padrão funcional, pois o sérico não reflete o tecidual).", modulo: 5 },
